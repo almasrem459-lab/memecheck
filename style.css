@@ -90,3 +90,13 @@ details#ex-cost>summary{cursor:pointer;list-style:none}details#ex-cost>summary h
 .sc-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.sc-acts .act{flex:1 1 140px;justify-content:center}.sc-acts .sc-main{background:#2563eb;border-color:#2563eb;color:#fff}.sc-acts .act[disabled]{opacity:.5;cursor:default}.sc-acts [hidden]{display:none}
 .sc-tip{margin:10px 2px 0}
 @media(max-width:560px){.sc-box{padding:12px}.sc-acts .act{flex:1 1 calc(50% - 8px)}.dh-m{white-space:normal}}
+
+/* back-to-home: circular sticky chevron + new-check row */
+body.has-result .tag,body.has-result #f,body.has-result #det,body.has-result #chips{display:none}
+#back-home{display:none;position:fixed;top:max(64px,calc(env(safe-area-inset-top) + 56px));inset-inline-start:max(12px,env(safe-area-inset-left));z-index:50;width:42px;height:42px;padding:0;border-radius:50%;background:#121826;border:1px solid #273046;color:#fff;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.45);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+body.has-result #back-home{display:inline-flex}
+#back-home:hover,#back-home:focus-visible{border-color:#4f7cff;outline:none}
+#back-home svg{display:block}
+[dir=rtl] #back-home svg{transform:scaleX(-1)}
+.backrow{display:flex;margin:0 0 4px}.backrow .act{font-size:13px;padding:6px 12px}
+@media(max-width:560px){#back-home{width:44px;height:44px;top:max(58px,calc(env(safe-area-inset-top) + 52px));inset-inline-start:max(10px,env(safe-area-inset-left))}}

@@ -1,5 +1,5 @@
 import { analyze, detectChain, score } from './core.js?v=1792080000';
-import { T, usd } from './i18n.js?v=1792300000';
+import { T, usd } from './i18n.js?v=1792401000';
 const $ = (s) => document.querySelector(s);
 const params = new URLSearchParams(location.search);
 let lang = params.get('lang') || localStorage.getItem('mc_lang') || 'en'; if (!T[lang]) lang = 'en'; let last = null, runId = 0;
@@ -39,7 +39,7 @@ function applyLang() {
   const t = T[lang]; document.documentElement.lang = lang; document.documentElement.dir = t.dir;
   document.querySelectorAll('[data-t]').forEach(e => e.textContent = t[e.dataset.t]);
   $('#addr').placeholder = t.placeholder; $('#lang').textContent = t.lang; $('#chain option[value=auto]').textContent = t.auto;
-  onInput(); chips(); pfToggle(); if (last) render(last, true);
+  onInput(); chips(); pfToggle(); syncBack(); if (last) render(last, true);
 }
 function onInput() {
   const k = detectChain($('#addr').value); const t = T[lang];
@@ -71,6 +71,7 @@ function render(r0, fire) {
   const wl = isWatched(r.addr);
   out.dataset.addr = r.addr;
   out.innerHTML = `
+  <div class="backrow"><button type="button" class="ghost act" id="a-new">${t.newCheck}</button></div>
   <div class="card verdict" id="vcard"><div class="badge ${v.level}">${t[v.level]}${r.partial ? ' <span class="spin"></span>' : ''}</div>
    <div class="tok">${m.image ? `<img src="${esc(m.image)}" alt="">` : ''} <b>${esc(m.name || '?')}</b> <span class="muted">$${esc(m.symbol || '')} · ${esc(CH[r.chain] || r.chain)}</span>
    <div class="mono muted" dir="ltr">${esc(r.addr)}</div><div class="muted">${v.points} ${t.riskPts}${m.url ? ` · <a href="${esc(m.url)}" target="_blank" rel="noopener">${t.viewDex}</a>` : ''}</div>
@@ -90,14 +91,14 @@ function render(r0, fire) {
   ${r.flags.length ? `<div class="card"><h3>${t.flags}</h3>${r.flags.map(x => `<div class="row"><span class="st ${x.level === 'danger' || x.level === 'high' ? 'fail' : 'warn'}">${esc(x.level)}</span><span dir="ltr">${esc(x.name)}${x.desc ? ' — ' + esc(x.desc) : ''}</span></div>`).join('')}</div>` : ''}
   <div class="card"><h3>${t.sources}</h3>${Object.entries(r.sources).map(([k, s]) => `<div class="row"><span class="st ${s === 'ok' ? 'pass' : 'na'}">${s === 'ok' ? t.ok : s === 'empty' ? t.empty : t.fail}</span><span>${k}</span></div>`).join('')}</div>`;
   keep.forEach((n, i) => { if (n) document.getElementById(SLOTS[i]).replaceWith(n); });
-  $('#a-star').onclick = () => { toggleWatch(r); render(r0); };
+  $('#a-new').onclick = goHome; $('#a-star').onclick = () => { toggleWatch(r); render(r0); };
   const copy = (txt, btn) => navigator.clipboard?.writeText(txt).then(() => { const o = btn.textContent; btn.textContent = t.copied; setTimeout(() => btn.textContent = o, 1200); });
   // sharing: ask the server to cache the risk result (server-side compute + budget-guarded KV write) so the link preview shows it
   const warm = () => { if (warmed.has(r.addr) || !['solana', 'ethereum', 'base', 'bsc'].includes(r.chain)) return; warmed.add(r.addr); fetch(`/api/deep?ca=${encodeURIComponent(r.addr)}&chain=${r.chain}&kind=core`, { keepalive: true }).catch(() => {}); };
   $('#a-x').addEventListener('click', () => { warm(); ga('share_x_click', { ca: r.addr, risk_level: r.verdict.level, where: 'result' }); });
   $('#a-ca').onclick = (e) => copy(r.addr, e.currentTarget); $('#a-link').onclick = (e) => { warm(); copy(shareUrl(r), e.currentTarget); };
   $('#a-img').onclick = () => { warm(); openShare(r); };
-  document.body.classList.add('has-result'); pfToggle();
+  document.body.classList.add('has-result'); pfToggle(); syncBack();
   if (fire) document.dispatchEvent(new CustomEvent('mc:render', { detail: { r, lang } })); // extra analyses (devbundle-ui.js, extras.js, bubble-ui.js)
 }
 // ---- shareable result card: PNG drawn client-side (canvas 1200x675), in the current language (RTL aware) ----
@@ -220,6 +221,29 @@ async function openShare(r) {
   }
 }
 window.__mcCard = cardCanvas;
+// ---- back to home (clear result, restore search UI, no full reload) ----
+function syncBack() {
+  const t = T[lang]; let b = $('#back-home');
+  if (!b) {
+    b = document.createElement('button'); b.type = 'button'; b.id = 'back-home';
+    b.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 18l-6-6 6-6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    document.body.appendChild(b); b.onclick = goHome;
+  }
+  b.hidden = !document.body.classList.contains('has-result');
+  b.setAttribute('aria-label', t.backHome);
+}
+function goHome() {
+  runId++; last = null; window.__done = false;
+  document.body.classList.remove('has-result');
+  const out = $('#out'); out.innerHTML = ''; out.dataset.addr = '';
+  $('#addr').value = ''; $('#go').disabled = false; onInput();
+  const q = new URLSearchParams(location.search); q.delete('ca'); q.delete('a'); q.delete('chain');
+  const s = q.toString(); history.replaceState(null, '', (s ? '?' + s : location.pathname) + location.hash);
+  const tg = $('#pf-tg'); if (tg) { tg.dataset.init = ''; $('#pf').classList.remove('collapsed'); }
+  pfToggle(); syncBack();
+  window.scrollTo(0, 0); requestAnimationFrame(() => $('#addr').focus());
+  ga('back_home', {});
+}
 // ---- trending list collapses once a result is showing ----
 function pfToggle() {
   const t = T[lang], has = document.body.classList.contains('has-result'); let b = $('#pf-tg');
@@ -233,7 +257,7 @@ async function run(e, src) {
   ga('scan_start', { chain: gch, ca: a, source });
   if (!k0) { ga('scan_error', { chain: gch, ca: a, source, error: 'invalid_address' }); $('#out').innerHTML = `<div class="card">${t.invalid}</div>`; return; }
   $('#out').dataset.addr = ''; $('#out').innerHTML = `<div class="card"><span class="spin"></span> ${t.checking}</div>`; $('#go').disabled = true;
-  document.body.classList.add('has-result'); $('#pf-tg') && ($('#pf-tg').dataset.init = ''); pfToggle();
+  document.body.classList.add('has-result'); $('#pf-tg') && ($('#pf-tg').dataset.init = ''); pfToggle(); syncBack();
   let fired = false;
   // Prewarmed server snapshot of the main check (read-only peek): shows instantly, then the live check replaces it.
   const kind0 = detectChain(a), sel = $('#chain').value;
