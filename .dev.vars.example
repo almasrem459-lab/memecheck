@@ -1,0 +1,2 @@
+# Copy to .dev.vars for local `wrangler pages dev` (never commit .dev.vars)
+HELIUS_KEY=your-helius-api-key
