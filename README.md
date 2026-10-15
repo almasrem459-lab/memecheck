@@ -10,7 +10,7 @@ Free, open-source meme-coin safety checker. Paste a contract address and get a *
 - Mint authority / freeze authority, Token-2022 transfer fees, mutable metadata
 - Liquidity size, LP locked/burned share, price drop from peak, pair age
 - Top-holder concentration (pool vaults and AMM authorities excluded)
-- **Dev history** – the creator's earlier launches and how they ended (rug history)
+- **Dev history** – the creator's earlier launches and how they ended (rug history). The *Developer history* card (`/api/dev`, `devhist-core.js`) lists the creator wallet, coins created, how many are dead/rugged (DexScreener market check of the 150 most recent) and the latest few with status; a serial launcher (≥ 3 dead/rugged and at least half, or 10+ launches with < 10% alive) is a FAIL finding (+10 risk points), 2+ dead a WARN (+3)
 - **Bundles / snipers** – wallets that bought in the launch window, linked by shared funders, and how much they still hold
 - **Dev holdings** – current creator balance
 - **Bubble map** – clusters of linked top holders (shared funding wallets)
@@ -19,6 +19,8 @@ Free, open-source meme-coin safety checker. Paste a contract address and get a *
 **Ethereum / BSC / Base (basic checks)**
 - GoPlus token security + Honeypot.is simulation (buy/sell tax, honeypot, owner powers)
 - DexScreener market data (liquidity, LP lock, volume, age)
+
+**Share result** – after a scan, a 1200×675 PNG card (drawn client-side on canvas: token, logo, risk level, score, top reasons, short CA, date) with Download, Share on X, Copy link and the Web Share API on mobile. Links use `?ca=<address>`, which opens the site and runs the scan.
 
 Extras: new pump.fun / trending lists, true-cost (tax+fee+slippage) calculator, optional Jupiter swap widget, gold and top-crypto tabs.
 
@@ -53,6 +55,8 @@ index.html, style.css, *.js    static front-end (no build step, ES modules)
 functions/                     Cloudflare Pages Functions
   api/proxy.js                 allowlisted CORS proxy with edge cache
   api/rpc.js                   Solana RPC relay (Helius if configured)
+  api/dev.js                   developer history (pump.fun + RugCheck + DexScreener, edge-cached)
+  api/img.js                   allowlisted logo relay so the share card canvas can draw token logos
   api/deep.js, api/cache.js    server-side deep checks + KV result cache
   api/og.js, _lib/             dynamic OG share images
   _middleware.js

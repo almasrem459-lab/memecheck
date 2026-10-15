@@ -13,6 +13,7 @@ export const T = {
   recent:'Recent', watch:'Watchlist', star:'Add to watchlist', unstar:'Remove from watchlist', auto:'Auto-detect', clear:'Clear', autoChain:(c)=>`Auto-detected chain: ${c}`,
   shareText:(sym,lvl)=>`I checked $${sym} on MemeCheck: ${lvl} risk`, lvlWord:{low:'Low',medium:'Medium',high:'High',extreme:'Extreme',unknown:'Unknown'}, score:'Risk score',
   pumpOnly:'Dev / bundle / exit-trace checks: pump.fun (Solana) tokens only.', more:'More info', tagline2:'Check any meme coin before you ape in. Rug, honeypot, dev & bundle checks. Free.', followX:'Follow on X', showTrend:'Show trending / new tokens', hideTrend:'Hide list',
+  shareRes:'Share result', close:'Close', cardMaking:'Creating image…', shareNative:'Share…', cardTip:'Tip: download the image and attach it to your post on X.', cardWhy:'Top reasons', cardClean:'No major red flags from the automated checks', cardTag:'Meme-coin rug-risk check', cardNfa:'Not financial advice · DYOR', cardErr:'Could not create the image on this device.',
   r: {
    noPairs:()=>'No trading pairs found on DexScreener; market checks unavailable.',
    srcDex:()=>'DexScreener request failed; market checks unavailable.', srcRug:()=>'RugCheck request failed; Solana contract checks unavailable.', srcRugRpc:()=>'RugCheck unavailable; core contract checks read directly from the Solana chain (insider/LP data unavailable).', srcGoplus:()=>'GoPlus returned no data; contract checks unavailable.', srcHp:()=>'honeypot.is returned no data; sell simulation unavailable.',
@@ -43,6 +44,7 @@ export const T = {
    slippageMod:(p,s)=>s==='na'?'Tax-modifiability unknown.':s==='pass'?'Taxes cannot be modified.':'Owner can change the taxes at any time.',
    tradingCooldown:(p,s)=>s==='na'?'Cooldown status unknown.':s==='pass'?'No trading cooldown.':'Contract has a trading cooldown that can restrict selling.',
    serialScammer:()=>'The same creator has deployed honeypots before.',
+   devHistory:(p,s)=>s==='fail'?`Developer red flag: this creator launched ${p.total} other coins and ${p.bad} of ${p.checked} checked are dead or rugged.`:s==='warn'?`This creator's earlier coins: ${p.bad} of ${p.checked} checked are dead or rugged.`:!p.total?'Developer history: first coin from this creator wallet.':!p.old?`Developer history: ${p.total} other coins, all too new to judge.`:`Developer history: ${p.live} of ${p.old} earlier coins still live${p.bad?`, ${p.bad} dead`:''}.`,
    hpIs:(p,s)=>s==='na'?'honeypot.is simulation unavailable.':s==='pass'?'honeypot.is: buy and sell simulation succeeded.':`honeypot.is: HONEYPOT DETECTED (${p.reason}); selling fails or is blocked.`,
    hpTax:(p,s)=>s==='pass'?`Simulated tax buy ${f(p.b)}% / sell ${f(p.s)}%.`:`Simulated tax is high: buy ${f(p.b)}% / sell ${f(p.s)}%.`,
    hpRisk:(p,s)=>s==='pass'?`honeypot.is risk rating: ${p.v}.`:`honeypot.is risk rating: ${p.v}.`,
@@ -58,6 +60,7 @@ export const T = {
   recent:'عمليات البحث الأخيرة', watch:'قائمة المتابعة', star:'أضف لقائمة المتابعة', unstar:'أزل من قائمة المتابعة', auto:'كشف تلقائي', clear:'مسح', autoChain:(c)=>`الشبكة المكتشفة تلقائيًا: ${c}`,
   shareText:(sym,lvl)=>`I checked $${sym} on MemeCheck: ${lvl} risk`, lvlWord:{low:'Low',medium:'Medium',high:'High',extreme:'Extreme',unknown:'Unknown'}, score:'درجة المخاطرة',
   pumpOnly:'فحوصات المطوّر / الحزم / تتبّع الخروج: لعملات pump.fun (سولانا) فقط.', more:'مزيد من المعلومات', tagline2:'افحص أي عملة ميم قبل أن تشتري. فحص السحب والمصيدة والمطوّر والحزم. مجانًا.', followX:'تابعنا على X', showTrend:'عرض العملات الرائجة / الجديدة', hideTrend:'إخفاء القائمة',
+  shareRes:'مشاركة النتيجة', close:'إغلاق', cardMaking:'جارٍ إنشاء الصورة…', shareNative:'مشاركة…', cardTip:'نصيحة: نزّل الصورة وأرفقها بمنشورك على X.', cardWhy:'أهم الأسباب', cardClean:'لا توجد تحذيرات كبيرة من الفحوصات الآلية', cardTag:'فحص مخاطر سحب عملات الميم', cardNfa:'ليست نصيحة مالية · ابحث بنفسك', cardErr:'تعذّر إنشاء الصورة على هذا الجهاز.',
   r: {
    noPairs:()=>'لم يتم العثور على أزواج تداول في DexScreener؛ فحوصات السوق غير متاحة.',
    srcDex:()=>'فشل طلب DexScreener؛ فحوصات السوق غير متاحة.', srcRug:()=>'فشل طلب RugCheck؛ فحوصات عقد سولانا غير متاحة.', srcRugRpc:()=>'RugCheck غير متاح؛ تمت قراءة فحوصات العقد الأساسية مباشرة من شبكة سولانا (بيانات المطلعين/السيولة غير متاحة).', srcGoplus:()=>'لم يُرجع GoPlus بيانات؛ فحوصات العقد غير متاحة.', srcHp:()=>'لم يُرجع honeypot.is بيانات؛ محاكاة البيع غير متاحة.',
@@ -88,6 +91,7 @@ export const T = {
    slippageMod:(p,s)=>s==='na'?'إمكانية تعديل الضريبة غير معروفة.':s==='pass'?'لا يمكن تعديل الضرائب.':'يستطيع المالك تغيير الضرائب في أي وقت.',
    tradingCooldown:(p,s)=>s==='na'?'حالة فترة التهدئة غير معروفة.':s==='pass'?'لا توجد فترة تهدئة للتداول.':'للعقد فترة تهدئة قد تقيّد البيع.',
    serialScammer:()=>'نفس المنشئ نشر عقود مصيدة من قبل.',
+   devHistory:(p,s)=>s==='fail'?`تحذير المطوّر: أطلق هذا المنشئ ${p.total} عملة أخرى، و${p.bad} من ${p.checked} تم فحصها ميتة أو مسحوبة.`:s==='warn'?`عملات المنشئ السابقة: ${p.bad} من ${p.checked} تم فحصها ميتة أو مسحوبة.`:!p.total?'سجل المطوّر: أول عملة من محفظة هذا المنشئ.':!p.old?`سجل المطوّر: ${p.total} عملة أخرى، كلها أحدث من أن يُحكم عليها.`:`سجل المطوّر: ${p.live} من ${p.old} عملة سابقة ما زالت نشطة${p.bad?`، و${p.bad} ميتة`:''}.`,
    hpIs:(p,s)=>s==='na'?'محاكاة honeypot.is غير متاحة.':s==='pass'?'honeypot.is: نجحت محاكاة الشراء والبيع.':`honeypot.is: تم اكتشاف مصيدة (${p.reason})؛ البيع يفشل أو محظور.`,
    hpTax:(p,s)=>s==='pass'?`الضريبة المحاكاة: شراء ${f(p.b)}% / بيع ${f(p.s)}%.`:`الضريبة المحاكاة مرتفعة: شراء ${f(p.b)}% / بيع ${f(p.s)}%.`,
    hpRisk:(p)=>`تقييم مخاطر honeypot.is: ${({low:'منخفض',medium:'متوسط',high:'مرتفع','very low':'منخفض جدًا','very high':'مرتفع جدًا',honeypot:'مصيدة'})[String(p.v).toLowerCase()]||p.v}.`,
