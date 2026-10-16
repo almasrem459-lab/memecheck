@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Accuracy study &amp; rugs we caught — MemeCheck</title>
+<meta name="description" content="Honest, measurable accuracy study: fresh Solana meme coins scored by MemeCheck and rechecked after 24h and 48h. Rug rate by risk level. No invented outcomes.">
+<link rel="canonical" href="https://memecheck.pages.dev/rugs.html">
+<meta name="theme-color" content="#0b0f17">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="stylesheet" href="style.css?v=rugs1">
+<style>
+.coin .verdict{margin-bottom:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:12px}
+.stats .kv b{font-size:22px}
+table.acc{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}table.acc th,table.acc td{border-bottom:1px solid #273046;padding:7px 8px;text-align:left;vertical-align:top}table.acc th{color:#9aa4b8;font-weight:600}
+.banner{background:#121826;border:1px solid #3d3510;border-radius:14px;padding:14px 16px;margin:16px 0;color:#ffd447;font-size:14px;line-height:1.45}
+.section-note{color:#7d879c;font-size:13px;margin:4px 0 12px}
+nav.crumbs{display:flex;gap:8px;align-items:center;padding:0 20px;max-width:860px;margin:12px auto 0;font-size:14px}
+nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef}nav.crumbs span{color:#7d879c}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><img src="/icon-192.png" width="26" height="26" alt="MemeCheck"> <b>MemeCheck</b></div>
+  <a class="ghost" href="/" style="padding:8px 12px;border:1px solid #273046;border-radius:10px;color:#9aa4b8;text-decoration:none;font-size:14px">← Checker</a>
+</header>
+<nav class="crumbs"><a href="/">Home</a><span>/</span><span>Rugs we caught</span></nav>
+<main>
+  <h1 style="font-size:22px;margin:8px 0 4px">Accuracy study &amp; rugs we caught</h1>
+  <p class="tag">Every fresh Solana meme coin that meets the entry criteria is scored by MemeCheck and rechecked 24h and 48h later — Low, Medium and High alike, not just the ones we flagged. Outcomes come only from stored DexScreener / GeckoTerminal / MemeCheck responses — never invented.</p>
+
+  <div class="card">
+    <h3>Accuracy study</h3>
+    <div class="stats">
+      <div class="kv"><span>Study started (UTC)</span><b style="font-size:15px">2026-10-15T18:11:44Z</b></div>
+      <div class="kv"><span>Sample: 24h recheck done</span><b>0</b></div>
+      <div class="kv"><span>Coins recorded</span><b>57</b></div>
+      <div class="kv"><span>Waiting for 24h</span><b>57</b></div>
+      <div class="kv"><span>Caught (High → rugged)</span><b>0</b></div>
+    </div>
+    <p class="muted" style="margin-top:12px"><b>Entry criteria at scan time:</b> market cap ≥ $30,000, liquidity ≥ $5,000, token &lt; 24h old, live PumpSwap/Raydium pool (pump.fun coins after graduation), and <b>not</b> already down ≥50% from its peak. Sources: pump.fun graduated coins, GeckoTerminal new/active/trending pools and DexScreener latest tokens, up to 40 new coins per hourly run (youngest first).
+    <b>Outcome:</b> RUGGED = price or liquidity down ≥90% from the scan, or pair removed from DexScreener; DOWN ≥70% = price down ≥70%; otherwise ALIVE.</p>
+    <p class="banner">No study coin has reached its 24h recheck yet, so there are <b>no accuracy numbers yet</b>. The first 24h results are due about 24h after the study start.</p>
+    <h3 style="margin-top:14px">Outcome 24h after scan (n = 0)</h3>
+    <div style="overflow-x:auto"><table class="acc"><thead><tr><th>MemeCheck level at scan</th><th>Coins</th><th>Rugged</th><th>Rugged % <span class="muted">(95% CI)</span></th><th>Down ≥70% (not rugged)</th><th>Rugged or down ≥70%</th><th>Alive</th></tr></thead><tbody>
+<tr><td><span class="badge low">LOW</span></td><td>0</td><td>0</td><td>—</td><td>—</td><td>—</td><td>0</td></tr><tr><td><span class="badge medium">MEDIUM</span></td><td>0</td><td>0</td><td>—</td><td>—</td><td>—</td><td>0</td></tr><tr><td><span class="badge high">HIGH</span> <span class="muted">incl. extreme</span></td><td>0</td><td>0</td><td>—</td><td>—</td><td>—</td><td>0</td></tr>
+</tbody></table></div>
+    
+    <h3 style="margin-top:18px">Caught: High risk at scan (before any collapse), then rugged</h3>
+    <p class="muted">None yet.</p>
+    <details style="margin-top:14px"><summary class="muted">All 57 study coins</summary>
+    <div style="overflow-x:auto"><table class="acc"><thead><tr><th>Coin</th><th>Scanned (UTC)</th><th>Level</th><th>Age</th><th>Mcap</th><th>Liq</th><th>24h</th><th>48h</th></tr></thead><tbody><tr><td><b>$SPAX</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=BFajJ6XRjZTWDn1KTzqmF8fcSydyyHzZMkzyQB85pump" target="_blank" rel="noopener" title="BFajJ6XRjZTWDn1KTzqmF8fcSydyyHzZMkzyQB85pump">BFaj…pump</a></td><td>2026-10-15T19:31:31Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>13.89h</td><td>$37.60M</td><td>$528.6K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$DacityCoin</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=DKYcjobF7HPtL9RyQBRdeRQ2iWvizpfbgWwPWNXdpump" target="_blank" rel="noopener" title="DKYcjobF7HPtL9RyQBRdeRQ2iWvizpfbgWwPWNXdpump">DKYc…pump</a></td><td>2026-10-15T19:31:25Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>6.05h</td><td>$166.2K</td><td>$39.2K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$Coca Cola</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=jLiKKUiUnqv5ZCueDQaMwFT9jiHzNh8fdbfqbaJpump" target="_blank" rel="noopener" title="jLiKKUiUnqv5ZCueDQaMwFT9jiHzNh8fdbfqbaJpump">jLiK…pump</a></td><td>2026-10-15T19:31:18Z</td><td><span class="badge low">LOW 8</span></td><td>1.26h</td><td>$1.16M</td><td>$91.7K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$DOTF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=G6J3U1caqAuQNiLMSDPLcG73FfnRunDqMF9NihM5pump" target="_blank" rel="noopener" title="G6J3U1caqAuQNiLMSDPLcG73FfnRunDqMF9NihM5pump">G6J3…pump</a></td><td>2026-10-15T19:31:16Z</td><td><span class="badge medium">MEDIUM 38</span></td><td>0.85h</td><td>$217.2K</td><td>$39.1K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$PEDO</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=GRDKxVqVJcuxeCojBnkGyKc3sHJ8smyFnMe1MG1bpump" target="_blank" rel="noopener" title="GRDKxVqVJcuxeCojBnkGyKc3sHJ8smyFnMe1MG1bpump">GRDK…pump</a></td><td>2026-10-15T19:31:13Z</td><td><span class="badge low">LOW 4</span></td><td>0.82h</td><td>$64.6K</td><td>$20.6K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$TOAST</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=DAQw76NKrKcRBePBjSwoR83dNaNtRPG2zkaQs9Y71Nx" target="_blank" rel="noopener" title="DAQw76NKrKcRBePBjSwoR83dNaNtRPG2zkaQs9Y71Nx">DAQw…71Nx</a></td><td>2026-10-15T19:31:10Z</td><td><span class="badge medium">MEDIUM 27</span></td><td>0.42h</td><td>$87.8K</td><td>$135.5K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$GROKBOT</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=D4Uxj8PG3SGNWeKoiwfMuDvX6dDTQGmyipLTPkDLpump" target="_blank" rel="noopener" title="D4Uxj8PG3SGNWeKoiwfMuDvX6dDTQGmyipLTPkDLpump">D4Ux…pump</a></td><td>2026-10-15T19:31:08Z</td><td><span class="badge low">LOW 4</span></td><td>0.38h</td><td>$84.2K</td><td>$23.6K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$TikTok US</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=C6ec47KrRyYUJBJAMNH1UnZyETdZB8UmukzN9nVDpump" target="_blank" rel="noopener" title="C6ec47KrRyYUJBJAMNH1UnZyETdZB8UmukzN9nVDpump">C6ec…pump</a></td><td>2026-10-15T19:31:02Z</td><td><span class="badge high">HIGH 46</span></td><td>0.28h</td><td>$592.6K</td><td>$64.7K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$MAGIC SI</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=BixDb1FNqWPhLKpH47rJcSetQtA7JAGX2qEdNrt5JQpe" target="_blank" rel="noopener" title="BixDb1FNqWPhLKpH47rJcSetQtA7JAGX2qEdNrt5JQpe">BixD…JQpe</a></td><td>2026-10-15T19:30:59Z</td><td><span class="badge medium">MEDIUM 31</span></td><td>0.24h</td><td>$479.6K</td><td>$58.0K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$tesla</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=AZqnYrca5kvB9JZ3hGcsLSh8KPJZXaMyhtaVKn6wpump" target="_blank" rel="noopener" title="AZqnYrca5kvB9JZ3hGcsLSh8KPJZXaMyhtaVKn6wpump">AZqn…pump</a></td><td>2026-10-15T19:30:54Z</td><td><span class="badge medium">MEDIUM 20</span></td><td>0.13h</td><td>$50.6K</td><td>$18.0K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$ZOO</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=EgsQ9Fgcq5gxUh9sdrWrDcJeYcNZhB5NhgFPKqS6pump" target="_blank" rel="noopener" title="EgsQ9Fgcq5gxUh9sdrWrDcJeYcNZhB5NhgFPKqS6pump">EgsQ…pump</a></td><td>2026-10-15T19:30:37Z</td><td><span class="badge medium">MEDIUM 31</span></td><td>0.05h</td><td>$80.8K</td><td>$22.7K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$SI276</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=HrrVJmj3KgqVzcWKwZL71tgnKVPLuK82KP6vhZvpump" target="_blank" rel="noopener" title="HrrVJmj3KgqVzcWKwZL71tgnKVPLuK82KP6vhZvpump">HrrV…pump</a></td><td>2026-10-15T18:38:42Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>16.02h</td><td>$35.69M</td><td>$513.5K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$UKFLMS</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=mWdu7Wu2PhdnMiiXQbhpKHEaQPi86SNgNciSBQppump" target="_blank" rel="noopener" title="mWdu7Wu2PhdnMiiXQbhpKHEaQPi86SNgNciSBQppump">mWdu…pump</a></td><td>2026-10-15T18:38:37Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>14.9h</td><td>$14.91M</td><td>$331.1K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$SPIDER</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=2ShXwByGSBRVfMqdVoUc1QxuK7mAuHPSVqbQbJENpump" target="_blank" rel="noopener" title="2ShXwByGSBRVfMqdVoUc1QxuK7mAuHPSVqbQbJENpump">2ShX…pump</a></td><td>2026-10-15T18:38:34Z</td><td><span class="badge low">LOW 4</span></td><td>0.26h</td><td>$138.1K</td><td>$30.5K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$UDR</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=G8dJxnKHx387vAMBr1b1gPzviKka9ZofPstzrvypump" target="_blank" rel="noopener" title="G8dJxnKHx387vAMBr1b1gPzviKka9ZofPstzrvypump">G8dJ…pump</a></td><td>2026-10-15T18:22:50Z</td><td><span class="badge low">LOW 4</span></td><td>23.38h</td><td>$9.58M</td><td>$265.3K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$XPOSE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=1qVjaHdLcv3PR3AaQrGWt2q55EB1WkdiCwqj4vopump" target="_blank" rel="noopener" title="1qVjaHdLcv3PR3AaQrGWt2q55EB1WkdiCwqj4vopump">1qVj…pump</a></td><td>2026-10-15T18:22:47Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>17.99h</td><td>$5.46M</td><td>$199.6K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$USOR/SOL</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=omrqAdegAvkfdPQCMy5UA7hQcEDoq4SKLn2UPknpump" target="_blank" rel="noopener" title="omrqAdegAvkfdPQCMy5UA7hQcEDoq4SKLn2UPknpump">omrq…pump</a></td><td>2026-10-15T18:22:44Z</td><td><span class="badge medium">MEDIUM 23</span></td><td>16.56h</td><td>$11.19M</td><td>$286.6K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$PUMPE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=e3Vj1YEgceyPoru4JLQgB7Ft7TNbx2AXzqicuk1pump" target="_blank" rel="noopener" title="e3Vj1YEgceyPoru4JLQgB7Ft7TNbx2AXzqicuk1pump">e3Vj…pump</a></td><td>2026-10-15T18:22:42Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>15.54h</td><td>$1.51M</td><td>$104.3K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$INCOGNITO</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=NoPeXTD11FPaEeHR5MEMadQxD6RbJzi2XCu9Pj4pump" target="_blank" rel="noopener" title="NoPeXTD11FPaEeHR5MEMadQxD6RbJzi2XCu9Pj4pump">NoPe…pump</a></td><td>2026-10-15T18:22:31Z</td><td><span class="badge medium">MEDIUM 23</span></td><td>15.34h</td><td>$11.05M</td><td>$284.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$BATFISH</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=4aMD7TAujKhojDpw4Kgs7xbF4AKycfH9Mr8ehqzzpump" target="_blank" rel="noopener" title="4aMD7TAujKhojDpw4Kgs7xbF4AKycfH9Mr8ehqzzpump">4aMD…pump</a></td><td>2026-10-15T18:22:28Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>14.66h</td><td>$56.9K</td><td>$19.6K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$ARF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=WHvP6NTRYdovnG9ZDVVrF8bR2bTChSDjLaGbeWopump" target="_blank" rel="noopener" title="WHvP6NTRYdovnG9ZDVVrF8bR2bTChSDjLaGbeWopump">WHvP…pump</a></td><td>2026-10-15T18:22:26Z</td><td><span class="badge medium">MEDIUM 23</span></td><td>14.09h</td><td>$26.46M</td><td>$441.4K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$CYBERLEEK</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=EAyCVRZ8ZLd3y9ocfMGv2fRdLM7iE1pf492pt4ppump" target="_blank" rel="noopener" title="EAyCVRZ8ZLd3y9ocfMGv2fRdLM7iE1pf492pt4ppump">EAyC…pump</a></td><td>2026-10-15T18:22:23Z</td><td><span class="badge low">LOW 8</span></td><td>11h</td><td>$227.89M</td><td>$1.30M</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$Awkward Dog</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=3W3G24d3kDofngrGj9fErCjGKuoRsApNbvyCPgZNpump" target="_blank" rel="noopener" title="3W3G24d3kDofngrGj9fErCjGKuoRsApNbvyCPgZNpump">3W3G…pump</a></td><td>2026-10-15T18:22:22Z</td><td><span class="badge medium">MEDIUM 27</span></td><td>10.88h</td><td>$567.7K</td><td>$63.4K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$FTR</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=vBu4awtjGvPc9gPGyM82WnEg9pRP44F5a1fmFb9pump" target="_blank" rel="noopener" title="vBu4awtjGvPc9gPGyM82WnEg9pRP44F5a1fmFb9pump">vBu4…pump</a></td><td>2026-10-15T18:22:10Z</td><td><span class="badge low">LOW 4</span></td><td>9.7h</td><td>$10.82M</td><td>$281.6K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$SPX</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=d8y32AxHmGEvcRMn4JhdWTrGdgQ1AMYcQjCRsevpump" target="_blank" rel="noopener" title="d8y32AxHmGEvcRMn4JhdWTrGdgQ1AMYcQjCRsevpump">d8y3…pump</a></td><td>2026-10-15T18:22:08Z</td><td><span class="badge medium">MEDIUM 27</span></td><td>9.61h</td><td>$12.09M</td><td>$297.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$Doroni</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=ahj9cQ4uVfromvTx9ZxANPCgF7giczQjZFdqiKbpump" target="_blank" rel="noopener" title="ahj9cQ4uVfromvTx9ZxANPCgF7giczQjZFdqiKbpump">ahj9…pump</a></td><td>2026-10-15T18:22:06Z</td><td><span class="badge low">LOW 4</span></td><td>9.44h</td><td>$5.75M</td><td>$204.9K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$WAIF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=ZtJKTMsEZVsC5hyqRKhGFwe7KMUsNDCrU9tr6zXpump" target="_blank" rel="noopener" title="ZtJKTMsEZVsC5hyqRKhGFwe7KMUsNDCrU9tr6zXpump">ZtJK…pump</a></td><td>2026-10-15T18:22:02Z</td><td><span class="badge low">LOW 4</span></td><td>9.29h</td><td>$11.68M</td><td>$292.6K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$WAITIE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=kpw3mRFBxzWFcQiLjPE1AXM6bSQhwFoUY8WQAKbpump" target="_blank" rel="noopener" title="kpw3mRFBxzWFcQiLjPE1AXM6bSQhwFoUY8WQAKbpump">kpw3…pump</a></td><td>2026-10-15T18:22:01Z</td><td><span class="badge low">LOW 4</span></td><td>8.85h</td><td>$86.3K</td><td>$24.5K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$NOS</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=zhcCAMPgeWmGRddpMefMEnPwpCQ9nn7Hvqnoycypump" target="_blank" rel="noopener" title="zhcCAMPgeWmGRddpMefMEnPwpCQ9nn7Hvqnoycypump">zhcC…pump</a></td><td>2026-10-15T18:21:49Z</td><td><span class="badge low">LOW 4</span></td><td>8.34h</td><td>$2.49M</td><td>$134.2K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$SPCX</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=VKwzTkobt7TJEh1xk3zdwbT6nrQstAjy9x1Hnp8pump" target="_blank" rel="noopener" title="VKwzTkobt7TJEh1xk3zdwbT6nrQstAjy9x1Hnp8pump">VKwz…pump</a></td><td>2026-10-15T18:21:47Z</td><td><span class="badge low">LOW 4</span></td><td>5.93h</td><td>$16.35M</td><td>$346.6K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$DOPE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=8fSuMua9w4o5B9nUYLdyB8ANN6kCaEPvtfL9zFuDpump" target="_blank" rel="noopener" title="8fSuMua9w4o5B9nUYLdyB8ANN6kCaEPvtfL9zFuDpump">8fSu…pump</a></td><td>2026-10-15T18:21:45Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>5.89h</td><td>$164.76M</td><td>$1.10M</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$UDR</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=5T3P5PLnfm9Phx6wsoeBnGRzhwTfE8ZTCZ7JcQFpump" target="_blank" rel="noopener" title="5T3P5PLnfm9Phx6wsoeBnGRzhwTfE8ZTCZ7JcQFpump">5T3P…pump</a></td><td>2026-10-15T18:21:38Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>5.79h</td><td>$180.04M</td><td>$1.15M</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$LOAD</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=wNn4tJe2eLXgygkd6pjczXmbPeGVpYTTDzyyGUdpump" target="_blank" rel="noopener" title="wNn4tJe2eLXgygkd6pjczXmbPeGVpYTTDzyyGUdpump">wNn4…pump</a></td><td>2026-10-15T18:21:36Z</td><td><span class="badge low">LOW 4</span></td><td>4.78h</td><td>$2.89M</td><td>$144.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$SOS</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=oVzja1Z7Z9Qdd1stomtAXWkHd14HVvNAaDnxhsmpump" target="_blank" rel="noopener" title="oVzja1Z7Z9Qdd1stomtAXWkHd14HVvNAaDnxhsmpump">oVzj…pump</a></td><td>2026-10-15T18:21:22Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>4.61h</td><td>$2.97M</td><td>$146.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$NODF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=32b5zGQcxhYyvYZDeeuU9xvb6tnn8KwAW8JtUuQTpump" target="_blank" rel="noopener" title="32b5zGQcxhYyvYZDeeuU9xvb6tnn8KwAW8JtUuQTpump">32b5…pump</a></td><td>2026-10-15T18:21:16Z</td><td><span class="badge low">LOW 4</span></td><td>4.13h</td><td>$179.44M</td><td>$1.15M</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$NPC</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=79ur78uUB69no1bSVi5onD4Xrpfh7Zh3xPb8ZMzMFABT" target="_blank" rel="noopener" title="79ur78uUB69no1bSVi5onD4Xrpfh7Zh3xPb8ZMzMFABT">79ur…FABT</a></td><td>2026-10-15T18:21:06Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>2.37h</td><td>$33.6K</td><td>$14.7K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$CAPE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=DFGPAUYJZYjZ88oaEuiDQHqsH4eeRFSeF6vRGSotpump" target="_blank" rel="noopener" title="DFGPAUYJZYjZ88oaEuiDQHqsH4eeRFSeF6vRGSotpump">DFGP…pump</a></td><td>2026-10-15T18:20:58Z</td><td><span class="badge medium">MEDIUM 27</span></td><td>1.68h</td><td>$49.1K</td><td>$18.0K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$GDF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=5RfRCKvGMDqQDQAraRv6S7HG2xQH4wje3uFWFevcpump" target="_blank" rel="noopener" title="5RfRCKvGMDqQDQAraRv6S7HG2xQH4wje3uFWFevcpump">5RfR…pump</a></td><td>2026-10-15T18:20:57Z</td><td><span class="badge low">LOW 4</span></td><td>1.63h</td><td>$155.90M</td><td>$1.07M</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$NODF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=aGfeidTLzWbewHZX5921rS6KBzcJbMs23KJpLTPpump" target="_blank" rel="noopener" title="aGfeidTLzWbewHZX5921rS6KBzcJbMs23KJpLTPpump">aGfe…pump</a></td><td>2026-10-15T18:20:53Z</td><td><span class="badge low">LOW 4</span></td><td>1.62h</td><td>$352.36M</td><td>$1.62M</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$NODF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=9Cpp25zEnT5k5DUpML3VFX5ePA1fDinwXU4vpM4opump" target="_blank" rel="noopener" title="9Cpp25zEnT5k5DUpML3VFX5ePA1fDinwXU4vpM4opump">9Cpp…pump</a></td><td>2026-10-15T18:20:49Z</td><td><span class="badge high">HIGH 46</span></td><td>1.21h</td><td>$414.56M</td><td>$1.75M</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$Hugo</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=G97EU185vTD9simFiUK1EQYPWig8e2A7b4T488nZamnR" target="_blank" rel="noopener" title="G97EU185vTD9simFiUK1EQYPWig8e2A7b4T488nZamnR">G97E…amnR</a></td><td>2026-10-15T18:20:48Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>0.51h</td><td>$32.1K</td><td>$13.7K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$STREAM</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=9a98oQHtxfqmr4EyzsP6wfw69uYAK3JbUeVEuNW1pump" target="_blank" rel="noopener" title="9a98oQHtxfqmr4EyzsP6wfw69uYAK3JbUeVEuNW1pump">9a98…pump</a></td><td>2026-10-15T18:14:58Z</td><td><span class="badge low">LOW 4</span></td><td>22.91h</td><td>$24.50M</td><td>$476.3K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$FTR</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=DFMt2FyLpB6ekPNAzVErLXgpSnJ9CRf1VnxBAkTLpump" target="_blank" rel="noopener" title="DFMt2FyLpB6ekPNAzVErLXgpSnJ9CRf1VnxBAkTLpump">DFMt…pump</a></td><td>2026-10-15T18:14:51Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>16.08h</td><td>$2.13M</td><td>$145.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$$OTCATWALK</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=9UDNU3zn32BdB8s82gxC7aJwKHii7PYaKH9dyQ5spump" target="_blank" rel="noopener" title="9UDNU3zn32BdB8s82gxC7aJwKHii7PYaKH9dyQ5spump">9UDN…pump</a></td><td>2026-10-15T18:14:33Z</td><td><span class="badge medium">MEDIUM 25</span></td><td>1.94h</td><td>$320.8K</td><td>$49.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$MrBeast</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=Hb2dvAgUYE2fiQAo1DjuEQF99Gv85PaUsiGKfvBbpump" target="_blank" rel="noopener" title="Hb2dvAgUYE2fiQAo1DjuEQF99Gv85PaUsiGKfvBbpump">Hb2d…pump</a></td><td>2026-10-15T18:14:31Z</td><td><span class="badge low">LOW 8</span></td><td>1.45h</td><td>$1.88M</td><td>$117.0K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$GRAIL</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=FYFDLqtBd4ZAiDfbx7XxXndcjJuBEZCz5XKAqQwaHC8W" target="_blank" rel="noopener" title="FYFDLqtBd4ZAiDfbx7XxXndcjJuBEZCz5XKAqQwaHC8W">FYFD…HC8W</a></td><td>2026-10-15T18:14:21Z</td><td><span class="badge medium">MEDIUM 31</span></td><td>1.21h</td><td>$336.5K</td><td>$50.9K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$RSICat</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=8VvrRKRdJ22DttddSoWWbkaLPu4s12unhvMXShpHpump" target="_blank" rel="noopener" title="8VvrRKRdJ22DttddSoWWbkaLPu4s12unhvMXShpHpump">8Vvr…pump</a></td><td>2026-10-15T18:14:16Z</td><td><span class="badge medium">MEDIUM 29</span></td><td>1.17h</td><td>$33.8K</td><td>$14.5K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$NODF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=XZvc6ZSREV8zSt3Y9qq4BedEnApr26BXwwTWHvnpump" target="_blank" rel="noopener" title="XZvc6ZSREV8zSt3Y9qq4BedEnApr26BXwwTWHvnpump">XZvc…pump</a></td><td>2026-10-15T18:14:04Z</td><td><span class="badge medium">MEDIUM 20</span></td><td>1.02h</td><td>$1.18M</td><td>$91.9K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$PEGE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=E1dEQiErj8AMQ32NMiCLZfYoorhc2H6W4MiGmuEVpump" target="_blank" rel="noopener" title="E1dEQiErj8AMQ32NMiCLZfYoorhc2H6W4MiGmuEVpump">E1dE…pump</a></td><td>2026-10-15T18:14:02Z</td><td><span class="badge low">LOW 4</span></td><td>0.74h</td><td>$152.7K</td><td>$33.0K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$Claude AI</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=VKxN86JxECJUiv21yr883Mnk3jXPq9Yc1NBEi1Dpump" target="_blank" rel="noopener" title="VKxN86JxECJUiv21yr883Mnk3jXPq9Yc1NBEi1Dpump">VKxN…pump</a></td><td>2026-10-15T18:13:59Z</td><td><span class="badge low">LOW 8</span></td><td>0.69h</td><td>$581.6K</td><td>$64.1K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$OpenAI</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=oFKRFZfCrQMoKvrJy7bqKNoCEUAuVaEHjyUNK9Rpump" target="_blank" rel="noopener" title="oFKRFZfCrQMoKvrJy7bqKNoCEUAuVaEHjyUNK9Rpump">oFKR…pump</a></td><td>2026-10-15T18:13:57Z</td><td><span class="badge medium">MEDIUM 20</span></td><td>0.61h</td><td>$757.3K</td><td>$73.3K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$AIDEN</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=SDJ7Qncp9ztv2uPEqWAzc2YDCY32Vf8S6xtBjQepump" target="_blank" rel="noopener" title="SDJ7Qncp9ztv2uPEqWAzc2YDCY32Vf8S6xtBjQepump">SDJ7…pump</a></td><td>2026-10-15T18:13:46Z</td><td><span class="badge low">LOW 10</span></td><td>0.52h</td><td>$92.2K</td><td>$25.0K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$APPLE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=93m8sg5XfS2DcSB5fgyRkqQv5ir8sP6ocMdwr3Wopump" target="_blank" rel="noopener" title="93m8sg5XfS2DcSB5fgyRkqQv5ir8sP6ocMdwr3Wopump">93m8…pump</a></td><td>2026-10-15T18:13:43Z</td><td><span class="badge medium">MEDIUM 23</span></td><td>0.5h</td><td>$807.8K</td><td>$75.7K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$Brakko</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=Ac2xwtsdnA6GXRaz32PyXJ81fXr279yy7zRZXR95w8K" target="_blank" rel="noopener" title="Ac2xwtsdnA6GXRaz32PyXJ81fXr279yy7zRZXR95w8K">Ac2x…5w8K</a></td><td>2026-10-15T18:13:41Z</td><td><span class="badge medium">MEDIUM 27</span></td><td>0.41h</td><td>$93.9K</td><td>$140.1K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$NUBI</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=BfoqQL1Sm5PpCkn9yKsGQhYMkBkZSdzsBMdLodBTpump" target="_blank" rel="noopener" title="BfoqQL1Sm5PpCkn9yKsGQhYMkBkZSdzsBMdLodBTpump">Bfoq…pump</a></td><td>2026-10-15T18:13:39Z</td><td><span class="badge low">LOW 4</span></td><td>0.4h</td><td>$911.5K</td><td>$83.2K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$POKEMON</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=CM54aeZaVCUokycv4Ypq77mBYB3GpC17R7CAHS4zpump" target="_blank" rel="noopener" title="CM54aeZaVCUokycv4Ypq77mBYB3GpC17R7CAHS4zpump">CM54…pump</a></td><td>2026-10-15T18:13:38Z</td><td><span class="badge medium">MEDIUM 23</span></td><td>0.22h</td><td>$58.1K</td><td>$21.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$Cul</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=EAJ1auhSGyoFBpugVindEjWNHnSrqbzczfmNBZbCpump" target="_blank" rel="noopener" title="EAJ1auhSGyoFBpugVindEjWNHnSrqbzczfmNBZbCpump">EAJ1…pump</a></td><td>2026-10-15T18:13:26Z</td><td><span class="badge medium">MEDIUM 18</span></td><td>0.22h</td><td>$31.1K</td><td>$13.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr></tbody></table></div></details>
+    <p class="muted" style="margin-top:10px">Page generated 2026-10-15T23:36:51Z from evidence <code>db.json</code>.</p>
+  </div>
+
+  <h2 style="font-size:16px;margin:28px 0 4px;color:#9aa4b8;text-transform:uppercase;letter-spacing:.04em">Legacy records (not part of the study)</h2>
+  <p class="section-note">Collected Oct 14–15 before the study, High-risk only; most were tiny ($1K–$10K mcap) when flagged. Kept for transparency, excluded from the accuracy numbers.</p>
+  <div class="banner">
+    <strong>Legacy records:</strong> 0 confirmed rugged after our flag ·
+    0 down ≥70% · 1 still alive ·
+    15 still tracking / pending 24h recheck.
+    7 additional coins were flagged after they had already collapsed and are excluded from the "caught" count.
+  </div>
+
+  <div class="card">
+    <h3>Legacy summary</h3>
+    <div class="stats">
+      <div class="kv"><span>High-risk tracked</span><b>23</b></div>
+      <div class="kv"><span>Excluded (post-collapse)</span><b>7</b></div>
+      <div class="kv"><span>Counted (pre-collapse)</span><b>16</b></div>
+      <div class="kv"><span>Rugged after flag</span><b>0</b></div>
+      <div class="kv"><span>Down ≥70%</span><b>0</b></div>
+      <div class="kv"><span>Still alive</span><b>1</b></div>
+      <div class="kv"><span>Pending recheck</span><b>15</b></div>
+    </div>
+    <p class="muted" style="margin-top:12px">A coin counts as <b>rugged after flag</b> only if, ≥24h later, price or liquidity dropped ≥90% from the flag baseline, or the pair disappeared from DexScreener. </p>
+  </div>
+
+  <h2 style="font-size:16px;margin:28px 0 4px;color:#9aa4b8;text-transform:uppercase;letter-spacing:.04em">Legacy — flagged before collapse</h2>
+  <p class="section-note">None confirmed yet. The 16 coins below were flagged High while still countable; they are tracking until the 24h recheck window.</p>
+  <article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (47)</span>
+    <div class="tok"><b>$PEPT</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge low" style="font-size:13px;padding:6px 10px">Still alive</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-14T23:33:43Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.00000307</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T23:36:46Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>6 linked insider wallets in 1 network(s) detected, holding ~18.1% of supply; coordinated dumping risk.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Top 10 wallets hold 45.0% of supply; a few wallets can crash the price.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (3.9 h); most rugs happen in the first day.</div></div>
+  
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="6odESSNndcXSGvUa8Q1VNY5z8Yh2JiNpfYcjVSs9pump">6odE…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=6odESSNndcXSGvUa8Q1VNY5z8Yh2JiNpfYcjVSs9pump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/fzrupcpb1uu3pm9eqqmucgv4yg4tzqcg76jkqq8vh2xa" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (47)</span>
+    <div class="tok"><b>$smol</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T00:56:10Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.00002941</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T02:31:19Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Top 10 wallets hold 555.1% of supply; a few wallets can crash the price.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (3.9 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>One wallet holds 83.8% of supply.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>RugCheck raised 13 danger-level flag(s).</div></div>
+  
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="7eDcKA6U4idsUZ6z1U1TFPyUDcFkXV6QB3fb63Ce1JcQ">7eDc…1JcQ</span>
+    · <a href="https://memecheck.pages.dev/?ca=7eDcKA6U4idsUZ6z1U1TFPyUDcFkXV6QB3fb63Ce1JcQ" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/bhyfaey8setgcqv8q6uwxcpracbu111zzhvavzjv8qhx" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (59)</span>
+    <div class="tok"><b>$$DODO</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T09:22:49Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.0000089</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T09:27:43Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Top 10 wallets hold 51.0% of supply; a few wallets can crash the price.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Price is ~61% below its 24h high (approx.); a sharp dump may have happened.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (0.0 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>One wallet holds 50.8% of supply.</div></div>
+  
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="5jWnia96Tcq6WkMsFdsS1fk71LqcHbBBoRvsCfoHpump">5jWn…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=5jWnia96Tcq6WkMsFdsS1fk71LqcHbBBoRvsCfoHpump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/ft7vrpcakqd86ptytd6avcg6v6e2jnk4lqehlxbyegiu" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (47)</span>
+    <div class="tok"><b>$Launchpad</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T09:27:50Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.00000808</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T09:27:50Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Top 10 wallets hold 50.6% of supply; a few wallets can crash the price.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (0.4 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>One wallet holds 50.3% of supply.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>RugCheck raised 1 danger-level flag(s).</div></div>
+  
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="3imvoUNYeDS7aKyqEce7GZaSgUB9Qb5kUemrJ7YGpump">3imv…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=3imvoUNYeDS7aKyqEce7GZaSgUB9Qb5kUemrJ7YGpump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/75axytxzfprpxkj6sgqklapdp2kd75gjviwwj6c3ku8t" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (49)</span>
+    <div class="tok"><b>$p-</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T09:27:53Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.00000327</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T09:27:53Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Top 10 wallets hold 37.6% of supply; a few wallets can crash the price.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>4 linked insider wallets in 1 network(s) detected, holding ~4.3% of supply; coordinated dumping risk.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Price is ~39% below its 24h high (approx.); a sharp dump may have happened.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (0.5 h); most rugs happen in the first day.</div></div>
+  
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="2qiNAzKFvKPR6qfX7Aznwi9JrH9BA1h1wTq8UE23pump">2qiN…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=2qiNAzKFvKPR6qfX7Aznwi9JrH9BA1h1wTq8UE23pump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/2ytugtqbxduuzmobudg82q1zap4djoudsjb1a99zrwiy" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (47)</span>
+    <div class="tok"><b>$$DODO</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T10:29:00Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.0000063</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T10:29:00Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Top 10 wallets hold 50.1% of supply; a few wallets can crash the price.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (0.1 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>One wallet holds 50.1% of supply.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>RugCheck raised 2 danger-level flag(s).</div></div>
+  
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="An6cgGLrki8kQmoxzafrogh7Q7hyxsZ8izCkHFwupump">An6c…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=An6cgGLrki8kQmoxzafrogh7Q7hyxsZ8izCkHFwupump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/8bydmwrwm62p7l3wzb6p1z9tops1yrhurw19dw4vtknr" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (47)</span>
+    <div class="tok"><b>$song</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T11:30:52Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.00000973</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T11:30:52Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Top 10 wallets hold 50.5% of supply; a few wallets can crash the price.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (0.3 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>One wallet holds 50.5% of supply.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>RugCheck raised 2 danger-level flag(s).</div></div>
+  
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="4nrH7HuXjTxQ3tZNw93DLMYwyRfqdjT8KcPgPfJgpump">4nrH…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=4nrH7HuXjTxQ3tZNw93DLMYwyRfqdjT8KcPgPfJgpump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/4rs88smvgq9dda9tjorf9t2fzfm7uenthnqyv4c6kx2w" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (47)</span>
+    <div class="tok"><b>$FUN</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T11:30:52Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.00000877</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T11:30:52Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Top 10 wallets hold 50.1% of supply; a few wallets can crash the price.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (0.3 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>One wallet holds 50.1% of supply.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>RugCheck raised 2 danger-level flag(s).</div></div>
+  
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="BAw9PDnXXTnnWhJESSVBN8yieBRsZe4oQRKAADBXpump">BAw9…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=BAw9PDnXXTnnWhJESSVBN8yieBRsZe4oQRKAADBXpump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/cv4pj2pvamvjxxbcv7jtexccggnee26ltvvbk8kqfqux" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (67)</span>
+    <div class="tok"><b>$FUN</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T11:30:54Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$3.21e-9</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T11:30:54Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Already down ~100% from its 24h high: the crash happened before this scan.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Top 10 wallets hold 57.4% of supply; a few wallets can crash the price.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (0.3 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>One wallet holds 31.6% of supply.</div></div>
+  
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="HFioyC2749hHUTw5N4tj2tw2TdGzfxwGAGkXx9T8pump">HFio…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=HFioyC2749hHUTw5N4tj2tw2TdGzfxwGAGkXx9T8pump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/csbaf8sbhv5p7eye2eepflh7o1jpfmcqx1htjapgnuxx" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (47)</span>
+    <div class="tok"><b>$INUX</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T11:30:57Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.00000579</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T11:30:57Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Top 10 wallets hold 50.6% of supply; a few wallets can crash the price.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (0.3 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>One wallet holds 50.6% of supply.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>RugCheck raised 2 danger-level flag(s).</div></div>
+  
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="Cw75fZTvJSH5z8zGUSricfC65QFfo7DbJEH7GN2jpump">Cw75…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=Cw75fZTvJSH5z8zGUSricfC65QFfo7DbJEH7GN2jpump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/12tcytqldmkpsqwxzgsdrqryue5ebah2pch7jttfnxej" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (47)</span>
+    <div class="tok"><b>$$DODO</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T13:37:36Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.00000967</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T13:37:36Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Top 10 wallets hold 50.3% of supply; a few wallets can crash the price.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (0.2 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>One wallet holds 50.2% of supply.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>RugCheck raised 2 danger-level flag(s).</div></div>
+  
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="B2PydEgTZYKtbW2TJU354HnNinmUsnU4k1C111eXpump">B2Py…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=B2PydEgTZYKtbW2TJU354HnNinmUsnU4k1C111eXpump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/ks4i9e5kmurhcfyv392svegtfskmznxf1vvzspopnc6" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (47)</span>
+    <div class="tok"><b>$CHAROC</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T13:37:38Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.00002248</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T13:37:38Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Top 10 wallets hold 62.0% of supply; a few wallets can crash the price.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (0.2 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>One wallet holds 61.3% of supply.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>RugCheck raised 2 danger-level flag(s).</div></div>
+  
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="4wdD2SX5T8p1tDukqmnnRwBCxBcXU6TNZ6q4sq3npump">4wdD…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=4wdD2SX5T8p1tDukqmnnRwBCxBcXU6TNZ6q4sq3npump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/bhqepour8xm2vadvqkgncrr9wxaqfc622q8qjsh8kqtm" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (59)</span>
+    <div class="tok"><b>$Dacity</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T13:37:39Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$9.65e-7</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T13:37:39Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Top 10 wallets hold 51.3% of supply; a few wallets can crash the price.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Price is ~66% below its 24h high (approx.); a sharp dump may have happened.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (0.3 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>One wallet holds 51.1% of supply.</div></div>
+  
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="5g8p2AmtbEwXCeFUGm2DUX6GeKwMowq4XMwRpBHepump">5g8p…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=5g8p2AmtbEwXCeFUGm2DUX6GeKwMowq4XMwRpBHepump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/6euokamjvtnr8s2rjcnzdzbpgm6adcdwgjchrbfr4htp" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (47)</span>
+    <div class="tok"><b>$Rari</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T13:37:44Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.00000289</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T13:37:44Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Top 10 wallets hold 50.7% of supply; a few wallets can crash the price.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (0.3 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>One wallet holds 50.7% of supply.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>RugCheck raised 2 danger-level flag(s).</div></div>
+  
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="AHA7vGK46jUa5DT82RsUpEFkR4K6cD4Yqwn28BYGpump">AHA7…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=AHA7vGK46jUa5DT82RsUpEFkR4K6cD4Yqwn28BYGpump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/8npqfzzgvrd993udloo3todqtqyjebhwvptpefe5qg6u" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (59)</span>
+    <div class="tok"><b>$Sevda</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T14:37:49Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.00000131</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T14:37:49Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Top 10 wallets hold 67.0% of supply; a few wallets can crash the price.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Price is ~61% below its 24h high (approx.); a sharp dump may have happened.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (0.2 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>One wallet holds 65.2% of supply.</div></div>
+  
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="CjCRFqBUDsuJgH1iQa1tq9vbqHtwPXZMLvUT8x1hpump">CjCR…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=CjCRFqBUDsuJgH1iQa1tq9vbqHtwPXZMLvUT8x1hpump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/7vj3shwr71mcbrh3d4zwvhprrpymwxdbd7xx5wh8o4x1" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (59)</span>
+    <div class="tok"><b>$BetOnBlak</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T14:37:54Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$4.47e-7</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T14:37:54Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Top 10 wallets hold 52.5% of supply; a few wallets can crash the price.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Price is ~88% below its 24h high (approx.); a sharp dump may have happened.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (0.3 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>One wallet holds 52.4% of supply.</div></div>
+  
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="HHYcqKQmuPwMQwNxLunx5Nby1Y49uwFnvbxSqt4fpump">HHYc…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=HHYcqKQmuPwMQwNxLunx5Nby1Y49uwFnvbxSqt4fpump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/gqekwrfhwdtsbpxsky6xms8ijgpxjelesvvrbdk9nwkg" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+
+  <h2 style="font-size:16px;margin:28px 0 4px;color:#9aa4b8;text-transform:uppercase;letter-spacing:.04em">Legacy — excluded, flagged after collapse</h2>
+  <p class="section-note">These were already deeply down from their pre-flag peak when MemeCheck flagged them. They are tracked for honesty but <b>not</b> counted as "rugs we caught."</p>
+  <article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (43)</span>
+    <div class="tok"><b>$angrykitten</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge low" style="font-size:13px;padding:6px 10px">Still alive</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-14T23:22:29Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.00000224</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T23:36:47Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>247 linked insider wallets in 4 network(s) detected, holding ~11.4% of supply; coordinated dumping risk.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (13.0 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>RugCheck raised 1 danger-level flag(s).</div></div>
+  <p class="muted" style="margin-top:10px">Excluded from &quot;caught&quot;: already ~97.1% below its pre-flag peak when we flagged it.</p>
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="DutcPngjK2QaChfiKAZKQpcGLJYkCZrenDJ4bdY3pump">Dutc…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=DutcPngjK2QaChfiKAZKQpcGLJYkCZrenDJ4bdY3pump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/9sjizct6qlvueworbwvnogywr3dkczwgb4vtxzztjymk" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (40)</span>
+    <div class="tok"><b>$smol</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge low" style="font-size:13px;padding:6px 10px">Still alive</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-14T23:32:48Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.0000035</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$538.97</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T23:36:47Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $538.97; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Price is ~76% below its 24h high (approx.); a sharp dump may have happened.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (5.0 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>RugCheck raised 1 danger-level flag(s).</div></div>
+  <p class="muted" style="margin-top:10px">Excluded from &quot;caught&quot;: already ~99.3% below its pre-flag peak when we flagged it.</p>
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="HzPRXMeo6JLQj7dKH79fNnpApNzY8VBQ8g4Ne9Cwpump">HzPR…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=HzPRXMeo6JLQj7dKH79fNnpApNzY8VBQ8g4Ne9Cwpump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/8uwyypyhrryuu2pgt31tnkcrftydzbqchlucj2uy8jf9" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (43)</span>
+    <div class="tok"><b>$TESS</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge low" style="font-size:13px;padding:6px 10px">Still alive</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-14T23:33:17Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.00000212</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T23:36:46Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>96 linked insider wallets in 10 network(s) detected, holding ~22.0% of supply; coordinated dumping risk.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (4.5 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>RugCheck raised 1 danger-level flag(s).</div></div>
+  <p class="muted" style="margin-top:10px">Excluded from &quot;caught&quot;: already ~99.4% below its pre-flag peak when we flagged it.</p>
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="EocB8TSsZN4N7FhbsZg9d9gX6tLtXM8eXiooDW2Npump">EocB…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=EocB8TSsZN4N7FhbsZg9d9gX6tLtXM8eXiooDW2Npump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/ho9g6sd52vnoxqdrjk3qgtamgujbokardh3xzvgqmhyk" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (51)</span>
+    <div class="tok"><b>$Safe</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-14T23:38:13Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.00000281</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T02:31:13Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>13 linked insider wallets in 2 network(s) detected, holding ~9.6% of supply; coordinated dumping risk.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (5.1 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>RugCheck raised 1 danger-level flag(s).</div></div>
+  <p class="muted" style="margin-top:10px">Excluded from &quot;caught&quot;: already ~92.4% below its pre-flag peak when we flagged it.</p>
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="8RWM3zVZdGcy78F3RhRp71Q4oK7VfxW4uNk1Qbabpump">8RWM…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=8RWM3zVZdGcy78F3RhRp71Q4oK7VfxW4uNk1Qbabpump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/eccbt6cdsy6pec87bqhbfejzbrkbd8hosqqiap9qpl4b" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (43)</span>
+    <div class="tok"><b>$SCOOB</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T02:31:36Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.00000863</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$6,489.38</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T02:31:36Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>14 linked insider wallets in 3 network(s) detected, holding ~10.8% of supply; coordinated dumping risk.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Top 10 wallets hold 30.6% of supply; a few wallets can crash the price.</div></div>
+  <p class="muted" style="margin-top:10px">Excluded from &quot;caught&quot;: already ~92.9% below its pre-flag peak when we flagged it.</p>
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="HfNQi6abCgjCErrBb3yk4XamuX1BdCRRJa9nGpbkRS6g">HfNQ…RS6g</span>
+    · <a href="https://memecheck.pages.dev/?ca=HfNQi6abCgjCErrBb3yk4XamuX1BdCRRJa9nGpbkRS6g" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/j5wz3mid9262axvigeq9sbm2vn5nxklfyhyghveje62c" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (40)</span>
+    <div class="tok"><b>$Dog Think</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T09:27:49Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$2.34e-9</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T09:27:49Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Price is ~100% below its 24h high (approx.); a sharp dump may have happened.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (0.4 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>RugCheck raised 1 danger-level flag(s).</div></div>
+  <p class="muted" style="margin-top:10px">Excluded from &quot;caught&quot;: already ~99.9% below its pre-flag peak when we flagged it.</p>
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="Daaoni3Bms24srkKPy8LZJDVeqjZkj3KUmKw9DpXpump">Daao…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=Daaoni3Bms24srkKPy8LZJDVeqjZkj3KUmKw9DpXpump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/8qtqsx8wyvtgj9fmzxsqbasbmtebtujah9dhua5rbgoi" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+<article class="card coin">
+  <div class="verdict">
+    <span class="badge high">HIGH (48)</span>
+    <div class="tok"><b>$SpaceX</b>
+      <span class="muted"> · solana</span></div>
+    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T11:30:59Z</b></div>
+    <div class="kv"><span>Price at flag</span><b>$0.00000181</b></div>
+    <div class="kv"><span>Liquidity at flag</span><b>$1,847.96</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-15T11:30:59Z</b></div>
+  </div>
+  <h3 style="margin-top:14px">Risk reasons at flag</h3>
+  <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $1.8K; prices can be moved easily and exits may be hard.</div></div>
+  <div class="row"><span class="st fail">FAIL</span><div>Already down ~100% from its 24h high: the crash happened before this scan.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>Pair is very new (0.4 h); most rugs happen in the first day.</div></div>
+  <div class="row"><span class="st warn">WARN</span><div>RugCheck raised 1 danger-level flag(s).</div></div>
+  <p class="muted" style="margin-top:10px">Excluded from &quot;caught&quot;: already ~99.7% below its pre-flag peak when we flagged it.</p>
+  <p class="muted" style="margin-top:10px">
+    CA: <span class="mono" title="AJjGNH5BLMrKLbP3pRjPNuVSx7L8rjSFcw11JaEVpump">AJjG…pump</span>
+    · <a href="https://memecheck.pages.dev/?ca=AJjGNH5BLMrKLbP3pRjPNuVSx7L8rjSFcw11JaEVpump" target="_blank" rel="noopener">Open in MemeCheck</a>
+     · <a href="https://dexscreener.com/solana/hairqrkfhppi4ufvfo1xu5xbixyps5fzaszzxd78sout" target="_blank" rel="noopener">DexScreener</a>
+  </p>
+</article>
+</main>
+<footer>
+  Not financial advice. Automated checks can miss scams or flag legit tokens. Always DYOR.
+  · <a href="/">MemeCheck</a>
+</footer>
+</body>
+</html>
