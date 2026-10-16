@@ -8,7 +8,7 @@
 <link rel="canonical" href="https://memecheck.pages.dev/rugs.html">
 <meta name="theme-color" content="#0b0f17">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-<link rel="stylesheet" href="style.css?v=rugs1">
+<link rel="stylesheet" href="style.css?v=nav1">
 <style>
 .coin .verdict{margin-bottom:0}
 .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:12px}
@@ -22,9 +22,15 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 </head>
 <body>
 <header>
+  <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span><span></span><span></span></button>
   <div class="brand"><img src="/icon-192.png" width="26" height="26" alt="MemeCheck"> <b>MemeCheck</b></div>
-  <a class="ghost" href="/" style="padding:8px 12px;border:1px solid #273046;border-radius:10px;color:#9aa4b8;text-decoration:none;font-size:14px">← Checker</a>
 </header>
+<nav class="site-nav" id="site-nav" hidden>
+  <a href="/" data-t="navChecker">Checker</a>
+  <a href="/whales.html" data-t="navWhales">Whale buys</a>
+  <a href="/rugs.html" data-t="navRugs">Rugs we caught</a>
+  <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a>
+</nav>
 <nav class="crumbs"><a href="/">Home</a><span>/</span><span>Rugs we caught</span></nav>
 <main>
   <h1 style="font-size:22px;margin:8px 0 4px">Accuracy study &amp; rugs we caught</h1>
@@ -107,7 +113,7 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 <tr><td><b>$NUBI</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=BfoqQL1Sm5PpCkn9yKsGQhYMkBkZSdzsBMdLodBTpump" target="_blank" rel="noopener" title="BfoqQL1Sm5PpCkn9yKsGQhYMkBkZSdzsBMdLodBTpump">Bfoq…pump</a></td><td>2026-10-15T18:13:39Z</td><td><span class="badge low">LOW 4</span></td><td>0.4h</td><td>$911.5K</td><td>$83.2K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
 <tr><td><b>$POKEMON</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=CM54aeZaVCUokycv4Ypq77mBYB3GpC17R7CAHS4zpump" target="_blank" rel="noopener" title="CM54aeZaVCUokycv4Ypq77mBYB3GpC17R7CAHS4zpump">CM54…pump</a></td><td>2026-10-15T18:13:38Z</td><td><span class="badge medium">MEDIUM 23</span></td><td>0.22h</td><td>$58.1K</td><td>$21.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
 <tr><td><b>$Cul</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=EAJ1auhSGyoFBpugVindEjWNHnSrqbzczfmNBZbCpump" target="_blank" rel="noopener" title="EAJ1auhSGyoFBpugVindEjWNHnSrqbzczfmNBZbCpump">EAJ1…pump</a></td><td>2026-10-15T18:13:26Z</td><td><span class="badge medium">MEDIUM 18</span></td><td>0.22h</td><td>$31.1K</td><td>$13.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr></tbody></table></div></details>
-    <p class="muted" style="margin-top:10px">Page generated 2026-10-15T23:36:51Z from evidence <code>db.json</code>.</p>
+    <p class="muted" style="margin-top:10px">Page generated 2026-10-16T00:30:17Z from evidence <code>db.json</code>.</p>
   </div>
 
   <h2 style="font-size:16px;margin:28px 0 4px;color:#9aa4b8;text-transform:uppercase;letter-spacing:.04em">Legacy records (not part of the study)</h2>
@@ -633,13 +639,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (51)</span>
     <div class="tok"><b>$Safe</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge low" style="font-size:13px;padding:6px 10px">Still alive</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-14T23:38:13Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$0.00000281</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T02:31:13Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-16T00:30:14Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
@@ -731,6 +737,9 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 <footer>
   Not financial advice. Automated checks can miss scams or flag legit tokens. Always DYOR.
   · <a href="/">MemeCheck</a>
+  · <a href="/whales.html" data-t="navWhales">Whale buys</a>
+  · <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a>
 </footer>
+<script src="nav.js?v=nav1" defer></script>
 </body>
 </html>

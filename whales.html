@@ -8,7 +8,7 @@
 <link rel="canonical" href="https://memecheck.pages.dev/whales.html">
 <meta name="theme-color" content="#0b0f17">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-<link rel="stylesheet" href="style.css?v=whales1">
+<link rel="stylesheet" href="style.css?v=nav1">
 <style>
 nav.crumbs{display:flex;gap:8px;align-items:center;padding:0 20px;max-width:860px;margin:12px auto 0;font-size:14px}
 nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef}nav.crumbs span{color:#7d879c}
@@ -32,9 +32,15 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 </head>
 <body>
 <header>
+  <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span><span></span><span></span></button>
   <div class="brand"><img src="/icon-192.png" width="26" height="26" alt="MemeCheck"> <b>MemeCheck</b></div>
-  <a class="ghost" href="/" style="padding:8px 12px;border:1px solid #273046;border-radius:10px;color:#9aa4b8;text-decoration:none;font-size:14px">← Checker</a>
 </header>
+<nav class="site-nav" id="site-nav" hidden>
+  <a href="/" data-t="navChecker">Checker</a>
+  <a href="/whales.html" data-t="navWhales">Whale buys</a>
+  <a href="/rugs.html" data-t="navRugs">Rugs we caught</a>
+  <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a>
+</nav>
 <nav class="crumbs"><a href="/">Home</a><span>/</span><span>Whale buys</span></nav>
 <main>
   <h1 style="font-size:22px;margin:8px 0 4px">Whale buys tracker</h1>
@@ -52,7 +58,8 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 <footer>
   Not financial advice. Automated checks can miss scams or flag legit tokens. Always DYOR.
   · <a href="/">MemeCheck</a>
-  · <a href="/rugs.html">Rugs we caught</a>
+  · <a href="/rugs.html" data-t="navRugs">Rugs we caught</a>
+  · <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a>
 </footer>
 <script>
 (function () {
@@ -203,5 +210,6 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
   load();
 })();
 </script>
+<script src="nav.js?v=nav1" defer></script>
 </body>
 </html>

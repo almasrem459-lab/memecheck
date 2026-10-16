@@ -1,5 +1,5 @@
 import { analyze, detectChain, score } from './core.js?v=1792080000';
-import { T, usd } from './i18n.js?v=1792401000';
+import { T, usd } from './i18n.js?v=nav1';
 const $ = (s) => document.querySelector(s);
 const params = new URLSearchParams(location.search);
 let lang = params.get('lang') || localStorage.getItem('mc_lang') || 'en'; if (!T[lang]) lang = 'en'; let last = null, runId = 0;
@@ -38,6 +38,7 @@ $('#chips').addEventListener('click', (e) => {
 function applyLang() {
   const t = T[lang]; document.documentElement.lang = lang; document.documentElement.dir = t.dir;
   document.querySelectorAll('[data-t]').forEach(e => e.textContent = t[e.dataset.t]);
+  const nt = document.getElementById('nav-toggle'); if (nt) nt.setAttribute('aria-label', t.navMenu);
   $('#addr').placeholder = t.placeholder; $('#lang').textContent = t.lang; $('#chain option[value=auto]').textContent = t.auto;
   onInput(); chips(); pfToggle(); syncBack(); if (last) render(last, true);
 }
