@@ -385,10 +385,23 @@ async function fetchFlows(mint) {
   } finally { clearTimeout(tm); }
 }
 
+function ensureBox() {
+  let box = document.getElementById('lf-box');
+  if (box) return box;
+  const out = document.getElementById('out');
+  if (!out) return null;
+  box = document.createElement('div');
+  box.id = 'lf-box';
+  box.className = 'card';
+  const bm = document.getElementById('bm-box');
+  if (bm) bm.after(box); else out.appendChild(box);
+  return box;
+}
+
 function paint() {
   if (!cur) return;
   const t = L[lang()];
-  const box = $('#lf-box');
+  const box = ensureBox();
   if (!box) return;
   const d = cache.get(cur.addr);
   box.hidden = false;
@@ -420,7 +433,8 @@ async function start(addr) {
   cache.set(addr, 'loading'); paint();
   try {
     const j = await fetchFlows(addr);
-    if (!j || j.ok === false) cache.set(addr, { error: true });
+    if (!j) cache.set(addr, { error: true });
+    else if (j.ok === false && (j.error || !j.empty)) cache.set(addr, { error: true, timeout: !!j.timeout });
     else cache.set(addr, j);
   } catch (e) {
     cache.set(addr, { error: true, timeout: /abort|timeout/i.test(String(e?.name || e?.message || '')) });
@@ -431,12 +445,13 @@ async function start(addr) {
 document.addEventListener('mc:render', (e) => {
   const { r } = e.detail;
   cur = { addr: r.addr, chain: r.chain };
-  const box = $('#lf-box');
   if (r.chain !== 'solana') {
+    const box = document.getElementById('lf-box');
     if (box) box.hidden = true;
     if (inst) { inst.destroy(); inst = null; }
     return;
   }
+  ensureBox();
   const c = cache.get(r.addr);
   if (c && c !== 'loading' && !c.error) { paint(); return; }
   start(r.addr);

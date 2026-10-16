@@ -102,10 +102,24 @@ async function fetchSnipers(mint) {
   } finally { clearTimeout(tm); }
 }
 
+function ensureBox() {
+  let box = document.getElementById('sn-box');
+  if (box) return box;
+  const out = document.getElementById('out');
+  if (!out) return null;
+  box = document.createElement('div');
+  box.id = 'sn-box';
+  box.className = 'card';
+  const lf = document.getElementById('lf-box');
+  const bm = document.getElementById('bm-box');
+  if (lf) lf.after(box); else if (bm) bm.after(box); else out.appendChild(box);
+  return box;
+}
+
 function paint() {
   if (!cur) return;
   const t = L[lang()];
-  const box = $('#sn-box');
+  const box = ensureBox();
   if (!box) return;
   const d = cache.get(cur.addr);
   box.hidden = false;
@@ -134,7 +148,8 @@ async function start(addr) {
   cache.set(addr, 'loading'); paint();
   try {
     const j = await fetchSnipers(addr);
-    if (!j || j.ok === false) cache.set(addr, { error: true });
+    if (!j) cache.set(addr, { error: true });
+    else if (j.ok === false && (j.error || !j.empty)) cache.set(addr, { error: true, timeout: !!j.timeout });
     else cache.set(addr, j);
   } catch (e) {
     cache.set(addr, { error: true, timeout: /abort|timeout/i.test(String(e?.name || e?.message || '')) });
@@ -145,11 +160,12 @@ async function start(addr) {
 document.addEventListener('mc:render', (e) => {
   const { r } = e.detail;
   cur = { addr: r.addr, chain: r.chain };
-  const box = $('#sn-box');
   if (r.chain !== 'solana') {
+    const box = document.getElementById('sn-box');
     if (box) box.hidden = true;
     return;
   }
+  ensureBox();
   const c = cache.get(r.addr);
   if (c && c !== 'loading' && !c.error) { paint(); return; }
   start(r.addr);
