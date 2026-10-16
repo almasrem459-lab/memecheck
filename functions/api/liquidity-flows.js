@@ -309,7 +309,7 @@ function buildGraph(flows, reasons, pool, creator) {
       kind: 'wallet',
       label: short(w),
       short: short(w),
-      sus: !!sus || (creator && w === creator),
+      sus: !!(sus || (creator && w === creator)),
       reasons: rs.map(reasonLabel),
       reasonCodes: rs,
       buys: s.buys,
