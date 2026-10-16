@@ -159,6 +159,46 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     }
     renderChips();
     renderFeed();
+    enrichClient().then(() => { renderChips(); renderFeed(); }).catch(() => {});
+  }
+
+  async function enrichClient() {
+    if (!data || !data.buys || !data.buys.length) return;
+    const need = [...new Set(data.buys.filter(b => b.mint && (!b.mcap || !b.symbol || /…$/.test(b.symbol))).map(b => b.mint))];
+    if (!need.length) return;
+    const map = new Map();
+    for (let i = 0; i < need.length; i += 30) {
+      const batch = need.slice(i, i + 30);
+      try {
+        const r = await fetch('https://api.dexscreener.com/tokens/v1/solana/' + batch.join(','));
+        const arr = r.ok ? await r.json() : [];
+        for (const p of Array.isArray(arr) ? arr : []) {
+          const a = p?.baseToken?.address; if (!a || p.chainId !== 'solana') continue;
+          const mcap = +(p.marketCap ?? p.fdv) || 0, liq = +p.liquidity?.usd || 0;
+          const prev = map.get(a);
+          if (!prev || liq > prev.liq) {
+            map.set(a, {
+              symbol: String(p.baseToken?.symbol || '').slice(0, 20),
+              name: String(p.baseToken?.name || '').slice(0, 40),
+              mcap: Math.round(mcap), liq: Math.round(liq),
+              priceUsd: p.priceUsd ? +p.priceUsd : null,
+              image: p.info?.imageUrl || null,
+            });
+          }
+        }
+      } catch {}
+    }
+    for (const b of data.buys) {
+      const m = map.get(b.mint); if (!m) continue;
+      b.symbol = m.symbol || b.symbol;
+      b.name = m.name || b.name;
+      b.mcap = m.mcap || b.mcap;
+      b.liq = m.liq || b.liq;
+      b.image = m.image || b.image;
+      if ((!b.sizeUsd || b.sizeUsd <= 0) && b.tokenAmt && m.priceUsd) b.sizeUsd = +(b.tokenAmt * m.priceUsd).toFixed(2);
+    }
+    // Prefer live markets in display order
+    data.buys.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0) || (b.mcap || 0) - (a.mcap || 0));
   }
   load();
 })();
