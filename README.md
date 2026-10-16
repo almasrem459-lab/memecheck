@@ -7,6 +7,7 @@ Free, open-source meme-coin safety checker. Paste a contract address and get a *
 ## What it checks
 
 **Solana (deep checks)**
+- Visual Liquidity Flows map (animated green=organic / red=wash-like; interactive)
 - Mint authority / freeze authority, Token-2022 transfer fees, mutable metadata
 - Liquidity size, LP locked/burned share, price drop from peak, pair age
 - Top-holder concentration (pool vaults and AMM authorities excluded)
