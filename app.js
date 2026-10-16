@@ -48,7 +48,7 @@ function onInput() {
   $('#det').textContent = k ? `${t.detected}: ${k === 'solana' ? t.solana : t.evm}` : '';
 }
 const pc = (v) => v === null || v === undefined ? '—' : `<span dir="ltr" class="${v >= 0 ? 'up' : 'dn'}">${v > 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
-const SLOTS = ['dh-box', 'db-box', 'ex-box', 'bm-box'];
+const SLOTS = ['dh-box', 'db-box', 'ex-box', 'bm-box', 'lf-box'];
 // Developer history (devhist-ui.js -> window.__mcDevHist) becomes one finding. Conservative score nudge: FAIL (serial
 // launcher / >= 3 dead-or-rugged coins) = +10 risk points, WARN (2+ dead) = +3 (half of weight 6), PASS = +0. Never critical.
 // "Risk unknown" stays unknown (no market/security data). The shared server snapshot (/api/deep core, OG image) is not nudged.
@@ -87,7 +87,7 @@ function render(r0, fire) {
       [`${t.change} <span dir="ltr">${t.ch1h24}</span>`, `<span dir="ltr">${pc(m.ch?.h1)} / ${pc(m.ch?.h24)}</span>`], [t.pairAge, ageH == null ? '—' : ageH < 48 ? ageH.toFixed(1) + (lang === 'ar' ? ' ساعة' : ' h') : (ageH / 24).toFixed(0) + (lang === 'ar' ? ' يوم' : ' d')], [t.holders, m.totalHolders ?? '—']]
       .map(([k, val]) => `<div class="kv"><span>${k}</span><b>${val}</b></div>`).join('')}</div></div>
   <div class="card" id="fcard"><h3>${t.findings}</h3>${r.pending.filter(k => k !== 'DexScreener').map(k => `<div class="row"><span class="st na"><span class="spin sm"></span></span><span>${esc(t.waiting(k))}</span></div>`).join('')}${fs.map(f => `<div class="row"><span class="st ${f.status}">${st[f.status]}</span><span>${esc((t.r[f.id] || (() => f.id))(f.params, f.status))}</span></div>`).join('')}</div>
-  <div id="dh-box"></div><div id="db-box"></div><div id="ex-box"></div><div id="bm-box" class="card"></div>
+  <div id="dh-box"></div><div id="db-box"></div><div id="ex-box"></div><div id="bm-box" class="card"></div><div id="lf-box" class="card"></div>
   ${r.extra.holders?.length ? `<div class="card"><h3>${t.topHolders}</h3>${r.extra.holders.map((h, i) => `<div class="row"><span class="st na">#${i + 1}</span><span class="mono">${esc(h.owner)}</span><b style="margin-inline-start:auto" dir="ltr">${(+h.pct).toFixed(2)}%</b></div>`).join('')}</div>` : ''}
   ${r.flags.length ? `<div class="card"><h3>${t.flags}</h3>${r.flags.map(x => `<div class="row"><span class="st ${x.level === 'danger' || x.level === 'high' ? 'fail' : 'warn'}">${esc(x.level)}</span><span dir="ltr">${esc(x.name)}${x.desc ? ' — ' + esc(x.desc) : ''}</span></div>`).join('')}</div>` : ''}
   <div class="card"><h3>${t.sources}</h3>${Object.entries(r.sources).map(([k, s]) => `<div class="row"><span class="st ${s === 'ok' ? 'pass' : 'na'}">${s === 'ok' ? t.ok : s === 'empty' ? t.empty : t.fail}</span><span>${k}</span></div>`).join('')}</div>`;
@@ -100,7 +100,7 @@ function render(r0, fire) {
   $('#a-ca').onclick = (e) => copy(r.addr, e.currentTarget); $('#a-link').onclick = (e) => { warm(); copy(shareUrl(r), e.currentTarget); };
   $('#a-img').onclick = () => { warm(); openShare(r); };
   document.body.classList.add('has-result'); pfToggle(); syncBack();
-  if (fire) document.dispatchEvent(new CustomEvent('mc:render', { detail: { r, lang } })); // extra analyses (devbundle-ui.js, extras.js, bubble-ui.js)
+  if (fire) document.dispatchEvent(new CustomEvent('mc:render', { detail: { r, lang } })); // extra analyses (devbundle-ui.js, extras.js, bubble-ui.js, flows-ui.js)
 }
 // ---- shareable result card: PNG drawn client-side (canvas 1200x675), in the current language (RTL aware) ----
 const LV = { low: ['#0f3d2a', '#3ee08f'], medium: ['#3d3510', '#ffd447'], high: ['#40220f', '#ff8f3e'], extreme: ['#4a0f17', '#ff4d6a'], unknown: ['#222833', '#aab2c0'] };
