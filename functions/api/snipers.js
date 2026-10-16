@@ -1,13 +1,28 @@
 // GET /api/snipers?mint=<base58> -> Live Sniper Detection for Solana meme coins.
-// Looks at the first ~50 buyers in the opening slots/seconds after launch (bonding curve or pool),
+// Looks at the first ~40 buyers in the opening slots/seconds after launch (bonding curve or pool),
 // labels likely sniper bots, and reports % of supply they still hold.
 // Heuristics (demo v1, not proof): same-slot as create, multi-buy in first seconds, tip/priority patterns,
-// shared funder clusters, still holding a large early bag. Read-only; Cache API ~90s.
+// still holding a large early bag. Read-only; Cache API ~5 min (longer on soft-degrade).
 const MINT_RE = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
-const TTL = 90, EARLY_TX = 50, EARLY_SLOTS = 3, UA = 'Mozilla/5.0 (MemeCheck/1.0)';
+const TTL = 300, TTL_SOFT = 90, EARLY_TX = 40, EARLY_SLOTS = 3, SIG_PAGE = 100, SIG_PAGES_MAX = 6;
+const BATCH = 5, UA = 'Mozilla/5.0 (MemeCheck/1.0)';
+const PUBLIC_RPCS = [
+  'https://api.mainnet-beta.solana.com',
+  'https://solana.leorpc.com/?api_key=FREE',
+];
 const json = (status, body, extra = {}) => new Response(typeof body === 'string' ? body : JSON.stringify(body), {
   status, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*', ...extra },
 });
+
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+const isRate = (e) => /429|403|402|rate|limit|too many|busy|-32429|-32005/i.test(String(e?.message || e || ''));
+const softMsg = (reason) => ({
+  rate_limited: 'RPC is busy right now — try again in a minute. / الشبكة مشغولة، حاول بعد دقيقة.',
+  sigs: 'Could not load launch signatures right now. / تعذر تحميل توقيعات الإطلاق الآن.',
+  none: 'No transactions found for this mint/curve yet. / لا توجد معاملات بعد.',
+  no_buyers: 'Launch txs found, but no clear early buyers could be parsed. / وُجدت معاملات إطلاق لكن لم يُستخرج مشتركون أوائل.',
+  timeout: 'Sniper scan timed out. Try again. / انتهت مهلة الفحص.',
+}[reason] || 'Sniper scan unavailable right now. / فحص القناصة غير متاح حاليًا.');
 
 async function getJson(url, ms = 10000, init = {}) {
   const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), ms);
@@ -18,30 +33,60 @@ async function getJson(url, ms = 10000, init = {}) {
   } finally { clearTimeout(tm); }
 }
 
-async function rpc(url, method, params, ms = 15000) {
+async function rpcOnce(url, method, params, ms = 15000) {
   const j = await getJson(url, ms, {
     method: 'POST', headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
   });
-  if (j.error) throw new Error((j.error.message || 'rpc') + (j.error.code != null ? ' ' + j.error.code : ''));
+  if (j.error) {
+    const code = j.error.code != null ? ' ' + j.error.code : '';
+    throw new Error((j.error.message || 'rpc') + code);
+  }
   return j.result;
 }
 
-async function rpcBatch(url, calls, ms = 22000) {
+async function rpc(url, method, params, ms = 15000, retries = 2) {
+  let last;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await rpcOnce(url, method, params, ms);
+    } catch (e) {
+      last = e;
+      if (!isRate(e) || i === retries) throw e;
+      await sleep(400 * (i + 1) * (i + 1));
+    }
+  }
+  throw last;
+}
+
+async function rpcBatch(url, calls, ms = 22000, retries = 2) {
   const body = calls.map((c, i) => ({ jsonrpc: '2.0', id: i + 1, method: c[0], params: c[1] }));
-  const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), ms);
-  try {
-    const r = await fetch(url, { method: 'POST', signal: ctl.signal, headers: { 'content-type': 'application/json', 'user-agent': UA }, body: JSON.stringify(body) });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const arr = await r.json();
-    if (!Array.isArray(arr)) throw new Error('bad batch');
-    const byId = Object.fromEntries(arr.map(x => [x.id, x]));
-    return calls.map((_, i) => {
-      const x = byId[i + 1];
-      if (!x || x.error) return null;
-      return x.result;
-    });
-  } finally { clearTimeout(tm); }
+  let last;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), ms);
+    try {
+      const r = await fetch(url, { method: 'POST', signal: ctl.signal, headers: { 'content-type': 'application/json', 'user-agent': UA }, body: JSON.stringify(body) });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const arr = await r.json();
+      if (!Array.isArray(arr)) throw new Error('bad batch');
+      const byId = Object.fromEntries(arr.map(x => [x.id, x]));
+      // If every entry is a rate-limit style error, treat as rate limited
+      const errs = calls.map((_, i) => byId[i + 1]?.error).filter(Boolean);
+      if (errs.length === calls.length && errs.some(e => isRate({ message: String(e.message || e.code || '') }))) {
+        throw new Error('HTTP 429');
+      }
+      return calls.map((_, i) => {
+        const x = byId[i + 1];
+        if (!x || x.error) return null;
+        return x.result;
+      });
+    } catch (e) {
+      last = e;
+      if (!isRate(e) || attempt === retries) throw e;
+      await sleep(500 * (attempt + 1) * (attempt + 1));
+    } finally { clearTimeout(tm); }
+  }
+  throw last;
 }
 
 function short(a) { return a && a.length > 10 ? a.slice(0, 4) + '…' + a.slice(-4) : a; }
@@ -54,7 +99,7 @@ async function loadCoin(mint) {
 }
 
 function parseEarlyBuyers(txs, mint, creator, curve, launchSlot) {
-  const buyers = new Map(); // owner -> { amt, slots:Set, n, tipLamports, accts:Set }
+  const buyers = new Map();
   let createSlot = launchSlot;
   for (const wrap of txs) {
     const t = wrap?.tx; if (!t || t.meta?.err) continue;
@@ -98,8 +143,7 @@ function labelSniper(o, createSlot) {
   else if (slotDelta <= 1) reasons.push('next_slot');
   else if (slotDelta <= EARLY_SLOTS) reasons.push('early_slot');
   if (o.n >= 3) reasons.push('multi_buy');
-  if (o.tipLamports >= 1_000_000) reasons.push('high_fee'); // >= 0.001 SOL fees across buys (priority tips)
-  // "pro" = bought in create/next slot OR multi-buy in early window
+  if (o.tipLamports >= 1_000_000) reasons.push('high_fee');
   const pro = reasons.includes('same_slot') || reasons.includes('next_slot') || (reasons.includes('early_slot') && reasons.includes('multi_buy'));
   return { reasons, pro, slotDelta };
 }
@@ -113,97 +157,134 @@ function riskLevel(sniperPct, proCount, buyerCount) {
   return { level: 'clear', label: 'Low sniper footprint' };
 }
 
+/** Walk toward genesis with small pages; cap RPC spend. Prefer full short history. */
+async function loadLaunchSigs(ups, target) {
+  let lastErr = null;
+  for (const up of ups) {
+    try {
+      const page0 = await rpc(up, 'getSignaturesForAddress', [target, { limit: SIG_PAGE }], 12000);
+      if (!Array.isArray(page0) || !page0.length) {
+        lastErr = new Error('no signatures');
+        continue;
+      }
+      let collected;
+      if (page0.length < SIG_PAGE) {
+        collected = [...page0].reverse();
+      } else {
+        collected = [...page0];
+        let before = page0[page0.length - 1].signature;
+        for (let p = 0; p < SIG_PAGES_MAX - 1; p++) {
+          await sleep(80);
+          const page = await rpc(up, 'getSignaturesForAddress', [target, { limit: SIG_PAGE, before }], 12000);
+          if (!Array.isArray(page) || !page.length) break;
+          collected.push(...page);
+          if (page.length < SIG_PAGE) break;
+          before = page[page.length - 1].signature;
+        }
+        // End of collected is oldest when paging with `before`
+        collected = collected.reverse();
+      }
+      const sigs = collected.filter(s => s && !s.err);
+      if (sigs.length) return { sigs, rpcUsed: new URL(up).host };
+      lastErr = new Error('no signatures');
+    } catch (e) {
+      lastErr = e;
+      if (isRate(e)) await sleep(600);
+    }
+  }
+  const reason = isRate(lastErr) ? 'rate_limited' : 'sigs';
+  return { sigs: [], reason, err: lastErr };
+}
+
+async function fetchTxs(ups, use) {
+  let lastErr = null;
+  for (const up of ups) {
+    try {
+      const wraps = [];
+      for (let i = 0; i < use.length; i += BATCH) {
+        if (i) await sleep(120);
+        const ch = use.slice(i, i + BATCH);
+        const calls = ch.map(s => ['getTransaction', [s.signature, { encoding: 'jsonParsed', maxSupportedTransactionVersion: 1 }]]);
+        const res = await rpcBatch(up, calls, 22000);
+        res.forEach((tx, j) => wraps.push({ tx, slot: ch[j].slot, blockTime: ch[j].blockTime, signature: ch[j].signature }));
+      }
+      const ok = wraps.filter(w => w.tx).length;
+      if (ok > 0) return { wraps, rpcUsed: new URL(up).host };
+      lastErr = new Error('empty txs');
+    } catch (e) {
+      lastErr = e;
+      if (isRate(e)) await sleep(600);
+    }
+  }
+  return { wraps: [], err: lastErr };
+}
+
 async function build(env, mint) {
   const key = env && env.HELIUS_KEY;
   if (!key) {
     return {
       ok: true, configured: false, mint, empty: true,
-      message: 'HELIUS_KEY not configured — sniper scan unavailable.', at: Date.now(),
+      message: softMsg('sigs'), reason: 'no_key', at: Date.now(),
     };
   }
-  const up = `https://mainnet.helius-rpc.com/?api-key=${key}`;
+  const helius = `https://mainnet.helius-rpc.com/?api-key=${key}`;
+  const ups = [helius, ...PUBLIC_RPCS];
   const coin = await loadCoin(mint);
   const creator = coin?.creator || null;
   const curve = coin?.bonding_curve || null;
   const createdMs = coin?.created_timestamp ? +coin.created_timestamp : null;
   const target = curve || mint;
 
-  // Signatures oldest-first (launch window). Mirror walkSigs: reverse a short history, or page back.
-  let sigs = [];
-  try {
-    const page0 = await rpc(up, 'getSignaturesForAddress', [target, { limit: 1000 }], 12000);
-    if (!Array.isArray(page0) || !page0.length) throw new Error('no signatures');
-    let collected = [];
-    if (page0.length < 1000) {
-      collected = [...page0].reverse(); // oldest → newest
-    } else {
-      // Page backward up to 3 more times to try reaching genesis; then reverse.
-      collected = [...page0];
-      let before = page0[page0.length - 1].signature;
-      let reached = false;
-      for (let p = 0; p < 3; p++) {
-        const page = await rpc(up, 'getSignaturesForAddress', [target, { limit: 1000, before }], 12000);
-        if (!Array.isArray(page) || !page.length) break;
-        collected.push(...page);
-        if (page.length < 1000) { reached = true; break; }
-        before = page[page.length - 1].signature;
-      }
-      if (!reached && collected.length >= 4000) {
-        // Too much history — take the oldest page we reached (end of collected is older)
-        collected = collected.slice(-1000);
-      }
-      collected = collected.reverse();
-    }
-    sigs = collected.filter(s => s && !s.err);
-  } catch (e) {
-    return { ok: true, configured: true, mint, empty: true, reason: 'sigs', message: 'Could not load launch signatures. ' + String(e.message || e).slice(0, 60), at: Date.now() };
-  }
-
+  const { sigs, reason: sigReason, err: sigErr, rpcUsed: sigRpc } = await loadLaunchSigs(ups, target);
   if (!sigs.length) {
-    return { ok: true, configured: true, mint, empty: true, reason: 'none', message: 'No transactions found for this mint/curve yet.', at: Date.now() };
+    const reason = sigReason || (isRate(sigErr) ? 'rate_limited' : 'sigs');
+    return {
+      ok: true, configured: true, mint, empty: true, reason, soft: reason === 'rate_limited',
+      message: softMsg(reason), src: sigRpc || null, at: Date.now(),
+    };
   }
 
   const launchSlot = sigs[0].slot;
-  // First EARLY_TX successful txs within EARLY_SLOTS of launch (and always include create slot)
   const earlySigs = sigs.filter(s => s.slot <= launchSlot + EARLY_SLOTS).slice(0, EARLY_TX);
-  // If too few in slot window (slow launch), take first EARLY_TX overall
   const use = earlySigs.length >= 8 ? earlySigs : sigs.slice(0, EARLY_TX);
 
-  const chunks = [];
-  for (let i = 0; i < use.length; i += 8) chunks.push(use.slice(i, i + 8));
-  const wraps = [];
-  for (const ch of chunks) {
-    const calls = ch.map(s => ['getTransaction', [s.signature, { encoding: 'jsonParsed', maxSupportedTransactionVersion: 1 }]]);
-    const res = await rpcBatch(up, calls, 22000);
-    res.forEach((tx, i) => wraps.push({ tx, slot: ch[i].slot, blockTime: ch[i].blockTime, signature: ch[i].signature }));
+  const { wraps, err: txErr, rpcUsed } = await fetchTxs(ups, use);
+  if (!wraps.some(w => w.tx)) {
+    const reason = isRate(txErr) ? 'rate_limited' : 'sigs';
+    return {
+      ok: true, configured: true, mint, empty: true, reason, soft: true,
+      message: softMsg(reason), src: rpcUsed || null, at: Date.now(),
+    };
   }
 
   const { buyers, createSlot } = parseEarlyBuyers(wraps, mint, creator, curve, launchSlot);
   if (!buyers.size) {
     return {
       ok: true, configured: true, mint, empty: true, reason: 'no_buyers',
-      message: 'Launch txs found, but no clear early buyers could be parsed.',
-      launchSlot, sampled: use.length, at: Date.now(),
+      message: softMsg('no_buyers'),
+      launchSlot, sampled: use.length, src: rpcUsed, at: Date.now(),
     };
   }
 
   let supply = null, decimals = 6;
   try {
-    const sup = await rpc(up, 'getTokenSupply', [mint], 8000);
+    const up = key ? helius : ups[0];
+    const sup = await rpc(up, 'getTokenSupply', [mint], 8000, 1);
     supply = BigInt(sup.value.amount);
     decimals = +sup.value.decimals || 6;
   } catch {}
 
-  // Current holdings of early buyers (via their ATAs we saw, capped)
   const list = [...buyers.values()].sort((a, b) => (b.amt > a.amt ? 1 : -1));
-  let heldMap = new Map(); // owner -> current raw amount
+  let heldMap = new Map();
   try {
-    const accts = [...new Set(list.flatMap(o => [...o.accts]))].slice(0, 80);
+    const accts = [...new Set(list.flatMap(o => [...o.accts]))].slice(0, 40);
     if (accts.length) {
+      const up = key ? helius : ups[0];
       for (let i = 0; i < accts.length; i += 20) {
+        if (i) await sleep(100);
         const slice = accts.slice(i, i + 20);
-        const res = await rpc(up, 'getMultipleAccounts', [slice, { encoding: 'jsonParsed' }], 12000);
-        (res?.value || []).forEach((a, idx) => {
+        const res = await rpc(up, 'getMultipleAccounts', [slice, { encoding: 'jsonParsed' }], 12000, 1);
+        (res?.value || []).forEach((a) => {
           const info = a?.data?.parsed?.info;
           if (!info || info.mint !== mint) return;
           const owner = info.owner;
@@ -228,22 +309,15 @@ async function build(env, mint) {
       if (pro) proCount++;
     }
     snipers.push({
-      owner: o.owner,
-      short: short(o.owner),
-      boughtPct: pct(o.amt),
-      heldPct: held != null ? pct(held) : null,
-      buys: o.n,
-      slotDelta,
-      pro,
-      sniper: isSniper,
-      reasons,
+      owner: o.owner, short: short(o.owner),
+      boughtPct: pct(o.amt), heldPct: held != null ? pct(held) : null,
+      buys: o.n, slotDelta, pro, sniper: isSniper, reasons,
     });
   }
 
   const sniperList = snipers.filter(s => s.sniper);
   const boughtPct = pct(sniperBought);
   const heldPct = pct(sniperHeld);
-  // Prefer current holdings; if snipers already dumped (held≈0), fall back to launch-bought % for the warning.
   const sniperPct = (heldPct != null && heldPct > 0.05) ? heldPct : (boughtPct ?? heldPct);
   const risk = riskLevel(sniperPct, proCount, list.length);
   const windowSec = (() => {
@@ -253,24 +327,14 @@ async function build(env, mint) {
   })();
 
   return {
-    ok: true,
-    configured: true,
-    mint,
-    empty: false,
-    pump: !!coin,
-    creator,
-    curve,
-    created: createdMs,
-    launchSlot: createSlot,
-    sampledTx: use.length,
-    earlyBuyers: list.length,
-    snipers: sniperList.length,
-    proSnipers: proCount,
+    ok: true, configured: true, mint, empty: false, pump: !!coin,
+    creator, curve, created: createdMs, launchSlot: createSlot,
+    sampledTx: use.length, earlyBuyers: list.length,
+    snipers: sniperList.length, proSnipers: proCount,
     sniperPct: sniperPct != null ? +sniperPct.toFixed(2) : null,
     sniperHeldPct: heldPct != null ? +heldPct.toFixed(2) : null,
     sniperBoughtPct: boughtPct != null ? +boughtPct.toFixed(2) : null,
-    risk,
-    windowSec,
+    risk, windowSec, src: rpcUsed || sigRpc || null,
     warning: risk.level === 'high' || risk.level === 'medium'
       ? 'Even if the contract looks clean, heavy sniper holdings can leave the chart "dead by programming" — bots may dump into retail.'
       : null,
@@ -278,7 +342,6 @@ async function build(env, mint) {
       owner: s.owner, short: s.short, boughtPct: s.boughtPct, heldPct: s.heldPct,
       buys: s.buys, slotDelta: s.slotDelta, pro: s.pro, reasons: s.reasons,
     })),
-    // compact all early buyers for optional UI
     buyers: snipers.slice(0, 40).map(s => ({
       owner: s.owner, short: s.short, boughtPct: s.boughtPct, heldPct: s.heldPct,
       sniper: s.sniper, pro: s.pro, slotDelta: s.slotDelta, reasons: s.reasons,
@@ -298,7 +361,7 @@ export const onRequest = async ({ request: req, env, waitUntil }) => {
   const mint = u.searchParams.get('mint') || u.searchParams.get('ca') || '';
   if (!MINT_RE.test(mint)) return json(400, { error: 'bad mint' });
   const bust = u.searchParams.get('fresh') === '1';
-  const cacheKey = new Request('https://memecheck-cache.internal/snipers/v1/' + mint);
+  const cacheKey = new Request('https://memecheck-cache.internal/snipers/v3/' + mint);
   const cache = typeof caches !== 'undefined' ? caches.default : null;
   if (!bust) try {
     const hit = cache && await cache.match(cacheKey);
@@ -309,16 +372,24 @@ export const onRequest = async ({ request: req, env, waitUntil }) => {
   try {
     res = await Promise.race([
       build(env, mint),
-      new Promise((_, rej) => { tm = setTimeout(() => rej(new Error('timeout')), 28000); }),
+      new Promise((_, rej) => { tm = setTimeout(() => rej(new Error('timeout')), 26000); }),
     ]);
   } catch (e) {
-    res = { ok: false, configured: !!(env && env.HELIUS_KEY), mint, empty: true, error: String(e?.message || e).slice(0, 100), at: Date.now() };
+    const reason = /timeout/i.test(String(e?.message || e)) ? 'timeout' : (isRate(e) ? 'rate_limited' : 'sigs');
+    res = {
+      ok: true, configured: !!(env && env.HELIUS_KEY), mint, empty: true,
+      reason, soft: true, message: softMsg(reason), at: Date.now(),
+    };
   } finally { clearTimeout(tm); }
 
   const body = JSON.stringify(res);
-  if (cache && res.ok && !res.error) {
-    const p = cache.put(cacheKey, new Response(body, { headers: { 'content-type': 'application/json', 'cache-control': `public, max-age=${TTL}` } })).catch(() => {});
+  const ttl = (res.soft || res.reason === 'rate_limited') ? TTL_SOFT : TTL;
+  // Cache real results always; cache rate-limit soft-degrades briefly to stop Retry stampedes.
+  // Do NOT cache timeouts — a concurrent slow scan must not poison a good colo entry.
+  const cacheable = res.ok && res.reason !== 'timeout' && ( !res.soft || res.reason === 'rate_limited' || res.reason === 'no_buyers' || res.reason === 'none' || !res.empty );
+  if (cache && cacheable) {
+    const p = cache.put(cacheKey, new Response(body, { headers: { 'content-type': 'application/json', 'cache-control': `public, max-age=${ttl}` } })).catch(() => {});
     waitUntil ? waitUntil(p) : await p;
   }
-  return json(200, body, { 'cache-control': `public, max-age=${TTL}`, 'x-cache': bust ? 'BYPASS' : 'MISS' });
+  return json(200, body, { 'cache-control': `public, max-age=${ttl}`, 'x-cache': bust ? 'BYPASS' : 'MISS' });
 };

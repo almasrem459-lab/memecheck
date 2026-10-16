@@ -22,6 +22,9 @@ const L = {
     note: 'Demo v1: first ~50 buyers in the opening slots after liquidity/bonding-curve launch. Heuristic labels — not proof of bot identity. DYOR.',
     timeout: 'Sniper scan timed out. Try again.',
     noKey: 'Sniper scan needs server RPC (not configured).',
+    rateLimited: 'RPC is busy right now — try again in a minute.',
+    noSigs: 'Could not load launch signatures right now.',
+    noBuyers: 'Launch txs found, but no clear early buyers could be parsed.',
   },
   ar: {
     title: 'كشف القناصة اللحظي', arTitle: 'كاشف القناصة اللحظي',
@@ -42,6 +45,9 @@ const L = {
     note: 'نسخة تجريبية: نحو 50 مشتريًا في أوائل السلوطات بعد الإطلاق. التصنيفات تقديرية وليست إثباتًا. ابحث بنفسك.',
     timeout: 'انتهت مهلة فحص القناصة. حاول مجددًا.',
     noKey: 'فحص القناصة يحتاج RPC على الخادم (غير مُعد).',
+    rateLimited: 'الشبكة مشغولة الآن — حاول بعد دقيقة.',
+    noSigs: 'تعذر تحميل توقيعات الإطلاق الآن.',
+    noBuyers: 'وُجدت معاملات إطلاق لكن لم يُستخرج مشتركون أوائل.',
   },
 };
 const lang = () => document.documentElement.lang === 'ar' ? 'ar' : 'en';
@@ -134,7 +140,8 @@ function paint() {
     return;
   }
   if (d.empty) {
-    const msg = d.configured === false ? t.noKey : (d.message || t.empty);
+    const byReason = { rate_limited: t.rateLimited, sigs: t.noSigs, no_buyers: t.noBuyers, timeout: t.timeout, none: t.empty };
+    const msg = d.configured === false ? t.noKey : (byReason[d.reason] || t.empty);
     box.innerHTML = `<h3>${t.title}</h3><span class="muted">${esc(msg)}</span>
       <button type="button" class="ghost act" id="sn-retry">${t.retry}</button>
       <details class="fn"><summary title="info">ⓘ</summary><div>${t.note}</div></details>`;

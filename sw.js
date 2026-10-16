@@ -1,6 +1,6 @@
 // Minimal service worker: caches same-origin static assets only. Never touches /api/* or cross-origin requests.
-const V = 'mc-static-flows1';
-const CORE = ['/', '/style.css?v=1792121600', '/app.js?v=1792121600', '/nav.js?v=1792121600', '/manifest.webmanifest', '/icon-192.png', '/favicon-32.png'];
+const V = 'mc-static-flows2';
+const CORE = ['/', '/style.css?v=1792122500', '/app.js?v=1792122500', '/nav.js?v=1792122500', '/manifest.webmanifest', '/icon-192.png', '/favicon-32.png'];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).catch(() => {})); self.skipWaiting(); });
 self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', (e) => {

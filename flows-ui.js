@@ -25,6 +25,9 @@ const L = {
     note: 'Demo v1: recent swaps around the pool. Red = round-trips, fast flips, creator, or burst trading — not proof of guilt. DYOR.',
     noPool: 'No Solana pool found for this mint.',
     timeout: 'Timed out loading flows. Try again.',
+    rateLimited: 'RPC is busy right now — try again in a minute.',
+    noSigs: 'Could not load recent pool transactions.',
+    noFlows: 'Recent pool txs found, but no clear swap flows could be parsed yet.',
     explorer: 'Solscan ↗',
     clear: 'Clear selection',
   },
@@ -49,6 +52,9 @@ const L = {
     note: 'نسخة تجريبية: صفقات حديثة حول المجمع. الأحمر = ذهاب وإياب، قلب سريع، المنشئ، أو رشقات — ليس إثباتًا. ابحث بنفسك.',
     noPool: 'لا يوجد مجمع سولانا لهذه العملة.',
     timeout: 'انتهت مهلة التحميل. حاول مجددًا.',
+    rateLimited: 'الشبكة مشغولة الآن — حاول بعد دقيقة.',
+    noSigs: 'تعذر تحميل معاملات المجمع الأخيرة.',
+    noFlows: 'وُجدت معاملات للمجمع، لكن لم تُستخرج تدفقات مبادلة واضحة بعد.',
     explorer: 'Solscan ↗',
     clear: 'إلغاء التحديد',
   },
@@ -419,8 +425,9 @@ function paint() {
   }
   if (d.empty) {
     if (inst) { inst.destroy(); inst = null; }
-    const msg = d.reason === 'no_pool' ? t.noPool : t.empty;
-    box.innerHTML = `<h3>${t.title}</h3><span class="muted">${esc(d.message || msg)}</span>
+    const byReason = { no_pool: t.noPool, rate_limited: t.rateLimited, no_sigs: t.noSigs, no_flows: t.noFlows, timeout: t.timeout };
+    const msg = byReason[d.reason] || t.empty;
+    box.innerHTML = `<h3>${t.title}</h3><span class="muted">${esc(msg)}</span>
       <button type="button" class="ghost act" id="lf-retry">${t.retry}</button>
       <details class="fn"><summary title="info">ⓘ</summary><div>${t.note}</div></details>`;
     $('#lf-retry')?.addEventListener('click', () => start(cur.addr));
