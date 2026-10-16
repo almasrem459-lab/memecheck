@@ -348,7 +348,7 @@ async function build(env, mint) {
       for (let i = 0; i < want.length; i += 8) chunks.push(want.slice(i, i + 8));
       const parts = [];
       for (const ch of chunks) {
-        const calls = ch.map(sig => ['getTransaction', [sig, { encoding: 'jsonParsed', maxSupportedTransactionVersion: 0 }]]);
+        const calls = ch.map(sig => ['getTransaction', [sig, { encoding: 'jsonParsed', maxSupportedTransactionVersion: 1 }]]);
         const res = await rpcBatch(up, calls, 22000);
         parts.push(...res);
       }
