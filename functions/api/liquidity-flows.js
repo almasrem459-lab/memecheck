@@ -53,33 +53,84 @@ async function rpcBatch(url, calls, ms = 20000) {
 function short(a) { return a && a.length > 10 ? a.slice(0, 4) + '…' + a.slice(-4) : a; }
 
 async function resolvePool(mint) {
-  const d = await getJson('https://api.dexscreener.com/latest/dex/tokens/' + mint, 10000);
-  const pairs = (d.pairs || []).filter(p => p.chainId === 'solana' && p.pairAddress);
-  if (!pairs.length) return null;
-  // Prefer real AMM pools with liquidity over bonding-curve-only rows
-  const scored = pairs.map(p => {
-    const liq = +p.liquidity?.usd || 0;
-    const vol = +p.volume?.h24 || 0;
-    const isCurve = /pumpfun|pump\.fun|moonshot|letsbonk/i.test(p.dexId || '');
-    const score = liq * 10 + vol + (isCurve && liq < 500 ? -1e9 : 0);
-    return { p, score, liq, isCurve };
-  }).sort((a, b) => b.score - a.score);
-  const best = scored[0].p;
-  const base = best.baseToken?.address === mint ? best.baseToken : best.quoteToken;
-  const quote = best.baseToken?.address === mint ? best.quoteToken : best.baseToken;
-  return {
-    pair: best.pairAddress,
-    dexId: best.dexId || null,
-    url: best.url || null,
-    liqUsd: +best.liquidity?.usd || 0,
-    vol24: +best.volume?.h24 || 0,
-    buys24: best.txns?.h24?.buys ?? null,
-    sells24: best.txns?.h24?.sells ?? null,
-    symbol: base?.symbol || null,
-    name: base?.name || null,
-    quote: quote?.symbol || 'SOL',
-    priceUsd: +best.priceUsd || null,
-  };
+  // DexScreener is often blocked from CF egress — try it, then pump.fun, then RugCheck markets.
+  let best = null;
+  try {
+    const d = await getJson('https://api.dexscreener.com/latest/dex/tokens/' + mint, 8000);
+    const pairs = (d.pairs || []).filter(p => p.chainId === 'solana' && p.pairAddress);
+    if (pairs.length) {
+      const scored = pairs.map(p => {
+        const liq = +p.liquidity?.usd || 0;
+        const vol = +p.volume?.h24 || 0;
+        const isCurve = /pumpfun|pump\.fun|moonshot|letsbonk/i.test(p.dexId || '');
+        const score = liq * 10 + vol + (isCurve && liq < 500 ? -1e9 : 0);
+        return { p, score };
+      }).sort((a, b) => b.score - a.score);
+      best = scored[0].p;
+    }
+  } catch {}
+  if (best) {
+    const base = best.baseToken?.address === mint ? best.baseToken : best.quoteToken;
+    const quote = best.baseToken?.address === mint ? best.quoteToken : best.baseToken;
+    return {
+      pair: best.pairAddress,
+      dexId: best.dexId || null,
+      url: best.url || null,
+      liqUsd: +best.liquidity?.usd || 0,
+      vol24: +best.volume?.h24 || 0,
+      buys24: best.txns?.h24?.buys ?? null,
+      sells24: best.txns?.h24?.sells ?? null,
+      symbol: base?.symbol || null,
+      name: base?.name || null,
+      quote: quote?.symbol || 'SOL',
+      priceUsd: +best.priceUsd || null,
+      via: 'dexscreener',
+    };
+  }
+  // pump.fun: prefer graduated PumpSwap pool, else bonding curve
+  if (/pump$/i.test(mint)) {
+    try {
+      const c = await getJson('https://frontend-api-v3.pump.fun/coins-v2/' + mint, 8000);
+      if (c) {
+        const pair = c.pump_swap_pool || c.bonding_curve || null;
+        if (pair) {
+          return {
+            pair,
+            dexId: c.pump_swap_pool ? 'pumpswap' : 'pumpfun',
+            url: 'https://pump.fun/coin/' + mint,
+            liqUsd: null,
+            vol24: null,
+            buys24: null,
+            sells24: null,
+            symbol: c.symbol || null,
+            name: c.name || null,
+            quote: 'SOL',
+            priceUsd: c.usd_market_cap && c.total_supply ? (+c.usd_market_cap / (+c.total_supply / 1e6)) : null,
+            via: 'pump.fun',
+            creator: c.creator || null,
+            created: +c.created_timestamp || null,
+          };
+        }
+      }
+    } catch {}
+  }
+  try {
+    const rc = await getJson('https://api.rugcheck.xyz/v1/tokens/' + mint + '/report', 8000);
+    const mk = (rc && rc.markets) || [];
+    const m = mk.find(x => x.pubkey) || mk[0];
+    if (m && m.pubkey) {
+      return {
+        pair: m.pubkey,
+        dexId: m.marketType || m.mint || 'pool',
+        url: null,
+        liqUsd: null, vol24: null, buys24: null, sells24: null,
+        symbol: rc.tokenMeta?.symbol || null,
+        name: rc.tokenMeta?.name || null,
+        quote: 'SOL', priceUsd: null, via: 'rugcheck',
+      };
+    }
+  } catch {}
+  return null;
 }
 
 async function resolveCreator(mint) {

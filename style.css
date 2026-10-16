@@ -133,3 +133,20 @@ header{gap:10px}
 .lf-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
 .lf-hint{margin:8px 2px 0;font-size:12px}
 @media(max-width:560px){.lf-stage canvas{min-height:260px}.lf-panel{font-size:12px}}
+
+/* Live Sniper Detection */
+#sn-box:empty{display:none}
+.sn-head h3{margin:0 0 8px}
+.sn-verdict{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;margin:0 0 8px}
+.sn-verdict b{font-size:14px;line-height:1.4;flex:1;min-width:180px}
+.sn-warn{margin:0 0 10px;padding:10px 12px;border-radius:10px;background:#2a1218;border:1px solid #4a0f17;color:#ff8f9d;font-size:13px;line-height:1.45}
+.sn-grid{margin-top:4px}
+.sn-sub{margin:14px 0 6px;font-size:13px;color:#9aa4b8;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+.sn-list{display:flex;flex-direction:column;gap:2px}
+.snrow{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:start;padding:8px 6px;border:0;border-top:1px solid #1a2130;background:transparent;color:inherit;cursor:pointer;border-radius:8px;font:inherit}
+.snrow:first-child{border-top:0}
+.snrow:hover,.snrow:focus-visible{background:#0e1320;outline:none}
+.snmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.snwhy{font-size:11px;margin:0}
+.snpct{font-weight:700;font-variant-numeric:tabular-nums;flex:none}
+@media(max-width:560px){.sn-verdict b{font-size:13px}}
