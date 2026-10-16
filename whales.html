@@ -120,7 +120,7 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
       const sym = (b.symbol || '???').replace(/[<>&]/g, '');
       const img = b.image ? `<img src="${b.image.replace(/"/g, '')}" width="28" height="28" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : `<span class="chip">$</span>`;
       const mc = fmtUsd(b.mcap);
-      const when = ago(b.timestamp);
+      const when = b.source === 'hold' ? (b.timestamp ? ('held · ' + ago(b.timestamp)) : 'holding') : (b.timestamp ? ago(b.timestamp) : '—');
       const check = `/?ca=${encodeURIComponent(b.mint)}`;
       return `<div class="wrow">
         <div class="wl">${img}<div class="wn">
