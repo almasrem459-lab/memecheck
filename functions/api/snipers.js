@@ -98,7 +98,7 @@ function labelSniper(o, createSlot) {
   else if (slotDelta <= 1) reasons.push('next_slot');
   else if (slotDelta <= EARLY_SLOTS) reasons.push('early_slot');
   if (o.n >= 3) reasons.push('multi_buy');
-  if (o.tipLamports >= 100000) reasons.push('high_fee'); // >= 0.0001 SOL fees across buys
+  if (o.tipLamports >= 1_000_000) reasons.push('high_fee'); // >= 0.001 SOL fees across buys (priority tips)
   // "pro" = bought in create/next slot OR multi-buy in early window
   const pro = reasons.includes('same_slot') || reasons.includes('next_slot') || (reasons.includes('early_slot') && reasons.includes('multi_buy'));
   return { reasons, pro, slotDelta };
@@ -241,8 +241,10 @@ async function build(env, mint) {
   }
 
   const sniperList = snipers.filter(s => s.sniper);
-  const sniperPct = pct(sniperHeld) ?? pct(sniperBought);
   const boughtPct = pct(sniperBought);
+  const heldPct = pct(sniperHeld);
+  // Prefer current holdings; if snipers already dumped (held≈0), fall back to launch-bought % for the warning.
+  const sniperPct = (heldPct != null && heldPct > 0.05) ? heldPct : (boughtPct ?? heldPct);
   const risk = riskLevel(sniperPct, proCount, list.length);
   const windowSec = (() => {
     const times = wraps.map(w => w.blockTime).filter(Boolean);
@@ -265,6 +267,7 @@ async function build(env, mint) {
     snipers: sniperList.length,
     proSnipers: proCount,
     sniperPct: sniperPct != null ? +sniperPct.toFixed(2) : null,
+    sniperHeldPct: heldPct != null ? +heldPct.toFixed(2) : null,
     sniperBoughtPct: boughtPct != null ? +boughtPct.toFixed(2) : null,
     risk,
     windowSec,

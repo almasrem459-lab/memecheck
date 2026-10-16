@@ -60,7 +60,8 @@ function draw(box, d) {
   const lvl = risk.level || 'unknown';
   const st = levelClass[lvl] || 'na';
   const pct = d.sniperPct;
-  const headline = t.headline(d.proSnipers || d.snipers || 0, pct) + t.pro(d.proSnipers || 0);
+  const showPct = (pct != null && pct > 0) ? pct : d.sniperBoughtPct;
+  const headline = t.headline(d.proSnipers || d.snipers || 0, showPct) + t.pro(d.proSnipers || 0);
   const rows = (d.top || []).map((s, i) => {
     const badge = s.pro ? 'fail' : 'warn';
     return `<button type="button" class="snrow" data-o="${esc(s.owner)}">

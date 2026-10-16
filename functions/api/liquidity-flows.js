@@ -364,12 +364,12 @@ async function build(env, mint) {
     ? [`https://mainnet.helius-rpc.com/?api-key=${key}`, 'https://api.mainnet-beta.solana.com']
     : ['https://api.mainnet-beta.solana.com'];
 
-  const [pool, creator] = await Promise.all([
-    resolvePool(mint).catch(() => null),
-    resolveCreator(mint).catch(() => null),
-  ]);
+  let pool = await resolvePool(mint).catch(() => null);
+  let creator = pool?.creator || await resolveCreator(mint).catch(() => null);
   if (!pool?.pair) {
-    return { ok: true, configured: !!key, mint, empty: true, reason: 'no_pool', message: 'No Solana pool found on DexScreener for this mint.', at: Date.now() };
+    // Last resort: watch the mint itself (pump.fun launch txs often include it)
+    pool = { pair: mint, dexId: 'mint', url: null, liqUsd: null, vol24: null, buys24: null, sells24: null,
+      symbol: null, name: null, quote: 'SOL', priceUsd: null, via: 'mint' };
   }
 
   let sigs = [];
