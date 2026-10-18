@@ -2,10 +2,13 @@
 // Looks at the first ~40 buyers in the opening slots/seconds after launch (bonding curve or pool),
 // labels likely sniper bots, and reports % of supply they still hold.
 // Heuristics (demo v1, not proof): same-slot as create, multi-buy in first seconds, tip/priority patterns,
-// still holding a large early bag. Read-only; Cache API ~5 min (longer on soft-degrade).
+// still holding a large early bag. Read-only; Cache API 10–15 min on success. Soft-degrade (never raw 429).
+// Staggers with /api/liquidity-flows via shared Cache API helius-recent mark.
 const MINT_RE = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
-const TTL = 300, TTL_SOFT = 90, EARLY_TX = 40, EARLY_SLOTS = 3, SIG_PAGE = 100, SIG_PAGES_MAX = 6;
-const BATCH = 5, UA = 'Mozilla/5.0 (MemeCheck/1.0)';
+const TTL = 900, TTL_SOFT = 90, EARLY_TX = 28, EARLY_SLOTS = 3, SIG_PAGE = 50, SIG_PAGES_MAX = 3;
+const BATCH = 4, UA = 'Mozilla/5.0 (MemeCheck/1.0)';
+const HELIUS_MARK = 'https://memecheck-cache.internal/helius-recent/v1';
+const HELIUS_COOLDOWN_S = 25;
 const PUBLIC_RPCS = [
   'https://api.mainnet-beta.solana.com',
   'https://solana.leorpc.com/?api_key=FREE',
@@ -23,6 +26,26 @@ const softMsg = (reason) => ({
   no_buyers: 'Launch txs found, but no clear early buyers could be parsed. / وُجدت معاملات إطلاق لكن لم يُستخرج مشتركون أوائل.',
   timeout: 'Sniper scan timed out. Try again. / انتهت مهلة الفحص.',
 }[reason] || 'Sniper scan unavailable right now. / فحص القناصة غير متاح حاليًا.');
+const isHelius = (hostOrUrl) => /helius/i.test(String(hostOrUrl || ''));
+function rpcOrder(key, preferPublic) {
+  const helius = key ? `https://mainnet.helius-rpc.com/?api-key=${key}` : null;
+  if (!helius) return [...PUBLIC_RPCS];
+  // If flows just hit Helius, snipers go public/cache-first
+  return preferPublic ? [...PUBLIC_RPCS, helius] : [helius, ...PUBLIC_RPCS];
+}
+async function heliusRecentlyUsed(cache) {
+  if (!cache) return false;
+  try { return !!(await cache.match(new Request(HELIUS_MARK))); } catch { return false; }
+}
+async function markHeliusUsed(cache, waitUntil) {
+  if (!cache) return;
+  try {
+    const p = cache.put(new Request(HELIUS_MARK), new Response(String(Date.now()), {
+      headers: { 'content-type': 'text/plain', 'cache-control': `public, max-age=${HELIUS_COOLDOWN_S}` },
+    })).catch(() => {});
+    waitUntil ? waitUntil(p) : await p;
+  } catch {}
+}
 
 async function getJson(url, ms = 10000, init = {}) {
   const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), ms);
@@ -45,7 +68,7 @@ async function rpcOnce(url, method, params, ms = 15000) {
   return j.result;
 }
 
-async function rpc(url, method, params, ms = 15000, retries = 2) {
+async function rpc(url, method, params, ms = 15000, retries = 1) {
   let last;
   for (let i = 0; i <= retries; i++) {
     try {
@@ -59,7 +82,7 @@ async function rpc(url, method, params, ms = 15000, retries = 2) {
   throw last;
 }
 
-async function rpcBatch(url, calls, ms = 22000, retries = 2) {
+async function rpcBatch(url, calls, ms = 22000, retries = 1) {
   const body = calls.map((c, i) => ({ jsonrpc: '2.0', id: i + 1, method: c[0], params: c[1] }));
   let last;
   for (let attempt = 0; attempt <= retries; attempt++) {
@@ -189,7 +212,7 @@ async function loadLaunchSigs(ups, target) {
       lastErr = new Error('no signatures');
     } catch (e) {
       lastErr = e;
-      if (isRate(e)) await sleep(600);
+      if (isRate(e)) await sleep(120);
     }
   }
   const reason = isRate(lastErr) ? 'rate_limited' : 'sigs';
@@ -213,22 +236,16 @@ async function fetchTxs(ups, use) {
       lastErr = new Error('empty txs');
     } catch (e) {
       lastErr = e;
-      if (isRate(e)) await sleep(600);
+      if (isRate(e)) await sleep(150);
     }
   }
   return { wraps: [], err: lastErr };
 }
 
-async function build(env, mint) {
+async function build(env, mint, preferPublic = false) {
   const key = env && env.HELIUS_KEY;
-  if (!key) {
-    return {
-      ok: true, configured: false, mint, empty: true,
-      message: softMsg('sigs'), reason: 'no_key', at: Date.now(),
-    };
-  }
-  const helius = `https://mainnet.helius-rpc.com/?api-key=${key}`;
-  const ups = [helius, ...PUBLIC_RPCS];
+  const ups = rpcOrder(key, preferPublic);
+  const helius = key ? `https://mainnet.helius-rpc.com/?api-key=${key}` : null;
   const coin = await loadCoin(mint);
   const creator = coin?.creator || null;
   const curve = coin?.bonding_curve || null;
@@ -239,7 +256,7 @@ async function build(env, mint) {
   if (!sigs.length) {
     const reason = sigReason || (isRate(sigErr) ? 'rate_limited' : 'sigs');
     return {
-      ok: true, configured: true, mint, empty: true, reason, soft: reason === 'rate_limited',
+      ok: true, configured: !!key, mint, empty: true, reason, soft: reason === 'rate_limited',
       message: softMsg(reason), src: sigRpc || null, at: Date.now(),
     };
   }
@@ -252,7 +269,7 @@ async function build(env, mint) {
   if (!wraps.some(w => w.tx)) {
     const reason = isRate(txErr) ? 'rate_limited' : 'sigs';
     return {
-      ok: true, configured: true, mint, empty: true, reason, soft: true,
+      ok: true, configured: !!key, mint, empty: true, reason, soft: true,
       message: softMsg(reason), src: rpcUsed || null, at: Date.now(),
     };
   }
@@ -260,7 +277,7 @@ async function build(env, mint) {
   const { buyers, createSlot } = parseEarlyBuyers(wraps, mint, creator, curve, launchSlot);
   if (!buyers.size) {
     return {
-      ok: true, configured: true, mint, empty: true, reason: 'no_buyers',
+      ok: true, configured: !!key, mint, empty: true, reason: 'no_buyers',
       message: softMsg('no_buyers'),
       launchSlot, sampled: use.length, src: rpcUsed, at: Date.now(),
     };
@@ -268,8 +285,8 @@ async function build(env, mint) {
 
   let supply = null, decimals = 6;
   try {
-    const up = key ? helius : ups[0];
-    const sup = await rpc(up, 'getTokenSupply', [mint], 8000, 1);
+    const up = (preferPublic ? ups[0] : (helius || ups[0]));
+    const sup = await rpc(up, 'getTokenSupply', [mint], 8000, 0);
     supply = BigInt(sup.value.amount);
     decimals = +sup.value.decimals || 6;
   } catch {}
@@ -279,11 +296,11 @@ async function build(env, mint) {
   try {
     const accts = [...new Set(list.flatMap(o => [...o.accts]))].slice(0, 40);
     if (accts.length) {
-      const up = key ? helius : ups[0];
+      const up = (preferPublic ? ups[0] : (helius || ups[0]));
       for (let i = 0; i < accts.length; i += 20) {
         if (i) await sleep(100);
         const slice = accts.slice(i, i + 20);
-        const res = await rpc(up, 'getMultipleAccounts', [slice, { encoding: 'jsonParsed' }], 12000, 1);
+        const res = await rpc(up, 'getMultipleAccounts', [slice, { encoding: 'jsonParsed' }], 12000, 0);
         (res?.value || []).forEach((a) => {
           const info = a?.data?.parsed?.info;
           if (!info || info.mint !== mint) return;
@@ -327,7 +344,7 @@ async function build(env, mint) {
   })();
 
   return {
-    ok: true, configured: true, mint, empty: false, pump: !!coin,
+    ok: true, configured: !!key, mint, empty: false, pump: !!coin,
     creator, curve, created: createdMs, launchSlot: createSlot,
     sampledTx: use.length, earlyBuyers: list.length,
     snipers: sniperList.length, proSnipers: proCount,
@@ -361,17 +378,22 @@ export const onRequest = async ({ request: req, env, waitUntil }) => {
   const mint = u.searchParams.get('mint') || u.searchParams.get('ca') || '';
   if (!MINT_RE.test(mint)) return json(400, { error: 'bad mint' });
   const bust = u.searchParams.get('fresh') === '1';
-  const cacheKey = new Request('https://memecheck-cache.internal/snipers/v3/' + mint);
+  const cacheKey = new Request('https://memecheck-cache.internal/snipers/v4/' + mint);
   const cache = typeof caches !== 'undefined' ? caches.default : null;
   if (!bust) try {
     const hit = cache && await cache.match(cacheKey);
     if (hit) return json(200, await hit.text(), { 'cache-control': `public, max-age=${TTL}`, 'x-cache': 'HIT' });
   } catch {}
 
+  // If flows just hit Helius, prefer public RPC / cache path first
+  const preferPublic = await heliusRecentlyUsed(cache);
+  // Claim Helius window up-front so a concurrent /api/liquidity-flows prefers public/cache
+  if (!preferPublic && env && env.HELIUS_KEY) await markHeliusUsed(cache, waitUntil);
+
   let res, tm;
   try {
     res = await Promise.race([
-      build(env, mint),
+      build(env, mint, preferPublic),
       new Promise((_, rej) => { tm = setTimeout(() => rej(new Error('timeout')), 26000); }),
     ]);
   } catch (e) {
@@ -382,10 +404,11 @@ export const onRequest = async ({ request: req, env, waitUntil }) => {
     };
   } finally { clearTimeout(tm); }
 
+  if (isHelius(res.src)) await markHeliusUsed(cache, waitUntil);
+
   const body = JSON.stringify(res);
   const ttl = (res.soft || res.reason === 'rate_limited') ? TTL_SOFT : TTL;
-  // Cache real results always; cache rate-limit soft-degrades briefly to stop Retry stampedes.
-  // Do NOT cache timeouts — a concurrent slow scan must not poison a good colo entry.
+  // Cache successes (10–15m) and brief soft/rate-limit to stop stampedes; never cache timeouts.
   const cacheable = res.ok && res.reason !== 'timeout' && ( !res.soft || res.reason === 'rate_limited' || res.reason === 'no_buyers' || res.reason === 'none' || !res.empty );
   if (cache && cacheable) {
     const p = cache.put(cacheKey, new Response(body, { headers: { 'content-type': 'application/json', 'cache-control': `public, max-age=${ttl}` } })).catch(() => {});

@@ -1,15 +1,17 @@
 // GET /api/liquidity-flows?mint=<base58> -> animated LP flow graph + wash-trade signals (Solana).
 // Resolves the live pool (DexScreener), reads recent swap txs via Helius (or public RPC fallback),
 // builds wallet↔LP edges, and flags wash-like patterns (round-trips, near-simultaneous flip, creator links).
-// Read-only; Cache API ~2 min. Graceful empty state when HELIUS_KEY missing or data sparse.
+// Read-only; Cache API 5–15 min on success. Soft-degrade (never raw 429). Staggers with /api/snipers via Cache API mark.
 const MINT_RE = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 const WSOL = 'So11111111111111111111111111111111111111112';
 const USDC = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 const USDT = 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB';
 const STABLE = new Set([WSOL, USDC, USDT]);
-const TTL = 120, TTL_SOFT = 60, SIG_N = 30, TX_N = 20, BATCH = 5, UA = 'Mozilla/5.0 (MemeCheck/1.0)';
+const TTL = 600, TTL_SOFT = 90, SIG_N = 20, TX_N = 12, BATCH = 4, UA = 'Mozilla/5.0 (MemeCheck/1.0)';
 const ROUND_TRIP_S = 120;
 const SIZE_SIM = 0.25;
+const HELIUS_MARK = 'https://memecheck-cache.internal/helius-recent/v1';
+const HELIUS_COOLDOWN_S = 25;
 const PUBLIC_RPCS = [
   'https://api.mainnet-beta.solana.com',
   'https://solana.leorpc.com/?api_key=FREE',
@@ -27,6 +29,25 @@ const softMsg = (reason) => ({
   no_pool: 'No Solana pool found for this mint. / لا يوجد مجمع سولانا لهذه العملة.',
   timeout: 'Timed out loading flows. Try again. / انتهت مهلة التحميل.',
 }[reason] || 'Liquidity flow data unavailable right now. / بيانات التدفق غير متاحة حاليًا.');
+const isHelius = (hostOrUrl) => /helius/i.test(String(hostOrUrl || ''));
+function rpcOrder(key, preferPublic) {
+  const helius = key ? `https://mainnet.helius-rpc.com/?api-key=${key}` : null;
+  if (!helius) return [...PUBLIC_RPCS];
+  return preferPublic ? [...PUBLIC_RPCS, helius] : [helius, ...PUBLIC_RPCS];
+}
+async function heliusRecentlyUsed(cache) {
+  if (!cache) return false;
+  try { return !!(await cache.match(new Request(HELIUS_MARK))); } catch { return false; }
+}
+async function markHeliusUsed(cache, waitUntil) {
+  if (!cache) return;
+  try {
+    const p = cache.put(new Request(HELIUS_MARK), new Response(String(Date.now()), {
+      headers: { 'content-type': 'text/plain', 'cache-control': `public, max-age=${HELIUS_COOLDOWN_S}` },
+    })).catch(() => {});
+    waitUntil ? waitUntil(p) : await p;
+  } catch {}
+}
 
 async function getJson(url, ms = 12000, init = {}) {
   const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), ms);
@@ -46,7 +67,7 @@ async function rpcOnce(url, method, params, ms = 15000) {
   return j.result;
 }
 
-async function rpc(url, method, params, ms = 15000, retries = 2) {
+async function rpc(url, method, params, ms = 15000, retries = 1) {
   let last;
   for (let i = 0; i <= retries; i++) {
     try { return await rpcOnce(url, method, params, ms); }
@@ -59,7 +80,7 @@ async function rpc(url, method, params, ms = 15000, retries = 2) {
   throw last;
 }
 
-async function rpcBatch(url, calls, ms = 20000, retries = 2) {
+async function rpcBatch(url, calls, ms = 20000, retries = 1) {
   const body = calls.map((c, i) => ({ jsonrpc: '2.0', id: i + 1, method: c[0], params: c[1] }));
   let last;
   for (let attempt = 0; attempt <= retries; attempt++) {
@@ -417,7 +438,8 @@ async function loadSigs(ups, address) {
       if (Array.isArray(sigs) && sigs.length) return { sigs, rpcUsed: new URL(up).host };
     } catch (e) {
       lastErr = e;
-      if (isRate(e)) await sleep(400);
+      // Prefer next upstream sooner (esp. public) instead of burning Helius retries
+      if (isRate(e)) await sleep(120);
     }
   }
   return { sigs: [], err: lastErr };
@@ -441,17 +463,15 @@ async function loadTxs(ups, want) {
       lastErr = new Error('empty txs');
     } catch (e) {
       lastErr = e;
-      if (isRate(e)) await sleep(500);
+      if (isRate(e)) await sleep(150);
     }
   }
   return { txs: [], err: lastErr };
 }
 
-async function build(env, mint) {
+async function build(env, mint, preferPublic = false) {
   const key = env && env.HELIUS_KEY;
-  const ups = key
-    ? [`https://mainnet.helius-rpc.com/?api-key=${key}`, ...PUBLIC_RPCS]
-    : [...PUBLIC_RPCS];
+  const ups = rpcOrder(key, preferPublic);
 
   let pool = await resolvePool(mint).catch(() => null);
   let creator = pool?.creator || await resolveCreator(mint).catch(() => null);
@@ -525,17 +545,22 @@ export const onRequest = async ({ request: req, env, waitUntil }) => {
   const mint = u.searchParams.get('mint') || u.searchParams.get('ca') || '';
   if (!MINT_RE.test(mint)) return json(400, { error: 'bad mint' });
   const bust = u.searchParams.get('fresh') === '1';
-  const cacheKey = new Request('https://memecheck-cache.internal/liq-flows/v3/' + mint);
+  const cacheKey = new Request('https://memecheck-cache.internal/liq-flows/v4/' + mint);
   const cache = typeof caches !== 'undefined' ? caches.default : null;
   if (!bust) try {
     const hit = cache && await cache.match(cacheKey);
     if (hit) return json(200, await hit.text(), { 'cache-control': `public, max-age=${TTL}`, 'x-cache': 'HIT' });
   } catch {}
 
+  // If snipers (or a prior flows miss) just burned Helius, prefer public RPC first
+  const preferPublic = await heliusRecentlyUsed(cache);
+  // Claim Helius window up-front so a concurrent /api/snipers prefers public/cache
+  if (!preferPublic && env && env.HELIUS_KEY) await markHeliusUsed(cache, waitUntil);
+
   let res, tm;
   try {
     res = await Promise.race([
-      build(env, mint),
+      build(env, mint, preferPublic),
       new Promise((_, rej) => { tm = setTimeout(() => rej(new Error('timeout')), 26000); }),
     ]);
   } catch (e) {
@@ -546,8 +571,11 @@ export const onRequest = async ({ request: req, env, waitUntil }) => {
     };
   } finally { clearTimeout(tm); }
 
+  if (isHelius(res.src)) await markHeliusUsed(cache, waitUntil);
+
   const body = JSON.stringify(res);
   const ttl = (res.soft || res.reason === 'rate_limited') ? TTL_SOFT : TTL;
+  // Cache successes (5–15m) and brief soft/rate-limit to stop stampedes; never cache raw timeouts
   const cacheable = res.ok && res.reason !== 'timeout' && (!res.soft || res.reason === 'rate_limited' || !res.empty);
   if (cache && cacheable) {
     const p = cache.put(cacheKey, new Response(body, { headers: { 'content-type': 'application/json', 'cache-control': `public, max-age=${ttl}` } })).catch(() => {});

@@ -381,13 +381,27 @@ function draw(box, data) {
   inst = mapView(cv, data, update);
 }
 
+function isBusy(j) {
+  return !!(j && (j.soft || j.reason === 'rate_limited' || j.reason === 'timeout'));
+}
 async function fetchFlows(mint) {
   const ctl = new AbortController();
   const tm = setTimeout(() => ctl.abort(), 22000);
   try {
     const r = await fetch('/api/liquidity-flows?mint=' + encodeURIComponent(mint), { signal: ctl.signal });
-    if (!r.ok) throw new Error('http ' + r.status);
-    return await r.json();
+    // Never surface raw HTTP 429/503 — bilingual soft degrade only
+    if (r.status === 429 || r.status === 503) {
+      return { ok: true, empty: true, soft: true, reason: 'rate_limited' };
+    }
+    if (!r.ok) throw new Error('unavailable');
+    const j = await r.json();
+    // Strip any accidental raw status text from message
+    if (j && typeof j.message === 'string' && /\b429\b|HTTP\s*429/i.test(j.message)) {
+      j.message = undefined;
+      j.reason = j.reason || 'rate_limited';
+      j.soft = true;
+    }
+    return j;
   } finally { clearTimeout(tm); }
 }
 
@@ -426,7 +440,9 @@ function paint() {
   if (d.empty) {
     if (inst) { inst.destroy(); inst = null; }
     const byReason = { no_pool: t.noPool, rate_limited: t.rateLimited, no_sigs: t.noSigs, no_flows: t.noFlows, timeout: t.timeout };
-    const msg = byReason[d.reason] || t.empty;
+    // Prefer localized soft copy; never render raw "429" / HTTP status strings
+    let msg = byReason[d.reason] || (d.soft ? t.rateLimited : t.empty);
+    if (/\b429\b|HTTP\s*\d+/i.test(String(msg))) msg = t.rateLimited;
     box.innerHTML = `<h3>${t.title}</h3><span class="muted">${esc(msg)}</span>
       <button type="button" class="ghost act" id="lf-retry">${t.retry}</button>
       <details class="fn"><summary title="info">ⓘ</summary><div>${t.note}</div></details>`;
@@ -438,13 +454,33 @@ function paint() {
 
 async function start(addr) {
   cache.set(addr, 'loading'); paint();
-  try {
-    const j = await fetchFlows(addr);
-    if (!j) cache.set(addr, { error: true });
-    else if (j.ok === false && (j.error || !j.empty)) cache.set(addr, { error: true, timeout: !!j.timeout });
+  const apply = (j, timed) => {
+    if (!j) cache.set(addr, { error: true, timeout: !!timed });
+    else if (j.ok === false && (j.error || !j.empty)) cache.set(addr, { error: true, timeout: !!j.timeout || !!timed });
     else cache.set(addr, j);
+  };
+  try {
+    let j = await fetchFlows(addr);
+    // Auto-retry once after 3–5s on busy/timeout soft-degrade
+    if (isBusy(j)) {
+      await new Promise(r => setTimeout(r, 3500 + Math.random() * 1500));
+      if (cur?.addr !== addr) return;
+      j = await fetchFlows(addr);
+    }
+    apply(j, false);
   } catch (e) {
-    cache.set(addr, { error: true, timeout: /abort|timeout/i.test(String(e?.name || e?.message || '')) });
+    const timed = /abort|timeout/i.test(String(e?.name || e?.message || ''));
+    if (timed) {
+      try {
+        await new Promise(r => setTimeout(r, 4000));
+        if (cur?.addr !== addr) return;
+        apply(await fetchFlows(addr), false);
+      } catch {
+        cache.set(addr, { error: true, timeout: true });
+      }
+    } else {
+      cache.set(addr, { error: true, timeout: false });
+    }
   }
   if (cur?.addr === addr) paint();
 }
