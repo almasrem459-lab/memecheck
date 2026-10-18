@@ -8,7 +8,7 @@
 <link rel="canonical" href="https://memecheck.pages.dev/rugs.html">
 <meta name="theme-color" content="#0b0f17">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-<link rel="stylesheet" href="style.css?v=nav1">
+<link rel="stylesheet" href="style.css?v=rugs1">
 <style>
 .coin .verdict{margin-bottom:0}
 .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:12px}
@@ -22,15 +22,9 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 </head>
 <body>
 <header>
-  <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span><span></span><span></span></button>
   <div class="brand"><img src="/icon-192.png" width="26" height="26" alt="MemeCheck"> <b>MemeCheck</b></div>
+  <a class="ghost" href="/" style="padding:8px 12px;border:1px solid #273046;border-radius:10px;color:#9aa4b8;text-decoration:none;font-size:14px">← Checker</a>
 </header>
-<nav class="site-nav" id="site-nav" hidden>
-  <a href="/" data-t="navChecker">Checker</a>
-  <a href="/whales.html" data-t="navWhales">Whale buys</a>
-  <a href="/rugs.html" data-t="navRugs">Rugs we caught</a>
-  <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a>
-</nav>
 <nav class="crumbs"><a href="/">Home</a><span>/</span><span>Rugs we caught</span></nav>
 <main>
   <h1 style="font-size:22px;margin:8px 0 4px">Accuracy study &amp; rugs we caught</h1>
@@ -40,88 +34,109 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <h3>Accuracy study</h3>
     <div class="stats">
       <div class="kv"><span>Study started (UTC)</span><b style="font-size:15px">2026-10-15T18:11:44Z</b></div>
-      <div class="kv"><span>Sample: 24h recheck done</span><b>0</b></div>
-      <div class="kv"><span>Coins recorded</span><b>57</b></div>
-      <div class="kv"><span>Waiting for 24h</span><b>57</b></div>
-      <div class="kv"><span>Caught (High → rugged)</span><b>0</b></div>
+      <div class="kv"><span>Sample: 24h recheck done</span><b>57</b></div>
+      <div class="kv"><span>Coins recorded</span><b>75</b></div>
+      <div class="kv"><span>Waiting for 24h</span><b>18</b></div>
+      <div class="kv"><span>Caught (High → rugged)</span><b>2</b></div>
     </div>
     <p class="muted" style="margin-top:12px"><b>Entry criteria at scan time:</b> market cap ≥ $30,000, liquidity ≥ $5,000, token &lt; 24h old, live PumpSwap/Raydium pool (pump.fun coins after graduation), and <b>not</b> already down ≥50% from its peak. Sources: pump.fun graduated coins, GeckoTerminal new/active/trending pools and DexScreener latest tokens, up to 40 new coins per hourly run (youngest first).
     <b>Outcome:</b> RUGGED = price or liquidity down ≥90% from the scan, or pair removed from DexScreener; DOWN ≥70% = price down ≥70%; otherwise ALIVE.</p>
-    <p class="banner">No study coin has reached its 24h recheck yet, so there are <b>no accuracy numbers yet</b>. The first 24h results are due about 24h after the study start.</p>
-    <h3 style="margin-top:14px">Outcome 24h after scan (n = 0)</h3>
+    <p class="banner"><b>Small sample:</b> only 57 coins have a completed 24h recheck. These rates are preliminary and the confidence intervals are wide.</p>
+    <h3 style="margin-top:14px">Outcome 24h after scan (n = 57)</h3>
     <div style="overflow-x:auto"><table class="acc"><thead><tr><th>MemeCheck level at scan</th><th>Coins</th><th>Rugged</th><th>Rugged % <span class="muted">(95% CI)</span></th><th>Down ≥70% (not rugged)</th><th>Rugged or down ≥70%</th><th>Alive</th></tr></thead><tbody>
-<tr><td><span class="badge low">LOW</span></td><td>0</td><td>0</td><td>—</td><td>—</td><td>—</td><td>0</td></tr><tr><td><span class="badge medium">MEDIUM</span></td><td>0</td><td>0</td><td>—</td><td>—</td><td>—</td><td>0</td></tr><tr><td><span class="badge high">HIGH</span> <span class="muted">incl. extreme</span></td><td>0</td><td>0</td><td>—</td><td>—</td><td>—</td><td>0</td></tr>
+<tr><td><span class="badge low">LOW</span></td><td>22</td><td>19</td><td>86.4% <span class="muted">(66.7–95.3%)</span></td><td>0%</td><td>86.4%</td><td>3</td></tr><tr><td><span class="badge medium">MEDIUM</span></td><td>33</td><td>23</td><td>69.7% <span class="muted">(52.7–82.6%)</span></td><td>12.1%</td><td>81.8%</td><td>6</td></tr><tr><td><span class="badge high">HIGH</span> <span class="muted">incl. extreme</span></td><td>2</td><td>2</td><td>100% <span class="muted">(34.2–100%)</span></td><td>0%</td><td>100%</td><td>0</td></tr>
 </tbody></table></div>
-    
+    <h3 style="margin-top:14px">Outcome 48h after scan (n = 57)</h3><div style="overflow-x:auto"><table class="acc"><thead><tr><th>MemeCheck level at scan</th><th>Coins</th><th>Rugged</th><th>Rugged % <span class="muted">(95% CI)</span></th><th>Down ≥70% (not rugged)</th><th>Rugged or down ≥70%</th><th>Alive</th></tr></thead><tbody>
+<tr><td><span class="badge low">LOW</span></td><td>22</td><td>19</td><td>86.4% <span class="muted">(66.7–95.3%)</span></td><td>0%</td><td>86.4%</td><td>3</td></tr><tr><td><span class="badge medium">MEDIUM</span></td><td>33</td><td>23</td><td>69.7% <span class="muted">(52.7–82.6%)</span></td><td>12.1%</td><td>81.8%</td><td>6</td></tr><tr><td><span class="badge high">HIGH</span> <span class="muted">incl. extreme</span></td><td>2</td><td>2</td><td>100% <span class="muted">(34.2–100%)</span></td><td>0%</td><td>100%</td><td>0</td></tr>
+</tbody></table></div>
     <h3 style="margin-top:18px">Caught: High risk at scan (before any collapse), then rugged</h3>
-    <p class="muted">None yet.</p>
-    <details style="margin-top:14px"><summary class="muted">All 57 study coins</summary>
-    <div style="overflow-x:auto"><table class="acc"><thead><tr><th>Coin</th><th>Scanned (UTC)</th><th>Level</th><th>Age</th><th>Mcap</th><th>Liq</th><th>24h</th><th>48h</th></tr></thead><tbody><tr><td><b>$SPAX</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=BFajJ6XRjZTWDn1KTzqmF8fcSydyyHzZMkzyQB85pump" target="_blank" rel="noopener" title="BFajJ6XRjZTWDn1KTzqmF8fcSydyyHzZMkzyQB85pump">BFaj…pump</a></td><td>2026-10-15T19:31:31Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>13.89h</td><td>$37.60M</td><td>$528.6K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$DacityCoin</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=DKYcjobF7HPtL9RyQBRdeRQ2iWvizpfbgWwPWNXdpump" target="_blank" rel="noopener" title="DKYcjobF7HPtL9RyQBRdeRQ2iWvizpfbgWwPWNXdpump">DKYc…pump</a></td><td>2026-10-15T19:31:25Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>6.05h</td><td>$166.2K</td><td>$39.2K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$Coca Cola</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=jLiKKUiUnqv5ZCueDQaMwFT9jiHzNh8fdbfqbaJpump" target="_blank" rel="noopener" title="jLiKKUiUnqv5ZCueDQaMwFT9jiHzNh8fdbfqbaJpump">jLiK…pump</a></td><td>2026-10-15T19:31:18Z</td><td><span class="badge low">LOW 8</span></td><td>1.26h</td><td>$1.16M</td><td>$91.7K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$DOTF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=G6J3U1caqAuQNiLMSDPLcG73FfnRunDqMF9NihM5pump" target="_blank" rel="noopener" title="G6J3U1caqAuQNiLMSDPLcG73FfnRunDqMF9NihM5pump">G6J3…pump</a></td><td>2026-10-15T19:31:16Z</td><td><span class="badge medium">MEDIUM 38</span></td><td>0.85h</td><td>$217.2K</td><td>$39.1K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$PEDO</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=GRDKxVqVJcuxeCojBnkGyKc3sHJ8smyFnMe1MG1bpump" target="_blank" rel="noopener" title="GRDKxVqVJcuxeCojBnkGyKc3sHJ8smyFnMe1MG1bpump">GRDK…pump</a></td><td>2026-10-15T19:31:13Z</td><td><span class="badge low">LOW 4</span></td><td>0.82h</td><td>$64.6K</td><td>$20.6K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$TOAST</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=DAQw76NKrKcRBePBjSwoR83dNaNtRPG2zkaQs9Y71Nx" target="_blank" rel="noopener" title="DAQw76NKrKcRBePBjSwoR83dNaNtRPG2zkaQs9Y71Nx">DAQw…71Nx</a></td><td>2026-10-15T19:31:10Z</td><td><span class="badge medium">MEDIUM 27</span></td><td>0.42h</td><td>$87.8K</td><td>$135.5K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$GROKBOT</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=D4Uxj8PG3SGNWeKoiwfMuDvX6dDTQGmyipLTPkDLpump" target="_blank" rel="noopener" title="D4Uxj8PG3SGNWeKoiwfMuDvX6dDTQGmyipLTPkDLpump">D4Ux…pump</a></td><td>2026-10-15T19:31:08Z</td><td><span class="badge low">LOW 4</span></td><td>0.38h</td><td>$84.2K</td><td>$23.6K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$TikTok US</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=C6ec47KrRyYUJBJAMNH1UnZyETdZB8UmukzN9nVDpump" target="_blank" rel="noopener" title="C6ec47KrRyYUJBJAMNH1UnZyETdZB8UmukzN9nVDpump">C6ec…pump</a></td><td>2026-10-15T19:31:02Z</td><td><span class="badge high">HIGH 46</span></td><td>0.28h</td><td>$592.6K</td><td>$64.7K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$MAGIC SI</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=BixDb1FNqWPhLKpH47rJcSetQtA7JAGX2qEdNrt5JQpe" target="_blank" rel="noopener" title="BixDb1FNqWPhLKpH47rJcSetQtA7JAGX2qEdNrt5JQpe">BixD…JQpe</a></td><td>2026-10-15T19:30:59Z</td><td><span class="badge medium">MEDIUM 31</span></td><td>0.24h</td><td>$479.6K</td><td>$58.0K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$tesla</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=AZqnYrca5kvB9JZ3hGcsLSh8KPJZXaMyhtaVKn6wpump" target="_blank" rel="noopener" title="AZqnYrca5kvB9JZ3hGcsLSh8KPJZXaMyhtaVKn6wpump">AZqn…pump</a></td><td>2026-10-15T19:30:54Z</td><td><span class="badge medium">MEDIUM 20</span></td><td>0.13h</td><td>$50.6K</td><td>$18.0K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$ZOO</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=EgsQ9Fgcq5gxUh9sdrWrDcJeYcNZhB5NhgFPKqS6pump" target="_blank" rel="noopener" title="EgsQ9Fgcq5gxUh9sdrWrDcJeYcNZhB5NhgFPKqS6pump">EgsQ…pump</a></td><td>2026-10-15T19:30:37Z</td><td><span class="badge medium">MEDIUM 31</span></td><td>0.05h</td><td>$80.8K</td><td>$22.7K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$SI276</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=HrrVJmj3KgqVzcWKwZL71tgnKVPLuK82KP6vhZvpump" target="_blank" rel="noopener" title="HrrVJmj3KgqVzcWKwZL71tgnKVPLuK82KP6vhZvpump">HrrV…pump</a></td><td>2026-10-15T18:38:42Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>16.02h</td><td>$35.69M</td><td>$513.5K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$UKFLMS</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=mWdu7Wu2PhdnMiiXQbhpKHEaQPi86SNgNciSBQppump" target="_blank" rel="noopener" title="mWdu7Wu2PhdnMiiXQbhpKHEaQPi86SNgNciSBQppump">mWdu…pump</a></td><td>2026-10-15T18:38:37Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>14.9h</td><td>$14.91M</td><td>$331.1K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$SPIDER</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=2ShXwByGSBRVfMqdVoUc1QxuK7mAuHPSVqbQbJENpump" target="_blank" rel="noopener" title="2ShXwByGSBRVfMqdVoUc1QxuK7mAuHPSVqbQbJENpump">2ShX…pump</a></td><td>2026-10-15T18:38:34Z</td><td><span class="badge low">LOW 4</span></td><td>0.26h</td><td>$138.1K</td><td>$30.5K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$UDR</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=G8dJxnKHx387vAMBr1b1gPzviKka9ZofPstzrvypump" target="_blank" rel="noopener" title="G8dJxnKHx387vAMBr1b1gPzviKka9ZofPstzrvypump">G8dJ…pump</a></td><td>2026-10-15T18:22:50Z</td><td><span class="badge low">LOW 4</span></td><td>23.38h</td><td>$9.58M</td><td>$265.3K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$XPOSE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=1qVjaHdLcv3PR3AaQrGWt2q55EB1WkdiCwqj4vopump" target="_blank" rel="noopener" title="1qVjaHdLcv3PR3AaQrGWt2q55EB1WkdiCwqj4vopump">1qVj…pump</a></td><td>2026-10-15T18:22:47Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>17.99h</td><td>$5.46M</td><td>$199.6K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$USOR/SOL</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=omrqAdegAvkfdPQCMy5UA7hQcEDoq4SKLn2UPknpump" target="_blank" rel="noopener" title="omrqAdegAvkfdPQCMy5UA7hQcEDoq4SKLn2UPknpump">omrq…pump</a></td><td>2026-10-15T18:22:44Z</td><td><span class="badge medium">MEDIUM 23</span></td><td>16.56h</td><td>$11.19M</td><td>$286.6K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$PUMPE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=e3Vj1YEgceyPoru4JLQgB7Ft7TNbx2AXzqicuk1pump" target="_blank" rel="noopener" title="e3Vj1YEgceyPoru4JLQgB7Ft7TNbx2AXzqicuk1pump">e3Vj…pump</a></td><td>2026-10-15T18:22:42Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>15.54h</td><td>$1.51M</td><td>$104.3K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$INCOGNITO</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=NoPeXTD11FPaEeHR5MEMadQxD6RbJzi2XCu9Pj4pump" target="_blank" rel="noopener" title="NoPeXTD11FPaEeHR5MEMadQxD6RbJzi2XCu9Pj4pump">NoPe…pump</a></td><td>2026-10-15T18:22:31Z</td><td><span class="badge medium">MEDIUM 23</span></td><td>15.34h</td><td>$11.05M</td><td>$284.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$BATFISH</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=4aMD7TAujKhojDpw4Kgs7xbF4AKycfH9Mr8ehqzzpump" target="_blank" rel="noopener" title="4aMD7TAujKhojDpw4Kgs7xbF4AKycfH9Mr8ehqzzpump">4aMD…pump</a></td><td>2026-10-15T18:22:28Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>14.66h</td><td>$56.9K</td><td>$19.6K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$ARF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=WHvP6NTRYdovnG9ZDVVrF8bR2bTChSDjLaGbeWopump" target="_blank" rel="noopener" title="WHvP6NTRYdovnG9ZDVVrF8bR2bTChSDjLaGbeWopump">WHvP…pump</a></td><td>2026-10-15T18:22:26Z</td><td><span class="badge medium">MEDIUM 23</span></td><td>14.09h</td><td>$26.46M</td><td>$441.4K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$CYBERLEEK</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=EAyCVRZ8ZLd3y9ocfMGv2fRdLM7iE1pf492pt4ppump" target="_blank" rel="noopener" title="EAyCVRZ8ZLd3y9ocfMGv2fRdLM7iE1pf492pt4ppump">EAyC…pump</a></td><td>2026-10-15T18:22:23Z</td><td><span class="badge low">LOW 8</span></td><td>11h</td><td>$227.89M</td><td>$1.30M</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$Awkward Dog</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=3W3G24d3kDofngrGj9fErCjGKuoRsApNbvyCPgZNpump" target="_blank" rel="noopener" title="3W3G24d3kDofngrGj9fErCjGKuoRsApNbvyCPgZNpump">3W3G…pump</a></td><td>2026-10-15T18:22:22Z</td><td><span class="badge medium">MEDIUM 27</span></td><td>10.88h</td><td>$567.7K</td><td>$63.4K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$FTR</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=vBu4awtjGvPc9gPGyM82WnEg9pRP44F5a1fmFb9pump" target="_blank" rel="noopener" title="vBu4awtjGvPc9gPGyM82WnEg9pRP44F5a1fmFb9pump">vBu4…pump</a></td><td>2026-10-15T18:22:10Z</td><td><span class="badge low">LOW 4</span></td><td>9.7h</td><td>$10.82M</td><td>$281.6K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$SPX</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=d8y32AxHmGEvcRMn4JhdWTrGdgQ1AMYcQjCRsevpump" target="_blank" rel="noopener" title="d8y32AxHmGEvcRMn4JhdWTrGdgQ1AMYcQjCRsevpump">d8y3…pump</a></td><td>2026-10-15T18:22:08Z</td><td><span class="badge medium">MEDIUM 27</span></td><td>9.61h</td><td>$12.09M</td><td>$297.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$Doroni</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=ahj9cQ4uVfromvTx9ZxANPCgF7giczQjZFdqiKbpump" target="_blank" rel="noopener" title="ahj9cQ4uVfromvTx9ZxANPCgF7giczQjZFdqiKbpump">ahj9…pump</a></td><td>2026-10-15T18:22:06Z</td><td><span class="badge low">LOW 4</span></td><td>9.44h</td><td>$5.75M</td><td>$204.9K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$WAIF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=ZtJKTMsEZVsC5hyqRKhGFwe7KMUsNDCrU9tr6zXpump" target="_blank" rel="noopener" title="ZtJKTMsEZVsC5hyqRKhGFwe7KMUsNDCrU9tr6zXpump">ZtJK…pump</a></td><td>2026-10-15T18:22:02Z</td><td><span class="badge low">LOW 4</span></td><td>9.29h</td><td>$11.68M</td><td>$292.6K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$WAITIE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=kpw3mRFBxzWFcQiLjPE1AXM6bSQhwFoUY8WQAKbpump" target="_blank" rel="noopener" title="kpw3mRFBxzWFcQiLjPE1AXM6bSQhwFoUY8WQAKbpump">kpw3…pump</a></td><td>2026-10-15T18:22:01Z</td><td><span class="badge low">LOW 4</span></td><td>8.85h</td><td>$86.3K</td><td>$24.5K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$NOS</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=zhcCAMPgeWmGRddpMefMEnPwpCQ9nn7Hvqnoycypump" target="_blank" rel="noopener" title="zhcCAMPgeWmGRddpMefMEnPwpCQ9nn7Hvqnoycypump">zhcC…pump</a></td><td>2026-10-15T18:21:49Z</td><td><span class="badge low">LOW 4</span></td><td>8.34h</td><td>$2.49M</td><td>$134.2K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$SPCX</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=VKwzTkobt7TJEh1xk3zdwbT6nrQstAjy9x1Hnp8pump" target="_blank" rel="noopener" title="VKwzTkobt7TJEh1xk3zdwbT6nrQstAjy9x1Hnp8pump">VKwz…pump</a></td><td>2026-10-15T18:21:47Z</td><td><span class="badge low">LOW 4</span></td><td>5.93h</td><td>$16.35M</td><td>$346.6K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$DOPE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=8fSuMua9w4o5B9nUYLdyB8ANN6kCaEPvtfL9zFuDpump" target="_blank" rel="noopener" title="8fSuMua9w4o5B9nUYLdyB8ANN6kCaEPvtfL9zFuDpump">8fSu…pump</a></td><td>2026-10-15T18:21:45Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>5.89h</td><td>$164.76M</td><td>$1.10M</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$UDR</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=5T3P5PLnfm9Phx6wsoeBnGRzhwTfE8ZTCZ7JcQFpump" target="_blank" rel="noopener" title="5T3P5PLnfm9Phx6wsoeBnGRzhwTfE8ZTCZ7JcQFpump">5T3P…pump</a></td><td>2026-10-15T18:21:38Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>5.79h</td><td>$180.04M</td><td>$1.15M</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$LOAD</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=wNn4tJe2eLXgygkd6pjczXmbPeGVpYTTDzyyGUdpump" target="_blank" rel="noopener" title="wNn4tJe2eLXgygkd6pjczXmbPeGVpYTTDzyyGUdpump">wNn4…pump</a></td><td>2026-10-15T18:21:36Z</td><td><span class="badge low">LOW 4</span></td><td>4.78h</td><td>$2.89M</td><td>$144.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$SOS</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=oVzja1Z7Z9Qdd1stomtAXWkHd14HVvNAaDnxhsmpump" target="_blank" rel="noopener" title="oVzja1Z7Z9Qdd1stomtAXWkHd14HVvNAaDnxhsmpump">oVzj…pump</a></td><td>2026-10-15T18:21:22Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>4.61h</td><td>$2.97M</td><td>$146.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$NODF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=32b5zGQcxhYyvYZDeeuU9xvb6tnn8KwAW8JtUuQTpump" target="_blank" rel="noopener" title="32b5zGQcxhYyvYZDeeuU9xvb6tnn8KwAW8JtUuQTpump">32b5…pump</a></td><td>2026-10-15T18:21:16Z</td><td><span class="badge low">LOW 4</span></td><td>4.13h</td><td>$179.44M</td><td>$1.15M</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$NPC</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=79ur78uUB69no1bSVi5onD4Xrpfh7Zh3xPb8ZMzMFABT" target="_blank" rel="noopener" title="79ur78uUB69no1bSVi5onD4Xrpfh7Zh3xPb8ZMzMFABT">79ur…FABT</a></td><td>2026-10-15T18:21:06Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>2.37h</td><td>$33.6K</td><td>$14.7K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$CAPE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=DFGPAUYJZYjZ88oaEuiDQHqsH4eeRFSeF6vRGSotpump" target="_blank" rel="noopener" title="DFGPAUYJZYjZ88oaEuiDQHqsH4eeRFSeF6vRGSotpump">DFGP…pump</a></td><td>2026-10-15T18:20:58Z</td><td><span class="badge medium">MEDIUM 27</span></td><td>1.68h</td><td>$49.1K</td><td>$18.0K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$GDF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=5RfRCKvGMDqQDQAraRv6S7HG2xQH4wje3uFWFevcpump" target="_blank" rel="noopener" title="5RfRCKvGMDqQDQAraRv6S7HG2xQH4wje3uFWFevcpump">5RfR…pump</a></td><td>2026-10-15T18:20:57Z</td><td><span class="badge low">LOW 4</span></td><td>1.63h</td><td>$155.90M</td><td>$1.07M</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$NODF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=aGfeidTLzWbewHZX5921rS6KBzcJbMs23KJpLTPpump" target="_blank" rel="noopener" title="aGfeidTLzWbewHZX5921rS6KBzcJbMs23KJpLTPpump">aGfe…pump</a></td><td>2026-10-15T18:20:53Z</td><td><span class="badge low">LOW 4</span></td><td>1.62h</td><td>$352.36M</td><td>$1.62M</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$NODF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=9Cpp25zEnT5k5DUpML3VFX5ePA1fDinwXU4vpM4opump" target="_blank" rel="noopener" title="9Cpp25zEnT5k5DUpML3VFX5ePA1fDinwXU4vpM4opump">9Cpp…pump</a></td><td>2026-10-15T18:20:49Z</td><td><span class="badge high">HIGH 46</span></td><td>1.21h</td><td>$414.56M</td><td>$1.75M</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$Hugo</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=G97EU185vTD9simFiUK1EQYPWig8e2A7b4T488nZamnR" target="_blank" rel="noopener" title="G97EU185vTD9simFiUK1EQYPWig8e2A7b4T488nZamnR">G97E…amnR</a></td><td>2026-10-15T18:20:48Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>0.51h</td><td>$32.1K</td><td>$13.7K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$STREAM</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=9a98oQHtxfqmr4EyzsP6wfw69uYAK3JbUeVEuNW1pump" target="_blank" rel="noopener" title="9a98oQHtxfqmr4EyzsP6wfw69uYAK3JbUeVEuNW1pump">9a98…pump</a></td><td>2026-10-15T18:14:58Z</td><td><span class="badge low">LOW 4</span></td><td>22.91h</td><td>$24.50M</td><td>$476.3K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$FTR</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=DFMt2FyLpB6ekPNAzVErLXgpSnJ9CRf1VnxBAkTLpump" target="_blank" rel="noopener" title="DFMt2FyLpB6ekPNAzVErLXgpSnJ9CRf1VnxBAkTLpump">DFMt…pump</a></td><td>2026-10-15T18:14:51Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>16.08h</td><td>$2.13M</td><td>$145.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$$OTCATWALK</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=9UDNU3zn32BdB8s82gxC7aJwKHii7PYaKH9dyQ5spump" target="_blank" rel="noopener" title="9UDNU3zn32BdB8s82gxC7aJwKHii7PYaKH9dyQ5spump">9UDN…pump</a></td><td>2026-10-15T18:14:33Z</td><td><span class="badge medium">MEDIUM 25</span></td><td>1.94h</td><td>$320.8K</td><td>$49.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$MrBeast</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=Hb2dvAgUYE2fiQAo1DjuEQF99Gv85PaUsiGKfvBbpump" target="_blank" rel="noopener" title="Hb2dvAgUYE2fiQAo1DjuEQF99Gv85PaUsiGKfvBbpump">Hb2d…pump</a></td><td>2026-10-15T18:14:31Z</td><td><span class="badge low">LOW 8</span></td><td>1.45h</td><td>$1.88M</td><td>$117.0K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$GRAIL</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=FYFDLqtBd4ZAiDfbx7XxXndcjJuBEZCz5XKAqQwaHC8W" target="_blank" rel="noopener" title="FYFDLqtBd4ZAiDfbx7XxXndcjJuBEZCz5XKAqQwaHC8W">FYFD…HC8W</a></td><td>2026-10-15T18:14:21Z</td><td><span class="badge medium">MEDIUM 31</span></td><td>1.21h</td><td>$336.5K</td><td>$50.9K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$RSICat</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=8VvrRKRdJ22DttddSoWWbkaLPu4s12unhvMXShpHpump" target="_blank" rel="noopener" title="8VvrRKRdJ22DttddSoWWbkaLPu4s12unhvMXShpHpump">8Vvr…pump</a></td><td>2026-10-15T18:14:16Z</td><td><span class="badge medium">MEDIUM 29</span></td><td>1.17h</td><td>$33.8K</td><td>$14.5K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$NODF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=XZvc6ZSREV8zSt3Y9qq4BedEnApr26BXwwTWHvnpump" target="_blank" rel="noopener" title="XZvc6ZSREV8zSt3Y9qq4BedEnApr26BXwwTWHvnpump">XZvc…pump</a></td><td>2026-10-15T18:14:04Z</td><td><span class="badge medium">MEDIUM 20</span></td><td>1.02h</td><td>$1.18M</td><td>$91.9K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$PEGE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=E1dEQiErj8AMQ32NMiCLZfYoorhc2H6W4MiGmuEVpump" target="_blank" rel="noopener" title="E1dEQiErj8AMQ32NMiCLZfYoorhc2H6W4MiGmuEVpump">E1dE…pump</a></td><td>2026-10-15T18:14:02Z</td><td><span class="badge low">LOW 4</span></td><td>0.74h</td><td>$152.7K</td><td>$33.0K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$Claude AI</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=VKxN86JxECJUiv21yr883Mnk3jXPq9Yc1NBEi1Dpump" target="_blank" rel="noopener" title="VKxN86JxECJUiv21yr883Mnk3jXPq9Yc1NBEi1Dpump">VKxN…pump</a></td><td>2026-10-15T18:13:59Z</td><td><span class="badge low">LOW 8</span></td><td>0.69h</td><td>$581.6K</td><td>$64.1K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$OpenAI</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=oFKRFZfCrQMoKvrJy7bqKNoCEUAuVaEHjyUNK9Rpump" target="_blank" rel="noopener" title="oFKRFZfCrQMoKvrJy7bqKNoCEUAuVaEHjyUNK9Rpump">oFKR…pump</a></td><td>2026-10-15T18:13:57Z</td><td><span class="badge medium">MEDIUM 20</span></td><td>0.61h</td><td>$757.3K</td><td>$73.3K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$AIDEN</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=SDJ7Qncp9ztv2uPEqWAzc2YDCY32Vf8S6xtBjQepump" target="_blank" rel="noopener" title="SDJ7Qncp9ztv2uPEqWAzc2YDCY32Vf8S6xtBjQepump">SDJ7…pump</a></td><td>2026-10-15T18:13:46Z</td><td><span class="badge low">LOW 10</span></td><td>0.52h</td><td>$92.2K</td><td>$25.0K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$APPLE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=93m8sg5XfS2DcSB5fgyRkqQv5ir8sP6ocMdwr3Wopump" target="_blank" rel="noopener" title="93m8sg5XfS2DcSB5fgyRkqQv5ir8sP6ocMdwr3Wopump">93m8…pump</a></td><td>2026-10-15T18:13:43Z</td><td><span class="badge medium">MEDIUM 23</span></td><td>0.5h</td><td>$807.8K</td><td>$75.7K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$Brakko</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=Ac2xwtsdnA6GXRaz32PyXJ81fXr279yy7zRZXR95w8K" target="_blank" rel="noopener" title="Ac2xwtsdnA6GXRaz32PyXJ81fXr279yy7zRZXR95w8K">Ac2x…5w8K</a></td><td>2026-10-15T18:13:41Z</td><td><span class="badge medium">MEDIUM 27</span></td><td>0.41h</td><td>$93.9K</td><td>$140.1K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$NUBI</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=BfoqQL1Sm5PpCkn9yKsGQhYMkBkZSdzsBMdLodBTpump" target="_blank" rel="noopener" title="BfoqQL1Sm5PpCkn9yKsGQhYMkBkZSdzsBMdLodBTpump">Bfoq…pump</a></td><td>2026-10-15T18:13:39Z</td><td><span class="badge low">LOW 4</span></td><td>0.4h</td><td>$911.5K</td><td>$83.2K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$POKEMON</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=CM54aeZaVCUokycv4Ypq77mBYB3GpC17R7CAHS4zpump" target="_blank" rel="noopener" title="CM54aeZaVCUokycv4Ypq77mBYB3GpC17R7CAHS4zpump">CM54…pump</a></td><td>2026-10-15T18:13:38Z</td><td><span class="badge medium">MEDIUM 23</span></td><td>0.22h</td><td>$58.1K</td><td>$21.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
-<tr><td><b>$Cul</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=EAJ1auhSGyoFBpugVindEjWNHnSrqbzczfmNBZbCpump" target="_blank" rel="noopener" title="EAJ1auhSGyoFBpugVindEjWNHnSrqbzczfmNBZbCpump">EAJ1…pump</a></td><td>2026-10-15T18:13:26Z</td><td><span class="badge medium">MEDIUM 18</span></td><td>0.22h</td><td>$31.1K</td><td>$13.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr></tbody></table></div></details>
-    <p class="muted" style="margin-top:10px">Page generated 2026-10-16T00:30:17Z from evidence <code>db.json</code>.</p>
+    <div style="overflow-x:auto"><table class="acc"><thead><tr><th>Coin</th><th>Scanned (UTC)</th><th>MemeCheck</th><th>Mcap / Liq at scan</th><th>Reasons at scan</th><th>Rug detected</th><th>Links</th></tr></thead><tbody><tr><td><b>$NODF</b><br><span class="mono muted" title="9Cpp25zEnT5k5DUpML3VFX5ePA1fDinwXU4vpM4opump">9Cpp…pump</span></td><td>2026-10-15T18:20:49Z</td><td><span class="badge high">HIGH 46</span></td><td>$414.56M / $1.75M</td><td>FAIL: Top 10 wallets hold 71.9% of supply; a few wallets can crash the price.<br>FAIL: 822 linked insider wallets in 10 network(s) detected, holding ~137.4% of supply; coordinated dumping risk.<br>WARN: Pair is very new (1.2 h); most rugs happen in the first day.</td><td>2026-10-15T21:45:00Z<br><span class="muted">price -100% since flag; liquidity -99.7% (now $4524)</span></td><td><a href="https://memecheck.pages.dev/?ca=9Cpp25zEnT5k5DUpML3VFX5ePA1fDinwXU4vpM4opump" target="_blank" rel="noopener">MemeCheck</a> · <a href="https://dexscreener.com/solana/2wppcyykvsvm2mb36m9dtfvmjqynwwssqdeu7qzctnrv" target="_blank" rel="noopener">DexScreener</a></td></tr>
+<tr><td><b>$TikTok US</b><br><span class="mono muted" title="C6ec47KrRyYUJBJAMNH1UnZyETdZB8UmukzN9nVDpump">C6ec…pump</span></td><td>2026-10-15T19:31:02Z</td><td><span class="badge high">HIGH 46</span></td><td>$592.6K / $64.7K</td><td>FAIL: Top 10 wallets hold 57.3% of supply; a few wallets can crash the price.<br>FAIL: 517 linked insider wallets in 8 network(s) detected, holding ~22.8% of supply; coordinated dumping risk.<br>WARN: Pair is very new (0.3 h); most rugs happen in the first day.</td><td>2026-10-15T20:15:00Z<br><span class="muted">price -99.7% since flag; liquidity -97.1% (now $1883)</span></td><td><a href="https://memecheck.pages.dev/?ca=C6ec47KrRyYUJBJAMNH1UnZyETdZB8UmukzN9nVDpump" target="_blank" rel="noopener">MemeCheck</a> · <a href="https://dexscreener.com/solana/512prmgu3xbxaeackc7yqcaxbvu1eib3ksrtciybnpmp" target="_blank" rel="noopener">DexScreener</a></td></tr></tbody></table></div>
+    <details style="margin-top:14px"><summary class="muted">All 75 study coins</summary>
+    <div style="overflow-x:auto"><table class="acc"><thead><tr><th>Coin</th><th>Scanned (UTC)</th><th>Level</th><th>Age</th><th>Mcap</th><th>Liq</th><th>24h</th><th>48h</th></tr></thead><tbody><tr><td><b>$USDR</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=8zu4jtmPogv3TQ1MEosD7EYCRu9Avxg6vNRjzZoFpump" target="_blank" rel="noopener" title="8zu4jtmPogv3TQ1MEosD7EYCRu9Avxg6vNRjzZoFpump">8zu4…pump</a></td><td>2026-10-18T13:47:23Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>17.86h</td><td>$39.80M</td><td>$535.5K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$MINTER</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=3NxfWMHmfQg8NJFW5AG1ti2xACdczWz24e9SKyk1pump" target="_blank" rel="noopener" title="3NxfWMHmfQg8NJFW5AG1ti2xACdczWz24e9SKyk1pump">3Nxf…pump</a></td><td>2026-10-18T13:47:20Z</td><td><span class="badge low">LOW 4</span></td><td>16.35h</td><td>$16.79M</td><td>$380.7K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$SUPERCORE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=3ZAnpeVBHAvZsySNMXp4g9nYaE1jsx6khgh29VYKpump" target="_blank" rel="noopener" title="3ZAnpeVBHAvZsySNMXp4g9nYaE1jsx6khgh29VYKpump">3ZAn…pump</a></td><td>2026-10-18T13:47:06Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>11.76h</td><td>$511.2K</td><td>$68.3K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$CATSZN</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=3zxtzoumrXqaqS2CDRjnbVEbf1tb12d5fWwMfa2Npump" target="_blank" rel="noopener" title="3zxtzoumrXqaqS2CDRjnbVEbf1tb12d5fWwMfa2Npump">3zxt…pump</a></td><td>2026-10-18T13:47:03Z</td><td><span class="badge low">LOW 4</span></td><td>11.28h</td><td>$1.09M</td><td>$96.5K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$XTO</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=hyyhpJPLXKNwSdYTJMKJFF6AU5aXaLn9tDTjfkBpump" target="_blank" rel="noopener" title="hyyhpJPLXKNwSdYTJMKJFF6AU5aXaLn9tDTjfkBpump">hyyh…pump</a></td><td>2026-10-18T13:47:01Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>9.4h</td><td>$1099.39M</td><td>$2.82M</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$MASSIVE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=7UAWdJjrBykopzco6bCBmMLdggaiec6bd4bTKmQqpump" target="_blank" rel="noopener" title="7UAWdJjrBykopzco6bCBmMLdggaiec6bd4bTKmQqpump">7UAW…pump</a></td><td>2026-10-18T13:46:58Z</td><td><span class="badge low">LOW 4</span></td><td>8.3h</td><td>$153.0K</td><td>$35.2K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$mucron</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=3A3qjns31YZA6Ung91ZpoPD7J3p1bDFbTJ4ANFAPpump" target="_blank" rel="noopener" title="3A3qjns31YZA6Ung91ZpoPD7J3p1bDFbTJ4ANFAPpump">3A3q…pump</a></td><td>2026-10-18T13:46:55Z</td><td><span class="badge low">LOW 12</span></td><td>4.5h</td><td>$908.7K</td><td>$88.0K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$NIVRA</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=7W4caeAPA6PNzwqiP8wqqPAEBWbqLvDQiYRy8RJXYRtj" target="_blank" rel="noopener" title="7W4caeAPA6PNzwqiP8wqqPAEBWbqLvDQiYRy8RJXYRtj">7W4c…YRtj</a></td><td>2026-10-18T13:46:41Z</td><td><span class="badge low">LOW 8</span></td><td>3.85h</td><td>$131.0K</td><td>$130.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$mucron</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=4cLLQf5edRayV5aQXH5vQZVySam9oGxvodwW1JzfZkJf" target="_blank" rel="noopener" title="4cLLQf5edRayV5aQXH5vQZVySam9oGxvodwW1JzfZkJf">4cLL…ZkJf</a></td><td>2026-10-18T13:46:35Z</td><td><span class="badge low">LOW 8</span></td><td>2.32h</td><td>$95.9K</td><td>$161.1K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$bwigitte</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=4bLHGwcRd4GCVsSP8uRMcrWMh1nBCVcNM2CC9AWPpump" target="_blank" rel="noopener" title="4bLHGwcRd4GCVsSP8uRMcrWMh1nBCVcNM2CC9AWPpump">4bLH…pump</a></td><td>2026-10-18T13:46:34Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>1.73h</td><td>$88.9K</td><td>$24.1K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$MEGA</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=8dATxRTextAcaGxtWWUoTVApruNXtNS3Y74uD4Jzpump" target="_blank" rel="noopener" title="8dATxRTextAcaGxtWWUoTVApruNXtNS3Y74uD4Jzpump">8dAT…pump</a></td><td>2026-10-18T13:46:17Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>1.12h</td><td>$173.9K</td><td>$36.9K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$Claude AI</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=4VqiJjdB5kdrnFnaribEAXyNxK3xvzsvYiydGf4Upump" target="_blank" rel="noopener" title="4VqiJjdB5kdrnFnaribEAXyNxK3xvzsvYiydGf4Upump">4Vqi…pump</a></td><td>2026-10-18T13:46:15Z</td><td><span class="badge low">LOW 8</span></td><td>0.85h</td><td>$1.21M</td><td>$92.1K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$Rockstar</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=G9jfBYLFS3P2c8rMSwqx34B9ZsUNRCFhkq7Pobe6pump" target="_blank" rel="noopener" title="G9jfBYLFS3P2c8rMSwqx34B9ZsUNRCFhkq7Pobe6pump">G9jf…pump</a></td><td>2026-10-18T13:46:03Z</td><td><span class="badge low">LOW 8</span></td><td>0.83h</td><td>$1.63M</td><td>$107.3K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$mucron</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=8Jbshvdp8QwbB2qCxVB3wdUnD4QmkQsm2GatyrXm8NF" target="_blank" rel="noopener" title="8Jbshvdp8QwbB2qCxVB3wdUnD4QmkQsm2GatyrXm8NF">8Jbs…m8NF</a></td><td>2026-10-18T13:46:00Z</td><td><span class="badge low">LOW 8</span></td><td>0.52h</td><td>$95.0K</td><td>$144.4K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$BNICE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=CNfzT1Ha63GTeJ99N9ii73HzCwyLUTXj3mbiwCyvtZD3" target="_blank" rel="noopener" title="CNfzT1Ha63GTeJ99N9ii73HzCwyLUTXj3mbiwCyvtZD3">CNfz…tZD3</a></td><td>2026-10-18T13:45:58Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>0.36h</td><td>$39.1K</td><td>$15.3K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$GTA VI</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=FgqUK2GerWYiiSMj8k2SmznRcRoa5oYT59VfWQqpump" target="_blank" rel="noopener" title="FgqUK2GerWYiiSMj8k2SmznRcRoa5oYT59VfWQqpump">FgqU…pump</a></td><td>2026-10-18T13:45:55Z</td><td><span class="badge low">LOW 8</span></td><td>0.14h</td><td>$412.5K</td><td>$52.8K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$Gold</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=GoLdZWYNg9jg4z5SGCLJx69xag2vMjLaSQK5S7TUGoLd" target="_blank" rel="noopener" title="GoLdZWYNg9jg4z5SGCLJx69xag2vMjLaSQK5S7TUGoLd">GoLd…GoLd</a></td><td>2026-10-18T13:45:53Z</td><td><span class="badge low">LOW 4</span></td><td>0.13h</td><td>$80.8K</td><td>$24.9K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$Tom</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=GjWXvtKzt5CCbaYMjJL85zLKCYyidixoH7QgrRgrG9Kh" target="_blank" rel="noopener" title="GjWXvtKzt5CCbaYMjJL85zLKCYyidixoH7QgrRgrG9Kh">GjWX…G9Kh</a></td><td>2026-10-18T13:45:51Z</td><td><span class="badge medium">MEDIUM 23</span></td><td>0.11h</td><td>$31.2K</td><td>$47.9K</td><td><span class="muted">pending</span></td><td><span class="muted">pending</span></td></tr>
+<tr><td><b>$SPAX</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=BFajJ6XRjZTWDn1KTzqmF8fcSydyyHzZMkzyQB85pump" target="_blank" rel="noopener" title="BFajJ6XRjZTWDn1KTzqmF8fcSydyyHzZMkzyQB85pump">BFaj…pump</a></td><td>2026-10-15T19:31:31Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>13.89h</td><td>$37.60M</td><td>$528.6K</td><td>RUGGED</td><td>RUGGED</td></tr>
+<tr><td><b>$DacityCoin</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=DKYcjobF7HPtL9RyQBRdeRQ2iWvizpfbgWwPWNXdpump" target="_blank" rel="noopener" title="DKYcjobF7HPtL9RyQBRdeRQ2iWvizpfbgWwPWNXdpump">DKYc…pump</a></td><td>2026-10-15T19:31:25Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>6.05h</td><td>$166.2K</td><td>$39.2K</td><td>ALIVE <span class="muted">(−62.3%)</span></td><td>ALIVE <span class="muted">(−62.3%)</span></td></tr>
+<tr><td><b>$Coca Cola</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=jLiKKUiUnqv5ZCueDQaMwFT9jiHzNh8fdbfqbaJpump" target="_blank" rel="noopener" title="jLiKKUiUnqv5ZCueDQaMwFT9jiHzNh8fdbfqbaJpump">jLiK…pump</a></td><td>2026-10-15T19:31:18Z</td><td><span class="badge low">LOW 8</span></td><td>1.26h</td><td>$1.16M</td><td>$91.7K</td><td>RUGGED <span class="muted">(−99.8%)</span></td><td>RUGGED <span class="muted">(−99.8%)</span></td></tr>
+<tr><td><b>$DOTF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=G6J3U1caqAuQNiLMSDPLcG73FfnRunDqMF9NihM5pump" target="_blank" rel="noopener" title="G6J3U1caqAuQNiLMSDPLcG73FfnRunDqMF9NihM5pump">G6J3…pump</a></td><td>2026-10-15T19:31:16Z</td><td><span class="badge medium">MEDIUM 38</span></td><td>0.85h</td><td>$217.2K</td><td>$39.1K</td><td>ALIVE <span class="muted">(+42.6%)</span></td><td>ALIVE <span class="muted">(+42.6%)</span></td></tr>
+<tr><td><b>$PEDO</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=GRDKxVqVJcuxeCojBnkGyKc3sHJ8smyFnMe1MG1bpump" target="_blank" rel="noopener" title="GRDKxVqVJcuxeCojBnkGyKc3sHJ8smyFnMe1MG1bpump">GRDK…pump</a></td><td>2026-10-15T19:31:13Z</td><td><span class="badge low">LOW 4</span></td><td>0.82h</td><td>$64.6K</td><td>$20.6K</td><td>RUGGED</td><td>RUGGED</td></tr>
+<tr><td><b>$TOAST</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=DAQw76NKrKcRBePBjSwoR83dNaNtRPG2zkaQs9Y71Nx" target="_blank" rel="noopener" title="DAQw76NKrKcRBePBjSwoR83dNaNtRPG2zkaQs9Y71Nx">DAQw…71Nx</a></td><td>2026-10-15T19:31:10Z</td><td><span class="badge medium">MEDIUM 27</span></td><td>0.42h</td><td>$87.8K</td><td>$135.5K</td><td>RUGGED</td><td>RUGGED</td></tr>
+<tr><td><b>$GROKBOT</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=D4Uxj8PG3SGNWeKoiwfMuDvX6dDTQGmyipLTPkDLpump" target="_blank" rel="noopener" title="D4Uxj8PG3SGNWeKoiwfMuDvX6dDTQGmyipLTPkDLpump">D4Ux…pump</a></td><td>2026-10-15T19:31:08Z</td><td><span class="badge low">LOW 4</span></td><td>0.38h</td><td>$84.2K</td><td>$23.6K</td><td>RUGGED <span class="muted">(−97.6%)</span></td><td>RUGGED <span class="muted">(−97.6%)</span></td></tr>
+<tr><td><b>$TikTok US</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=C6ec47KrRyYUJBJAMNH1UnZyETdZB8UmukzN9nVDpump" target="_blank" rel="noopener" title="C6ec47KrRyYUJBJAMNH1UnZyETdZB8UmukzN9nVDpump">C6ec…pump</a></td><td>2026-10-15T19:31:02Z</td><td><span class="badge high">HIGH 46</span></td><td>0.28h</td><td>$592.6K</td><td>$64.7K</td><td>RUGGED <span class="muted">(−99.7%)</span></td><td>RUGGED <span class="muted">(−99.7%)</span></td></tr>
+<tr><td><b>$MAGIC SI</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=BixDb1FNqWPhLKpH47rJcSetQtA7JAGX2qEdNrt5JQpe" target="_blank" rel="noopener" title="BixDb1FNqWPhLKpH47rJcSetQtA7JAGX2qEdNrt5JQpe">BixD…JQpe</a></td><td>2026-10-15T19:30:59Z</td><td><span class="badge medium">MEDIUM 31</span></td><td>0.24h</td><td>$479.6K</td><td>$58.0K</td><td>RUGGED <span class="muted">(−99.6%)</span></td><td>RUGGED <span class="muted">(−99.6%)</span></td></tr>
+<tr><td><b>$tesla</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=AZqnYrca5kvB9JZ3hGcsLSh8KPJZXaMyhtaVKn6wpump" target="_blank" rel="noopener" title="AZqnYrca5kvB9JZ3hGcsLSh8KPJZXaMyhtaVKn6wpump">AZqn…pump</a></td><td>2026-10-15T19:30:54Z</td><td><span class="badge medium">MEDIUM 20</span></td><td>0.13h</td><td>$50.6K</td><td>$18.0K</td><td>RUGGED <span class="muted">(−95.5%)</span></td><td>RUGGED <span class="muted">(−95.5%)</span></td></tr>
+<tr><td><b>$ZOO</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=EgsQ9Fgcq5gxUh9sdrWrDcJeYcNZhB5NhgFPKqS6pump" target="_blank" rel="noopener" title="EgsQ9Fgcq5gxUh9sdrWrDcJeYcNZhB5NhgFPKqS6pump">EgsQ…pump</a></td><td>2026-10-15T19:30:37Z</td><td><span class="badge medium">MEDIUM 31</span></td><td>0.05h</td><td>$80.8K</td><td>$22.7K</td><td>RUGGED <span class="muted">(−97.5%)</span></td><td>RUGGED <span class="muted">(−97.5%)</span></td></tr>
+<tr><td><b>$SI276</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=HrrVJmj3KgqVzcWKwZL71tgnKVPLuK82KP6vhZvpump" target="_blank" rel="noopener" title="HrrVJmj3KgqVzcWKwZL71tgnKVPLuK82KP6vhZvpump">HrrV…pump</a></td><td>2026-10-15T18:38:42Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>16.02h</td><td>$35.69M</td><td>$513.5K</td><td>RUGGED</td><td>RUGGED</td></tr>
+<tr><td><b>$UKFLMS</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=mWdu7Wu2PhdnMiiXQbhpKHEaQPi86SNgNciSBQppump" target="_blank" rel="noopener" title="mWdu7Wu2PhdnMiiXQbhpKHEaQPi86SNgNciSBQppump">mWdu…pump</a></td><td>2026-10-15T18:38:37Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>14.9h</td><td>$14.91M</td><td>$331.1K</td><td>RUGGED <span class="muted">(−100%)</span></td><td>RUGGED <span class="muted">(−100%)</span></td></tr>
+<tr><td><b>$SPIDER</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=2ShXwByGSBRVfMqdVoUc1QxuK7mAuHPSVqbQbJENpump" target="_blank" rel="noopener" title="2ShXwByGSBRVfMqdVoUc1QxuK7mAuHPSVqbQbJENpump">2ShX…pump</a></td><td>2026-10-15T18:38:34Z</td><td><span class="badge low">LOW 4</span></td><td>0.26h</td><td>$138.1K</td><td>$30.5K</td><td>RUGGED <span class="muted">(−98.6%)</span></td><td>RUGGED <span class="muted">(−98.6%)</span></td></tr>
+<tr><td><b>$UDR</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=G8dJxnKHx387vAMBr1b1gPzviKka9ZofPstzrvypump" target="_blank" rel="noopener" title="G8dJxnKHx387vAMBr1b1gPzviKka9ZofPstzrvypump">G8dJ…pump</a></td><td>2026-10-15T18:22:50Z</td><td><span class="badge low">LOW 4</span></td><td>23.38h</td><td>$9.58M</td><td>$265.3K</td><td>RUGGED <span class="muted">(−100%)</span></td><td>RUGGED <span class="muted">(−100%)</span></td></tr>
+<tr><td><b>$XPOSE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=1qVjaHdLcv3PR3AaQrGWt2q55EB1WkdiCwqj4vopump" target="_blank" rel="noopener" title="1qVjaHdLcv3PR3AaQrGWt2q55EB1WkdiCwqj4vopump">1qVj…pump</a></td><td>2026-10-15T18:22:47Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>17.99h</td><td>$5.46M</td><td>$199.6K</td><td>RUGGED <span class="muted">(−100%)</span></td><td>RUGGED <span class="muted">(−100%)</span></td></tr>
+<tr><td><b>$USOR/SOL</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=omrqAdegAvkfdPQCMy5UA7hQcEDoq4SKLn2UPknpump" target="_blank" rel="noopener" title="omrqAdegAvkfdPQCMy5UA7hQcEDoq4SKLn2UPknpump">omrq…pump</a></td><td>2026-10-15T18:22:44Z</td><td><span class="badge medium">MEDIUM 23</span></td><td>16.56h</td><td>$11.19M</td><td>$286.6K</td><td>RUGGED <span class="muted">(−100%)</span></td><td>RUGGED <span class="muted">(−100%)</span></td></tr>
+<tr><td><b>$PUMPE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=e3Vj1YEgceyPoru4JLQgB7Ft7TNbx2AXzqicuk1pump" target="_blank" rel="noopener" title="e3Vj1YEgceyPoru4JLQgB7Ft7TNbx2AXzqicuk1pump">e3Vj…pump</a></td><td>2026-10-15T18:22:42Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>15.54h</td><td>$1.51M</td><td>$104.3K</td><td>RUGGED</td><td>RUGGED</td></tr>
+<tr><td><b>$INCOGNITO</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=NoPeXTD11FPaEeHR5MEMadQxD6RbJzi2XCu9Pj4pump" target="_blank" rel="noopener" title="NoPeXTD11FPaEeHR5MEMadQxD6RbJzi2XCu9Pj4pump">NoPe…pump</a></td><td>2026-10-15T18:22:31Z</td><td><span class="badge medium">MEDIUM 23</span></td><td>15.34h</td><td>$11.05M</td><td>$284.8K</td><td>RUGGED <span class="muted">(−100%)</span></td><td>RUGGED <span class="muted">(−100%)</span></td></tr>
+<tr><td><b>$BATFISH</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=4aMD7TAujKhojDpw4Kgs7xbF4AKycfH9Mr8ehqzzpump" target="_blank" rel="noopener" title="4aMD7TAujKhojDpw4Kgs7xbF4AKycfH9Mr8ehqzzpump">4aMD…pump</a></td><td>2026-10-15T18:22:28Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>14.66h</td><td>$56.9K</td><td>$19.6K</td><td>DOWN70 <span class="muted">(−89%)</span></td><td>DOWN70 <span class="muted">(−89%)</span></td></tr>
+<tr><td><b>$ARF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=WHvP6NTRYdovnG9ZDVVrF8bR2bTChSDjLaGbeWopump" target="_blank" rel="noopener" title="WHvP6NTRYdovnG9ZDVVrF8bR2bTChSDjLaGbeWopump">WHvP…pump</a></td><td>2026-10-15T18:22:26Z</td><td><span class="badge medium">MEDIUM 23</span></td><td>14.09h</td><td>$26.46M</td><td>$441.4K</td><td>RUGGED <span class="muted">(−100%)</span></td><td>RUGGED <span class="muted">(−100%)</span></td></tr>
+<tr><td><b>$CYBERLEEK</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=EAyCVRZ8ZLd3y9ocfMGv2fRdLM7iE1pf492pt4ppump" target="_blank" rel="noopener" title="EAyCVRZ8ZLd3y9ocfMGv2fRdLM7iE1pf492pt4ppump">EAyC…pump</a></td><td>2026-10-15T18:22:23Z</td><td><span class="badge low">LOW 8</span></td><td>11h</td><td>$227.89M</td><td>$1.30M</td><td>RUGGED <span class="muted">(−100%)</span></td><td>RUGGED <span class="muted">(−100%)</span></td></tr>
+<tr><td><b>$Awkward Dog</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=3W3G24d3kDofngrGj9fErCjGKuoRsApNbvyCPgZNpump" target="_blank" rel="noopener" title="3W3G24d3kDofngrGj9fErCjGKuoRsApNbvyCPgZNpump">3W3G…pump</a></td><td>2026-10-15T18:22:22Z</td><td><span class="badge medium">MEDIUM 27</span></td><td>10.88h</td><td>$567.7K</td><td>$63.4K</td><td>ALIVE <span class="muted">(+132.1%)</span></td><td>ALIVE <span class="muted">(+132.1%)</span></td></tr>
+<tr><td><b>$FTR</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=vBu4awtjGvPc9gPGyM82WnEg9pRP44F5a1fmFb9pump" target="_blank" rel="noopener" title="vBu4awtjGvPc9gPGyM82WnEg9pRP44F5a1fmFb9pump">vBu4…pump</a></td><td>2026-10-15T18:22:10Z</td><td><span class="badge low">LOW 4</span></td><td>9.7h</td><td>$10.82M</td><td>$281.6K</td><td>RUGGED <span class="muted">(−100%)</span></td><td>RUGGED <span class="muted">(−100%)</span></td></tr>
+<tr><td><b>$SPX</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=d8y32AxHmGEvcRMn4JhdWTrGdgQ1AMYcQjCRsevpump" target="_blank" rel="noopener" title="d8y32AxHmGEvcRMn4JhdWTrGdgQ1AMYcQjCRsevpump">d8y3…pump</a></td><td>2026-10-15T18:22:08Z</td><td><span class="badge medium">MEDIUM 27</span></td><td>9.61h</td><td>$12.09M</td><td>$297.8K</td><td>RUGGED</td><td>RUGGED</td></tr>
+<tr><td><b>$Doroni</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=ahj9cQ4uVfromvTx9ZxANPCgF7giczQjZFdqiKbpump" target="_blank" rel="noopener" title="ahj9cQ4uVfromvTx9ZxANPCgF7giczQjZFdqiKbpump">ahj9…pump</a></td><td>2026-10-15T18:22:06Z</td><td><span class="badge low">LOW 4</span></td><td>9.44h</td><td>$5.75M</td><td>$204.9K</td><td>RUGGED <span class="muted">(−99.9%)</span></td><td>RUGGED <span class="muted">(−99.9%)</span></td></tr>
+<tr><td><b>$WAIF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=ZtJKTMsEZVsC5hyqRKhGFwe7KMUsNDCrU9tr6zXpump" target="_blank" rel="noopener" title="ZtJKTMsEZVsC5hyqRKhGFwe7KMUsNDCrU9tr6zXpump">ZtJK…pump</a></td><td>2026-10-15T18:22:02Z</td><td><span class="badge low">LOW 4</span></td><td>9.29h</td><td>$11.68M</td><td>$292.6K</td><td>RUGGED</td><td>RUGGED</td></tr>
+<tr><td><b>$WAITIE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=kpw3mRFBxzWFcQiLjPE1AXM6bSQhwFoUY8WQAKbpump" target="_blank" rel="noopener" title="kpw3mRFBxzWFcQiLjPE1AXM6bSQhwFoUY8WQAKbpump">kpw3…pump</a></td><td>2026-10-15T18:22:01Z</td><td><span class="badge low">LOW 4</span></td><td>8.85h</td><td>$86.3K</td><td>$24.5K</td><td>ALIVE <span class="muted">(+82.5%)</span></td><td>ALIVE <span class="muted">(+82.5%)</span></td></tr>
+<tr><td><b>$NOS</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=zhcCAMPgeWmGRddpMefMEnPwpCQ9nn7Hvqnoycypump" target="_blank" rel="noopener" title="zhcCAMPgeWmGRddpMefMEnPwpCQ9nn7Hvqnoycypump">zhcC…pump</a></td><td>2026-10-15T18:21:49Z</td><td><span class="badge low">LOW 4</span></td><td>8.34h</td><td>$2.49M</td><td>$134.2K</td><td>ALIVE <span class="muted">(+68%)</span></td><td>ALIVE <span class="muted">(+68%)</span></td></tr>
+<tr><td><b>$SPCX</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=VKwzTkobt7TJEh1xk3zdwbT6nrQstAjy9x1Hnp8pump" target="_blank" rel="noopener" title="VKwzTkobt7TJEh1xk3zdwbT6nrQstAjy9x1Hnp8pump">VKwz…pump</a></td><td>2026-10-15T18:21:47Z</td><td><span class="badge low">LOW 4</span></td><td>5.93h</td><td>$16.35M</td><td>$346.6K</td><td>RUGGED <span class="muted">(−100%)</span></td><td>RUGGED <span class="muted">(−100%)</span></td></tr>
+<tr><td><b>$DOPE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=8fSuMua9w4o5B9nUYLdyB8ANN6kCaEPvtfL9zFuDpump" target="_blank" rel="noopener" title="8fSuMua9w4o5B9nUYLdyB8ANN6kCaEPvtfL9zFuDpump">8fSu…pump</a></td><td>2026-10-15T18:21:45Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>5.89h</td><td>$164.76M</td><td>$1.10M</td><td>RUGGED <span class="muted">(−100%)</span></td><td>RUGGED <span class="muted">(−100%)</span></td></tr>
+<tr><td><b>$UDR</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=5T3P5PLnfm9Phx6wsoeBnGRzhwTfE8ZTCZ7JcQFpump" target="_blank" rel="noopener" title="5T3P5PLnfm9Phx6wsoeBnGRzhwTfE8ZTCZ7JcQFpump">5T3P…pump</a></td><td>2026-10-15T18:21:38Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>5.79h</td><td>$180.04M</td><td>$1.15M</td><td>ALIVE <span class="muted">(+213%)</span></td><td>ALIVE <span class="muted">(+213%)</span></td></tr>
+<tr><td><b>$LOAD</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=wNn4tJe2eLXgygkd6pjczXmbPeGVpYTTDzyyGUdpump" target="_blank" rel="noopener" title="wNn4tJe2eLXgygkd6pjczXmbPeGVpYTTDzyyGUdpump">wNn4…pump</a></td><td>2026-10-15T18:21:36Z</td><td><span class="badge low">LOW 4</span></td><td>4.78h</td><td>$2.89M</td><td>$144.8K</td><td>ALIVE <span class="muted">(+106.9%)</span></td><td>ALIVE <span class="muted">(+106.9%)</span></td></tr>
+<tr><td><b>$SOS</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=oVzja1Z7Z9Qdd1stomtAXWkHd14HVvNAaDnxhsmpump" target="_blank" rel="noopener" title="oVzja1Z7Z9Qdd1stomtAXWkHd14HVvNAaDnxhsmpump">oVzj…pump</a></td><td>2026-10-15T18:21:22Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>4.61h</td><td>$2.97M</td><td>$146.8K</td><td>ALIVE <span class="muted">(+58.7%)</span></td><td>ALIVE <span class="muted">(+58.7%)</span></td></tr>
+<tr><td><b>$NODF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=32b5zGQcxhYyvYZDeeuU9xvb6tnn8KwAW8JtUuQTpump" target="_blank" rel="noopener" title="32b5zGQcxhYyvYZDeeuU9xvb6tnn8KwAW8JtUuQTpump">32b5…pump</a></td><td>2026-10-15T18:21:16Z</td><td><span class="badge low">LOW 4</span></td><td>4.13h</td><td>$179.44M</td><td>$1.15M</td><td>RUGGED <span class="muted">(−100%)</span></td><td>RUGGED <span class="muted">(−100%)</span></td></tr>
+<tr><td><b>$NPC</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=79ur78uUB69no1bSVi5onD4Xrpfh7Zh3xPb8ZMzMFABT" target="_blank" rel="noopener" title="79ur78uUB69no1bSVi5onD4Xrpfh7Zh3xPb8ZMzMFABT">79ur…FABT</a></td><td>2026-10-15T18:21:06Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>2.37h</td><td>$33.6K</td><td>$14.7K</td><td>RUGGED <span class="muted">(−93.1%)</span></td><td>RUGGED <span class="muted">(−93.1%)</span></td></tr>
+<tr><td><b>$CAPE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=DFGPAUYJZYjZ88oaEuiDQHqsH4eeRFSeF6vRGSotpump" target="_blank" rel="noopener" title="DFGPAUYJZYjZ88oaEuiDQHqsH4eeRFSeF6vRGSotpump">DFGP…pump</a></td><td>2026-10-15T18:20:58Z</td><td><span class="badge medium">MEDIUM 27</span></td><td>1.68h</td><td>$49.1K</td><td>$18.0K</td><td>RUGGED <span class="muted">(−91.9%)</span></td><td>RUGGED <span class="muted">(−91.9%)</span></td></tr>
+<tr><td><b>$GDF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=5RfRCKvGMDqQDQAraRv6S7HG2xQH4wje3uFWFevcpump" target="_blank" rel="noopener" title="5RfRCKvGMDqQDQAraRv6S7HG2xQH4wje3uFWFevcpump">5RfR…pump</a></td><td>2026-10-15T18:20:57Z</td><td><span class="badge low">LOW 4</span></td><td>1.63h</td><td>$155.90M</td><td>$1.07M</td><td>RUGGED <span class="muted">(−100%)</span></td><td>RUGGED <span class="muted">(−100%)</span></td></tr>
+<tr><td><b>$NODF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=aGfeidTLzWbewHZX5921rS6KBzcJbMs23KJpLTPpump" target="_blank" rel="noopener" title="aGfeidTLzWbewHZX5921rS6KBzcJbMs23KJpLTPpump">aGfe…pump</a></td><td>2026-10-15T18:20:53Z</td><td><span class="badge low">LOW 4</span></td><td>1.62h</td><td>$352.36M</td><td>$1.62M</td><td>RUGGED <span class="muted">(−100%)</span></td><td>RUGGED <span class="muted">(−100%)</span></td></tr>
+<tr><td><b>$NODF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=9Cpp25zEnT5k5DUpML3VFX5ePA1fDinwXU4vpM4opump" target="_blank" rel="noopener" title="9Cpp25zEnT5k5DUpML3VFX5ePA1fDinwXU4vpM4opump">9Cpp…pump</a></td><td>2026-10-15T18:20:49Z</td><td><span class="badge high">HIGH 46</span></td><td>1.21h</td><td>$414.56M</td><td>$1.75M</td><td>RUGGED <span class="muted">(−100%)</span></td><td>RUGGED <span class="muted">(−100%)</span></td></tr>
+<tr><td><b>$Hugo</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=G97EU185vTD9simFiUK1EQYPWig8e2A7b4T488nZamnR" target="_blank" rel="noopener" title="G97EU185vTD9simFiUK1EQYPWig8e2A7b4T488nZamnR">G97E…amnR</a></td><td>2026-10-15T18:20:48Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>0.51h</td><td>$32.1K</td><td>$13.7K</td><td>DOWN70 <span class="muted">(−77.5%)</span></td><td>DOWN70 <span class="muted">(−77.5%)</span></td></tr>
+<tr><td><b>$STREAM</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=9a98oQHtxfqmr4EyzsP6wfw69uYAK3JbUeVEuNW1pump" target="_blank" rel="noopener" title="9a98oQHtxfqmr4EyzsP6wfw69uYAK3JbUeVEuNW1pump">9a98…pump</a></td><td>2026-10-15T18:14:58Z</td><td><span class="badge low">LOW 4</span></td><td>22.91h</td><td>$24.50M</td><td>$476.3K</td><td>RUGGED <span class="muted">(−100%)</span></td><td>RUGGED <span class="muted">(−100%)</span></td></tr>
+<tr><td><b>$FTR</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=DFMt2FyLpB6ekPNAzVErLXgpSnJ9CRf1VnxBAkTLpump" target="_blank" rel="noopener" title="DFMt2FyLpB6ekPNAzVErLXgpSnJ9CRf1VnxBAkTLpump">DFMt…pump</a></td><td>2026-10-15T18:14:51Z</td><td><span class="badge medium">MEDIUM 19</span></td><td>16.08h</td><td>$2.13M</td><td>$145.8K</td><td>ALIVE <span class="muted">(+2.8%)</span></td><td>ALIVE <span class="muted">(+2.8%)</span></td></tr>
+<tr><td><b>$$OTCATWALK</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=9UDNU3zn32BdB8s82gxC7aJwKHii7PYaKH9dyQ5spump" target="_blank" rel="noopener" title="9UDNU3zn32BdB8s82gxC7aJwKHii7PYaKH9dyQ5spump">9UDN…pump</a></td><td>2026-10-15T18:14:33Z</td><td><span class="badge medium">MEDIUM 25</span></td><td>1.94h</td><td>$320.8K</td><td>$49.8K</td><td>RUGGED <span class="muted">(−99.3%)</span></td><td>RUGGED <span class="muted">(−99.3%)</span></td></tr>
+<tr><td><b>$MrBeast</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=Hb2dvAgUYE2fiQAo1DjuEQF99Gv85PaUsiGKfvBbpump" target="_blank" rel="noopener" title="Hb2dvAgUYE2fiQAo1DjuEQF99Gv85PaUsiGKfvBbpump">Hb2d…pump</a></td><td>2026-10-15T18:14:31Z</td><td><span class="badge low">LOW 8</span></td><td>1.45h</td><td>$1.88M</td><td>$117.0K</td><td>RUGGED <span class="muted">(−99.9%)</span></td><td>RUGGED <span class="muted">(−99.9%)</span></td></tr>
+<tr><td><b>$GRAIL</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=FYFDLqtBd4ZAiDfbx7XxXndcjJuBEZCz5XKAqQwaHC8W" target="_blank" rel="noopener" title="FYFDLqtBd4ZAiDfbx7XxXndcjJuBEZCz5XKAqQwaHC8W">FYFD…HC8W</a></td><td>2026-10-15T18:14:21Z</td><td><span class="badge medium">MEDIUM 31</span></td><td>1.21h</td><td>$336.5K</td><td>$50.9K</td><td>RUGGED <span class="muted">(−96.6%)</span></td><td>RUGGED <span class="muted">(−96.6%)</span></td></tr>
+<tr><td><b>$RSICat</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=8VvrRKRdJ22DttddSoWWbkaLPu4s12unhvMXShpHpump" target="_blank" rel="noopener" title="8VvrRKRdJ22DttddSoWWbkaLPu4s12unhvMXShpHpump">8Vvr…pump</a></td><td>2026-10-15T18:14:16Z</td><td><span class="badge medium">MEDIUM 29</span></td><td>1.17h</td><td>$33.8K</td><td>$14.5K</td><td>DOWN70 <span class="muted">(−87.7%)</span></td><td>DOWN70 <span class="muted">(−87.7%)</span></td></tr>
+<tr><td><b>$NODF</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=XZvc6ZSREV8zSt3Y9qq4BedEnApr26BXwwTWHvnpump" target="_blank" rel="noopener" title="XZvc6ZSREV8zSt3Y9qq4BedEnApr26BXwwTWHvnpump">XZvc…pump</a></td><td>2026-10-15T18:14:04Z</td><td><span class="badge medium">MEDIUM 20</span></td><td>1.02h</td><td>$1.18M</td><td>$91.9K</td><td>RUGGED <span class="muted">(−99.8%)</span></td><td>RUGGED <span class="muted">(−99.8%)</span></td></tr>
+<tr><td><b>$PEGE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=E1dEQiErj8AMQ32NMiCLZfYoorhc2H6W4MiGmuEVpump" target="_blank" rel="noopener" title="E1dEQiErj8AMQ32NMiCLZfYoorhc2H6W4MiGmuEVpump">E1dE…pump</a></td><td>2026-10-15T18:14:02Z</td><td><span class="badge low">LOW 4</span></td><td>0.74h</td><td>$152.7K</td><td>$33.0K</td><td>RUGGED <span class="muted">(−98.6%)</span></td><td>RUGGED <span class="muted">(−98.6%)</span></td></tr>
+<tr><td><b>$Claude AI</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=VKxN86JxECJUiv21yr883Mnk3jXPq9Yc1NBEi1Dpump" target="_blank" rel="noopener" title="VKxN86JxECJUiv21yr883Mnk3jXPq9Yc1NBEi1Dpump">VKxN…pump</a></td><td>2026-10-15T18:13:59Z</td><td><span class="badge low">LOW 8</span></td><td>0.69h</td><td>$581.6K</td><td>$64.1K</td><td>RUGGED <span class="muted">(−99.7%)</span></td><td>RUGGED <span class="muted">(−99.7%)</span></td></tr>
+<tr><td><b>$OpenAI</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=oFKRFZfCrQMoKvrJy7bqKNoCEUAuVaEHjyUNK9Rpump" target="_blank" rel="noopener" title="oFKRFZfCrQMoKvrJy7bqKNoCEUAuVaEHjyUNK9Rpump">oFKR…pump</a></td><td>2026-10-15T18:13:57Z</td><td><span class="badge medium">MEDIUM 20</span></td><td>0.61h</td><td>$757.3K</td><td>$73.3K</td><td>RUGGED <span class="muted">(−99.8%)</span></td><td>RUGGED <span class="muted">(−99.8%)</span></td></tr>
+<tr><td><b>$AIDEN</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=SDJ7Qncp9ztv2uPEqWAzc2YDCY32Vf8S6xtBjQepump" target="_blank" rel="noopener" title="SDJ7Qncp9ztv2uPEqWAzc2YDCY32Vf8S6xtBjQepump">SDJ7…pump</a></td><td>2026-10-15T18:13:46Z</td><td><span class="badge low">LOW 10</span></td><td>0.52h</td><td>$92.2K</td><td>$25.0K</td><td>RUGGED <span class="muted">(−97.8%)</span></td><td>RUGGED <span class="muted">(−97.8%)</span></td></tr>
+<tr><td><b>$APPLE</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=93m8sg5XfS2DcSB5fgyRkqQv5ir8sP6ocMdwr3Wopump" target="_blank" rel="noopener" title="93m8sg5XfS2DcSB5fgyRkqQv5ir8sP6ocMdwr3Wopump">93m8…pump</a></td><td>2026-10-15T18:13:43Z</td><td><span class="badge medium">MEDIUM 23</span></td><td>0.5h</td><td>$807.8K</td><td>$75.7K</td><td>RUGGED <span class="muted">(−99.8%)</span></td><td>RUGGED <span class="muted">(−99.8%)</span></td></tr>
+<tr><td><b>$Brakko</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=Ac2xwtsdnA6GXRaz32PyXJ81fXr279yy7zRZXR95w8K" target="_blank" rel="noopener" title="Ac2xwtsdnA6GXRaz32PyXJ81fXr279yy7zRZXR95w8K">Ac2x…5w8K</a></td><td>2026-10-15T18:13:41Z</td><td><span class="badge medium">MEDIUM 27</span></td><td>0.41h</td><td>$93.9K</td><td>$140.1K</td><td>RUGGED</td><td>RUGGED</td></tr>
+<tr><td><b>$NUBI</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=BfoqQL1Sm5PpCkn9yKsGQhYMkBkZSdzsBMdLodBTpump" target="_blank" rel="noopener" title="BfoqQL1Sm5PpCkn9yKsGQhYMkBkZSdzsBMdLodBTpump">Bfoq…pump</a></td><td>2026-10-15T18:13:39Z</td><td><span class="badge low">LOW 4</span></td><td>0.4h</td><td>$911.5K</td><td>$83.2K</td><td>RUGGED <span class="muted">(−99.8%)</span></td><td>RUGGED <span class="muted">(−99.8%)</span></td></tr>
+<tr><td><b>$POKEMON</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=CM54aeZaVCUokycv4Ypq77mBYB3GpC17R7CAHS4zpump" target="_blank" rel="noopener" title="CM54aeZaVCUokycv4Ypq77mBYB3GpC17R7CAHS4zpump">CM54…pump</a></td><td>2026-10-15T18:13:38Z</td><td><span class="badge medium">MEDIUM 23</span></td><td>0.22h</td><td>$58.1K</td><td>$21.8K</td><td>RUGGED <span class="muted">(−96.2%)</span></td><td>RUGGED <span class="muted">(−96.2%)</span></td></tr>
+<tr><td><b>$Cul</b> <a class="mono muted" href="https://memecheck.pages.dev/?ca=EAJ1auhSGyoFBpugVindEjWNHnSrqbzczfmNBZbCpump" target="_blank" rel="noopener" title="EAJ1auhSGyoFBpugVindEjWNHnSrqbzczfmNBZbCpump">EAJ1…pump</a></td><td>2026-10-15T18:13:26Z</td><td><span class="badge medium">MEDIUM 18</span></td><td>0.22h</td><td>$31.1K</td><td>$13.8K</td><td>DOWN70 <span class="muted">(−86.1%)</span></td><td>DOWN70 <span class="muted">(−86.1%)</span></td></tr></tbody></table></div></details>
+    <p class="muted" style="margin-top:10px">Page generated 2026-10-18T13:47:52Z from evidence <code>db.json</code>.</p>
   </div>
 
   <h2 style="font-size:16px;margin:28px 0 4px;color:#9aa4b8;text-transform:uppercase;letter-spacing:.04em">Legacy records (not part of the study)</h2>
   <p class="section-note">Collected Oct 14–15 before the study, High-risk only; most were tiny ($1K–$10K mcap) when flagged. Kept for transparency, excluded from the accuracy numbers.</p>
   <div class="banner">
-    <strong>Legacy records:</strong> 0 confirmed rugged after our flag ·
+    <strong>Legacy records:</strong> 15 confirmed rugged after our flag ·
     0 down ≥70% · 1 still alive ·
-    15 still tracking / pending 24h recheck.
+    0 still tracking / pending 24h recheck.
     7 additional coins were flagged after they had already collapsed and are excluded from the "caught" count.
   </div>
 
@@ -131,16 +146,16 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
       <div class="kv"><span>High-risk tracked</span><b>23</b></div>
       <div class="kv"><span>Excluded (post-collapse)</span><b>7</b></div>
       <div class="kv"><span>Counted (pre-collapse)</span><b>16</b></div>
-      <div class="kv"><span>Rugged after flag</span><b>0</b></div>
+      <div class="kv"><span>Rugged after flag</span><b>15</b></div>
       <div class="kv"><span>Down ≥70%</span><b>0</b></div>
       <div class="kv"><span>Still alive</span><b>1</b></div>
-      <div class="kv"><span>Pending recheck</span><b>15</b></div>
+      <div class="kv"><span>Pending recheck</span><b>0</b></div>
     </div>
     <p class="muted" style="margin-top:12px">A coin counts as <b>rugged after flag</b> only if, ≥24h later, price or liquidity dropped ≥90% from the flag baseline, or the pair disappeared from DexScreener. </p>
   </div>
 
   <h2 style="font-size:16px;margin:28px 0 4px;color:#9aa4b8;text-transform:uppercase;letter-spacing:.04em">Legacy — flagged before collapse</h2>
-  <p class="section-note">None confirmed yet. The 16 coins below were flagged High while still countable; they are tracking until the 24h recheck window.</p>
+  <p class="section-note">Coins that met the post-flag collapse criteria, plus others still being tracked.</p>
   <article class="card coin">
   <div class="verdict">
     <span class="badge high">HIGH (47)</span>
@@ -171,13 +186,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (47)</span>
     <div class="tok"><b>$smol</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge extreme" style="font-size:13px;padding:6px 10px">Rugged after flag</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T00:56:10Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$0.00002941</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T02:31:19Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-16T01:31:17Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
@@ -197,13 +212,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (59)</span>
     <div class="tok"><b>$$DODO</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge extreme" style="font-size:13px;padding:6px 10px">Rugged after flag</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T09:22:49Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$0.0000089</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T09:27:43Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-18T13:37:46Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
@@ -223,13 +238,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (47)</span>
     <div class="tok"><b>$Launchpad</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge extreme" style="font-size:13px;padding:6px 10px">Rugged after flag</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T09:27:50Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$0.00000808</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T09:27:50Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-18T13:37:56Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
@@ -249,13 +264,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (49)</span>
     <div class="tok"><b>$p-</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge extreme" style="font-size:13px;padding:6px 10px">Rugged after flag</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T09:27:53Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$0.00000327</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T09:27:53Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-18T13:38:02Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
@@ -275,13 +290,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (47)</span>
     <div class="tok"><b>$$DODO</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge extreme" style="font-size:13px;padding:6px 10px">Rugged after flag</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T10:29:00Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$0.0000063</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T10:29:00Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-18T13:38:07Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
@@ -301,13 +316,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (47)</span>
     <div class="tok"><b>$song</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge extreme" style="font-size:13px;padding:6px 10px">Rugged after flag</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T11:30:52Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$0.00000973</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T11:30:52Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-18T13:38:11Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
@@ -327,13 +342,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (47)</span>
     <div class="tok"><b>$FUN</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge extreme" style="font-size:13px;padding:6px 10px">Rugged after flag</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T11:30:52Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$0.00000877</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T11:30:52Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-18T13:38:16Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
@@ -353,13 +368,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (67)</span>
     <div class="tok"><b>$FUN</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge extreme" style="font-size:13px;padding:6px 10px">Rugged after flag</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T11:30:54Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$3.21e-9</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T11:30:54Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-18T13:38:21Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
@@ -379,13 +394,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (47)</span>
     <div class="tok"><b>$INUX</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge extreme" style="font-size:13px;padding:6px 10px">Rugged after flag</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T11:30:57Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$0.00000579</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T11:30:57Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-18T13:38:26Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
@@ -405,13 +420,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (47)</span>
     <div class="tok"><b>$$DODO</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge extreme" style="font-size:13px;padding:6px 10px">Rugged after flag</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T13:37:36Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$0.00000967</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T13:37:36Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-18T13:38:35Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
@@ -431,13 +446,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (47)</span>
     <div class="tok"><b>$CHAROC</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge extreme" style="font-size:13px;padding:6px 10px">Rugged after flag</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T13:37:38Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$0.00002248</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T13:37:38Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-18T13:38:40Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
@@ -457,13 +472,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (59)</span>
     <div class="tok"><b>$Dacity</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge extreme" style="font-size:13px;padding:6px 10px">Rugged after flag</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T13:37:39Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$9.65e-7</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T13:37:39Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-18T13:38:45Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
@@ -483,13 +498,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (47)</span>
     <div class="tok"><b>$Rari</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge extreme" style="font-size:13px;padding:6px 10px">Rugged after flag</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T13:37:44Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$0.00000289</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T13:37:44Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-18T13:38:51Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
@@ -509,13 +524,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (59)</span>
     <div class="tok"><b>$Sevda</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge extreme" style="font-size:13px;padding:6px 10px">Rugged after flag</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T14:37:49Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$0.00000131</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T14:37:49Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-18T13:38:56Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
@@ -535,13 +550,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (59)</span>
     <div class="tok"><b>$BetOnBlak</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge extreme" style="font-size:13px;padding:6px 10px">Rugged after flag</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T14:37:54Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$4.47e-7</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T14:37:54Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-18T13:39:01Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
@@ -664,13 +679,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (43)</span>
     <div class="tok"><b>$SCOOB</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge low" style="font-size:13px;padding:6px 10px">Still alive</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T02:31:36Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$0.00000863</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$6,489.38</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T02:31:36Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-16T02:36:53Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
@@ -688,13 +703,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (40)</span>
     <div class="tok"><b>$Dog Think</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge extreme" style="font-size:13px;padding:6px 10px">Rugged after flag</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T09:27:49Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$2.34e-9</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$0</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T09:27:49Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-18T13:37:51Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $0.00000000; prices can be moved easily and exits may be hard.</div></div>
@@ -713,13 +728,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     <span class="badge high">HIGH (48)</span>
     <div class="tok"><b>$SpaceX</b>
       <span class="muted"> · solana</span></div>
-    <span class="badge medium" style="font-size:13px;padding:6px 10px">Tracking — pending 24h recheck</span>
+    <span class="badge extreme" style="font-size:13px;padding:6px 10px">Rugged after flag</span>
   </div>
   <div class="grid" style="margin-top:12px">
     <div class="kv"><span>Flagged (UTC)</span><b>2026-10-15T11:30:59Z</b></div>
     <div class="kv"><span>Price at flag</span><b>$0.00000181</b></div>
     <div class="kv"><span>Liquidity at flag</span><b>$1,847.96</b></div>
-    <div class="kv"><span>Status since</span><b>2026-10-15T11:30:59Z</b></div>
+    <div class="kv"><span>Status since</span><b>2026-10-18T13:38:31Z</b></div>
   </div>
   <h3 style="margin-top:14px">Risk reasons at flag</h3>
   <div class="row"><span class="st fail">FAIL</span><div>Liquidity is only $1.8K; prices can be moved easily and exits may be hard.</div></div>
@@ -736,10 +751,7 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 </main>
 <footer>
   Not financial advice. Automated checks can miss scams or flag legit tokens. Always DYOR.
-  · <a href="/">MemeCheck</a>
-  · <a href="/whales.html" data-t="navWhales">Whale buys</a>
-  · <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a>
+  · <a href="/">MemeCheck</a> · <a href="/how">How the score works</a>
 </footer>
-<script src="nav.js?v=nav1" defer></script>
 </body>
 </html>

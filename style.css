@@ -150,3 +150,6 @@ header{gap:10px}
 .snwhy{font-size:11px;margin:0}
 .snpct{font-weight:700;font-variant-numeric:tabular-nums;flex:none}
 @media(max-width:560px){.sn-verdict b{font-size:13px}}
+
+.rugs-cta{margin:10px 0 2px;text-align:center}.rugs-btn{display:inline-block;padding:9px 16px;border-radius:10px;border:1px solid #4a0f17;background:#1c1016;color:#ff8f9f;font-weight:700;font-size:14px;text-decoration:none}.rugs-btn:hover{border-color:#ff4d6a;color:#fff}.rugs-cta .muted{margin:6px 2px 0}
+.lf-org{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:4px 0 8px}.lf-org .st{min-width:0}.lf-org .muted{margin:0}.pf-empty{text-align:center;padding:12px 4px}

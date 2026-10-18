@@ -7,7 +7,7 @@ const WSOL = 'So11111111111111111111111111111111111111112';
 const USDC = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 const USDT = 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB';
 const STABLE = new Set([WSOL, USDC, USDT]);
-const TTL = 600, TTL_SOFT = 90, SIG_N = 20, TX_N = 12, BATCH = 4, UA = 'Mozilla/5.0 (MemeCheck/1.0)';
+const TTL = 600, TTL_SOFT = 90, SIG_N = 40, TX_N = 30, BATCH = 4, UA = 'Mozilla/5.0 (MemeCheck/1.0)';
 const ROUND_TRIP_S = 120;
 const SIZE_SIM = 0.25;
 const HELIUS_MARK = 'https://memecheck-cache.internal/helius-recent/v1';
@@ -350,6 +350,24 @@ function detectWash(flows, creator) {
   return reasons;
 }
 
+// Organic Volume indicator: how concentrated recent swap volume (SOL) is among the top wallets of this same sample.
+// No extra API calls. Returns null when the sample is too small to judge (the UI then shows nothing).
+const ORG_MIN_TRADES = 15;
+function organicVolume(flows) {
+  const tr = flows.filter(f => f.wallet && f.sol > 0);
+  if (tr.length < ORG_MIN_TRADES) return null;
+  const by = new Map(); let total = 0;
+  for (const f of tr) { by.set(f.wallet, (by.get(f.wallet) || 0) + f.sol); total += f.sol; }
+  if (!(total > 0)) return null;
+  const vols = [...by.values()].sort((a, b) => b - a), top = Math.min(5, vols.length);
+  const share = vols.slice(0, top).reduce((a, b) => a + b, 0) / total;
+  const wallets = vols.length;
+  let level = share > 0.6 ? 'wash' : share >= 0.35 ? 'suspicious' : 'organic';
+  if (wallets <= 5) level = 'wash';                                   // a handful of wallets is all the volume
+  else if (wallets < 10 && level === 'organic') level = 'suspicious'; // too few distinct traders to call it organic
+  return { level, topShare: Math.round(share * 100), top, wallets, trades: tr.length, sol: +total.toFixed(3) };
+}
+
 function reasonLabel(code) {
   return ({
     flip_30s: 'Buy+sell within 30s (same wallet)',
@@ -531,7 +549,7 @@ async function build(env, mint, preferPublic = false) {
 
   return {
     ok: true, configured: !!key, mint, pool, creator, empty: false,
-    ...graph, src: rpcUsed, parsed: flows.length, sampled: want.length, at: Date.now(),
+    ...graph, organic: organicVolume(flows), src: rpcUsed, parsed: flows.length, sampled: want.length, at: Date.now(),
     legend: {
       green: 'Organic / real trader flow',
       red: 'Suspicious / wash-like (round-trip, flip, creator, burst)',
@@ -545,7 +563,7 @@ export const onRequest = async ({ request: req, env, waitUntil }) => {
   const mint = u.searchParams.get('mint') || u.searchParams.get('ca') || '';
   if (!MINT_RE.test(mint)) return json(400, { error: 'bad mint' });
   const bust = u.searchParams.get('fresh') === '1';
-  const cacheKey = new Request('https://memecheck-cache.internal/liq-flows/v4/' + mint);
+  const cacheKey = new Request('https://memecheck-cache.internal/liq-flows/v5/' + mint);
   const cache = typeof caches !== 'undefined' ? caches.default : null;
   if (!bust) try {
     const hit = cache && await cache.match(cacheKey);

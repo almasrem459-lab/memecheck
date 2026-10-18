@@ -1,8 +1,8 @@
 // Meme tab: newest pump.fun tokens. pump.fun API via /api/proxy (it rejects browser origins), DexScreener fallback.
 // "Check" only fills #addr and submits the existing checker form; checker logic untouched.
 const $ = (s) => document.querySelector(s);
-const L = { en: { title:'Newly launched', tTrend:'Trending (6H)', bTrend:'Trending', bNew:'New', tipTrend:'Hot pairs over the last 6 hours (GeckoTerminal trending, close to DexScreener Trending 6H)', tipNew:'Newest pump.fun launches', vol:'VOL', liq:'LIQ', age:'Age', h6:'6H', h24:'24H', refresh:'↻ Refresh', check:'Check', mcap:'MCAP', loading:'Loading…', err:'Could not load new tokens.', src:'Source:', now:'just now', gtSrc:'GeckoTerminal trending (6h)', dexSrc:'DexScreener (latest pump profiles)' },
-  ar: { title:'آخر العملات النازلة', tTrend:'الرائجة (6 ساعات)', bTrend:'رائجة', bNew:'الأحدث', tipTrend:'الأزواج الأكثر نشاطًا خلال 6 ساعات (رائج GeckoTerminal، قريب من رائج DexScreener)', tipNew:'أحدث إطلاقات pump.fun', vol:'حجم', liq:'سيولة', age:'العمر', h6:'6س', h24:'24س', refresh:'↻ تحديث', check:'افحص', mcap:'القيمة', loading:'جارٍ التحميل…', err:'تعذّر تحميل العملات الجديدة.', src:'المصدر:', now:'الآن', gtSrc:'الرائجة على GeckoTerminal (6 ساعات)', dexSrc:'DexScreener (أحدث ملفات pump)' } };
+const L = { en: { title:'Newly launched', tTrend:'Trending (6H)', bTrend:'Trending', bNew:'New', tipTrend:'Hot pairs over the last 6 hours (GeckoTerminal trending, close to DexScreener Trending 6H)', tipNew:'Newest pump.fun launches', vol:'VOL', liq:'LIQ', age:'Age', h6:'6H', h24:'24H', refresh:'↻ Refresh', check:'Check', mcap:'MCAP', loading:'Loading…', errT:'Trending list is unavailable right now. Try ↻ Refresh in a minute.', err:'No new tokens to show right now. Try ↻ Refresh in a minute.', src:'Source:', now:'just now', gtSrc:'GeckoTerminal trending (6h)', dexSrc:'DexScreener (latest token profiles)', gtNew:'GeckoTerminal (new Solana pools)' },
+  ar: { title:'آخر العملات النازلة', tTrend:'الرائجة (6 ساعات)', bTrend:'رائجة', bNew:'الأحدث', tipTrend:'الأزواج الأكثر نشاطًا خلال 6 ساعات (رائج GeckoTerminal، قريب من رائج DexScreener)', tipNew:'أحدث إطلاقات pump.fun', vol:'حجم', liq:'سيولة', age:'العمر', h6:'6س', h24:'24س', refresh:'↻ تحديث', check:'افحص', mcap:'القيمة', loading:'جارٍ التحميل…', errT:'قائمة الرائجة غير متاحة الآن. جرّب ↻ تحديث بعد دقيقة.', err:'لا توجد عملات جديدة للعرض الآن. جرّب ↻ تحديث بعد دقيقة.', src:'المصدر:', now:'الآن', gtSrc:'الرائجة على GeckoTerminal (6 ساعات)', dexSrc:'DexScreener (أحدث ملفات العملات)', gtNew:'GeckoTerminal (أحدث مجمعات سولانا)' } };
 const lang = () => document.documentElement.lang === 'ar' ? 'ar' : 'en';
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const thumb = (u) => { if (!u) return ''; try { let x = String(u); x = x.replace(/\/large(\/|\.)/g, '/small$1').replace(/\/thumb_large\//g, '/thumb/').replace(/coins\/images\/(\d+)\/large\//, 'coins/images/$1/small/'); return x; } catch { return u; } };
@@ -14,21 +14,18 @@ function ago(ts) {
   return m < 60 ? rtf.format(-m, 'minute') : m < 1440 ? rtf.format(-Math.floor(m / 60), 'hour') : rtf.format(-Math.floor(m / 1440), 'day');
 }
 let srcPump = 'pump.fun';
+// Server-side list (/api/new-tokens): pump.fun -> DexScreener -> GeckoTerminal fallback, edge-cached ~90 s. One client retry.
 async function fromPump() {
-  try { const r = await fromPumpApi(); srcPump = 'pump.fun'; return r; } catch {}
-  const r = await fromDexLatest(); srcPump = 'DexScreener (latest *pump profiles)'; return r;
-}
-async function fromPumpApi() {
-  const u = 'https://frontend-api-v3.pump.fun/coins?sort=created_timestamp&order=DESC&limit=30&offset=0&includeNsfw=false';
-  const r = await fetch('/api/proxy?url=' + encodeURIComponent(u)); if (!r.ok) throw 0; const d = await r.json(); if (!Array.isArray(d)) throw 0;
-  return d.filter(c => !c.nsfw && c.mint).slice(0, 15).map(c => ({ a: c.mint, n: c.name, s: c.symbol, img: c.image_uri, ts: c.created_timestamp, mc: c.usd_market_cap, c: 'solana' }));
-}
-async function fromDexLatest() {
-  const r = await fetch('https://api.dexscreener.com/token-profiles/latest/v1'); if (!r.ok) throw 0; const d = await r.json();
-  const ps = d.filter(x => x.chainId === 'solana' && /pump$/.test(x.tokenAddress)).slice(0, 30); if (!ps.length) throw 0;
-  const pr = await fetch('https://api.dexscreener.com/tokens/v1/solana/' + ps.map(x => x.tokenAddress).join(',')).then(r => r.ok ? r.json() : []).catch(() => []);
-  const info = {}; for (const p of pr) { const k = p.baseToken?.address; if (k && (!info[k] || (p.pairCreatedAt || 9e15) < (info[k].pairCreatedAt || 9e15))) info[k] = p; }
-  return ps.map(x => { const p = info[x.tokenAddress]; return { a: x.tokenAddress, n: p?.baseToken.name || x.tokenAddress.slice(0, 6) + '…', s: p?.baseToken.symbol || '', img: x.icon, ts: p?.pairCreatedAt || null, mc: p ? (p.marketCap ?? p.fdv ?? null) : null, c: 'solana' }; }).sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 15);
+  let last = null;
+  for (let i = 0; i < 2; i++) {
+    try {
+      if (i) await new Promise(r => setTimeout(r, 1500));
+      const r = await fetch('/api/new-tokens' + (i ? '?fresh=1' : '')); if (!r.ok) throw 0; const d = await r.json();
+      if (d?.items?.length) { srcPump = d.source || 'pump.fun'; return d.items; }
+      last = 'empty';
+    } catch (e) { last = e; }
+  }
+  throw last || 0;
 }
 const OK = { solana: 'solana', ethereum: 'ethereum', base: 'base', bsc: 'bsc' }; // chains the checker supports
 // Trending mode: approximates DexScreener's "Trending 6H" ranking (its own ranking API is not public/keyless).
@@ -73,7 +70,7 @@ async function load() {
   if (!items) $('#pf-list').innerHTML = `<span class="spin"></span> ${L[lang()].loading}`;
   const m = mode;
   try { const r = m === 'dex' ? await fromDex() : await fromPump(); await enrich(r).catch(() => {}); if (m === mode) { items = r; src = m === 'dex' ? 'gt' : srcPump; } }
-  catch { if (m === mode) { items = null; $('#pf-list').textContent = L[lang()].err; } }
+  catch { if (m === mode && !items) $('#pf-list').innerHTML = `<p class="muted pf-empty">${m === 'dex' ? L[lang()].errT : L[lang()].err}</p>`; }
   busy = false; $('#pf-r').disabled = false; render();
 }
 const SUB = '₀₁₂₃₄₅₆₇₈₉';
@@ -96,7 +93,7 @@ function render() {
     <div class="dsn"><div class="dst"><b dir="ltr">${esc(c.s || c.n)}</b>${c.ts ? `<span class="dsa ${mode === 'pump' || Date.now() - c.ts < 864e5 ? 'new' : ''}" dir="ltr">${mode === 'pump' || Date.now() - c.ts < 864e5 ? '🌱' : ''}${age(c.ts)}</span>` : ''}</div><div class="dsf" dir="auto">${esc(c.n)}</div></div></div>
    <div class="dsrt" dir="ltr"><div class="dsp"><b>${price(c.p)}</b><span><i>${t.h6}</i> ${pct(c.ch6)}</span><span><i>${t.h24}</i> ${pct(c.ch24)}</span></div>
     <div class="dsk"><span><i>${t.liq}</i> ${cusd(c.liq)}</span><span><i>${t.vol}</i> ${cusd(c.vol)}</span><span><i>${t.mcap}</i> ${cusd(c.mc)}</span></div></div></div>`).join('');
-  $('#pf-src').textContent = `${t.src} ${src === 'gt' ? t.gtSrc : src.startsWith('DexScreener') ? t.dexSrc : src} · DexScreener`;
+  $('#pf-src').textContent = `${t.src} ${src === 'gt' ? t.gtSrc : src === 'DexScreener' || src.startsWith('DexScreener') ? t.dexSrc : src === 'GeckoTerminal' ? t.gtNew : src} · DexScreener`;
 }
 function pick(b) {
   if (b.dataset.c !== 'solana') $('#chain').value = b.dataset.c;

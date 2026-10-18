@@ -1,30 +1,37 @@
 # MemeCheck
 
-Free, open-source meme-coin safety checker. Paste a contract address and get a **Low / Medium / High / Extreme** risk verdict with plain-language reasons. Live at https://memecheck.pages.dev. English + Arabic UI.
+**Live: https://memecheck.pages.dev** · [Rugs we caught](https://memecheck.pages.dev/rugs) · [How the score works](https://memecheck.pages.dev/how)
 
-> Not financial advice. Automated checks can miss scams or flag legit tokens. Always DYOR.
+Free, open-source (MIT) meme-coin safety checker, Solana-first. Paste a contract address and get a **Low / Medium / High / Extreme** risk verdict with plain-language reasons in seconds. No signup, no paywall. English + Arabic UI.
+
+> Not financial advice. Low risk does not mean 100% safe. Automated checks can miss scams or flag legit tokens. Always DYOR.
+
+## What makes it different
+
+- **Dev history**: the creator wallet's earlier pump.fun launches and how they ended (dead / rugged, checked on DexScreener). Serial launchers add risk points (up to +10).
+- **Bubble map**: interactive graph of top holders linked by shared funding wallets (bundles / clusters).
+- **Sniper detection**: first buyers in the opening slots after launch, how much supply they bought and still hold.
+- **Liquidity Flows**: animated map of recent swaps into/out of the pool; round-trips, fast flips, burst trading and the creator wallet are highlighted.
+- **Organic Volume indicator**: Organic / Suspicious / Wash-like badge from the same swap sample, e.g. "61% of recent volume came from 5 wallets". Shown only when there are enough swaps to judge.
+- **Rugs we caught** ([/rugs](https://memecheck.pages.dev/rugs)): a public proof page. Every fresh Solana meme coin that meets the entry rules is scored and rechecked 24h and 48h later, Low, Medium and High alike, and **all** outcomes are published, not just the hits. Accuracy tracking of flagged tokens is ongoing; the sample is still small.
+- **Arabic support**: full EN / AR interface (RTL).
+- **Share card**: 1200×675 PNG result card (token, risk level, score, top reasons) with Download, Share on X, Copy link and the Web Share API.
+- **Transparent scoring**: the exact weights and thresholds are in `core.js` and explained in plain words on [/how](https://memecheck.pages.dev/how).
 
 ## What it checks
 
 **Solana (deep checks)**
-- Visual Liquidity Flows map (animated green=organic / red=wash-like; interactive)
-- Live Sniper Detection — first buyers after launch, % supply, “dead by programming” warning
-- Mint authority / freeze authority, Token-2022 transfer fees, mutable metadata
-- Liquidity size, LP locked/burned share, price drop from peak, pair age
-- Top-holder concentration (pool vaults and AMM authorities excluded)
-- **Dev history** – the creator's earlier launches and how they ended (rug history). The *Developer history* card (`/api/dev`, `devhist-core.js`) lists the creator wallet, coins created, how many are dead/rugged (DexScreener market check of the 150 most recent) and the latest few with status; a serial launcher (≥ 3 dead/rugged and at least half, or 10+ launches with < 10% alive) is a FAIL finding (+10 risk points), 2+ dead a WARN (+3)
-- **Bundles / snipers** – wallets that bought in the launch window, linked by shared funders, and how much they still hold
-- **Dev holdings** – current creator balance
-- **Bubble map** – clusters of linked top holders (shared funding wallets)
-- **Sell/honeypot signals** and RugCheck danger flags
+- Mint authority / freeze authority (critical), Token-2022 transfer fees, mutable metadata
+- Liquidity size, LP locked/burned share, price drop from recent high, pair age, sell pressure, volume
+- Top-holder concentration (pool vaults and AMM authorities excluded), insider networks, creator balance
+- Developer history, bundles / snipers, bubble map, liquidity flows, organic volume
+- RugCheck danger flags; on-chain fallback via Solana RPC when RugCheck is unavailable
 
 **Ethereum / BSC / Base (basic checks)**
 - GoPlus token security + Honeypot.is simulation (buy/sell tax, honeypot, owner powers)
 - DexScreener market data (liquidity, LP lock, volume, age)
 
-**Share result** – after a scan, a 1200×675 PNG card (drawn client-side on canvas: token, logo, risk level, score, top reasons, short CA, date) with Download, Share on X, Copy link and the Web Share API on mobile. Links use `?ca=<address>`, which opens the site and runs the scan.
-
-Extras: new pump.fun / trending lists, true-cost (tax+fee+slippage) calculator, optional Jupiter swap widget, gold and top-crypto tabs.
+Extras: trending (6h) and newest-launch lists, true-cost (tax+fee+slippage) calculator, optional Jupiter swap widget.
 
 ## How scoring works (`core.js` → `score()`)
 
@@ -45,19 +52,25 @@ Every verdict lists the reasons and which data sources answered.
 | [GoPlus](https://gopluslabs.io) | EVM token security |
 | [Honeypot.is](https://honeypot.is) | EVM honeypot / tax simulation |
 | [DexScreener](https://dexscreener.com) | Pairs, price, liquidity, volume, age |
-| [Helius](https://helius.dev) (Solana RPC + DAS) | Dev history, bundles, holders, bubble map (server-side, keyed) |
-| GeckoTerminal, CoinGecko, CoinPaprika, pump.fun, Jupiter | Lists, charts, swap |
+| [Helius](https://helius.dev) (Solana RPC + DAS), public Solana RPC fallback | On-chain fallback checks, holders, bubble map, snipers, liquidity flows (server-side, keyed) |
+| [pump.fun](https://pump.fun) | Creator wallet, developer's earlier launches, newest launches |
+| [GeckoTerminal](https://www.geckoterminal.com) | Trending and new-pool lists |
+| [Jupiter](https://jup.ag) | Optional swap widget |
 
 All browser calls to third-party APIs that block CORS go through an **allowlisted** proxy (`functions/api/proxy.js`). Solana RPC goes through `functions/api/rpc.js`, which uses Helius when `HELIUS_KEY` is set and falls back to public RPCs.
 
 ## Project layout
 
 ```
-index.html, style.css, *.js    static front-end (no build step, ES modules)
+index.html, how.html, rugs.html, style.css, *.js    static front-end (no build step, ES modules)
 functions/                     Cloudflare Pages Functions
   api/proxy.js                 allowlisted CORS proxy with edge cache
   api/rpc.js                   Solana RPC relay (Helius if configured)
   api/dev.js                   developer history (pump.fun + RugCheck + DexScreener, edge-cached)
+  api/new-tokens.js            newest tokens list: pump.fun -> DexScreener -> GeckoTerminal fallback, edge-cached ~90 s
+  api/liquidity-flows.js       recent pool swaps, wash-like flags, organic volume indicator
+  api/snipers.js               early buyers / sniper detection
+  api/holders.js               bubble map (top holders + funders)
   api/img.js                   allowlisted logo relay so the share card canvas can draw token logos
   api/deep.js, api/cache.js    server-side deep checks + KV result cache
   api/og.js, _lib/             dynamic OG share images
@@ -100,4 +113,4 @@ wrangler pages deploy . --project-name memecheck
 
 ## License
 
-MIT © 2026 Mohamad Almasre
+Free and open source under the MIT License (see [LICENSE](LICENSE)). © 2026 Mohamad Almasre

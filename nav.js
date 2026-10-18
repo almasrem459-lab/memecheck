@@ -29,6 +29,7 @@
       navChecker: 'الفاحص',
       navWhales: 'حيتان',
       navRugs: 'عمليات السحب التي رصدناها',
+      navHow: 'كيف يعمل التقييم',
       navOpenSrc: 'مفتوح المصدر',
     };
     const lang = localStorage.getItem('mc_lang') || 'en';

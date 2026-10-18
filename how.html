@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How the score works — MemeCheck</title>
+<meta name="description" content="How MemeCheck turns RugCheck, DexScreener, GoPlus, Honeypot.is and on-chain data into a Low / Medium / High / Extreme meme-coin risk score. Real weights and thresholds.">
+<link rel="canonical" href="https://memecheck.pages.dev/how">
+<meta name="theme-color" content="#0b0f17">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="stylesheet" href="style.css?v=1792420000">
+<style>
+nav.crumbs{display:flex;gap:8px;align-items:center;padding:0 20px;max-width:860px;margin:12px auto 0;font-size:14px}
+nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef}nav.crumbs span{color:#7d879c}
+.how h2{font-size:17px;margin:0 0 8px}.how p,.how li{font-size:14px;line-height:1.55;color:#c9d0dc}.how ul{padding-inline-start:20px;margin:6px 0}
+.how table{width:100%;border-collapse:collapse;font-size:13px}.how th,.how td{text-align:start;padding:7px 6px;border-top:1px solid #1c2333;vertical-align:top}.how th{color:#9aa4b8;font-weight:600}
+.lv{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.lv .badge{font-size:14px;padding:6px 12px}
+.warnbox{background:#121826;border:1px solid #3d3510;border-radius:14px;padding:14px 16px;margin:16px 0;color:#ffd447;font-size:14px;line-height:1.5}
+.hl{display:inline-flex;gap:6px;margin-inline-start:auto}
+[data-l]{display:none}html[lang=en] [data-l=en],html[lang=ar] [data-l=ar]{display:block}html[lang=en] span[data-l=en],html[lang=ar] span[data-l=ar]{display:inline}
+</style>
+<script>(function(){var l=localStorage.getItem('mc_lang')==='ar'?'ar':'en';document.documentElement.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr';})();</script>
+</head>
+<body>
+<header>
+  <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span><span></span><span></span></button>
+  <div class="brand"><img src="/icon-192.png" width="26" height="26" alt="MemeCheck"> <b>MemeCheck</b></div>
+  <div class="hdr-end"><button id="how-lang" class="ghost" type="button">العربية</button></div>
+</header>
+<nav class="site-nav" id="site-nav" hidden>
+  <a href="/" data-t="navChecker">Checker</a>
+  <a href="/whales.html" data-t="navWhales">Whale buys</a>
+  <a href="/rugs" data-t="navRugs">Rugs we caught</a>
+  <a href="/how" data-t="navHow">How the score works</a>
+  <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a>
+</nav>
+<main class="how">
+
+<!-- ================= ENGLISH ================= -->
+<div data-l="en">
+<nav class="crumbs" style="padding:0;margin:0 0 8px"><a href="/">Home</a><span>/</span><span>How the score works</span></nav>
+<h1 style="font-size:22px;margin:8px 0 4px">How the score works</h1>
+<p class="tag">Every scan collects findings from several data sources. Each finding is <b>PASS</b>, <b>WARN</b>, <b>FAIL</b> or <b>N/A</b> (data unavailable) and has a weight. The numbers below are the real ones used by the code (<code>core.js</code>, open source).</p>
+
+<div class="card"><h2>1. From findings to a risk level</h2>
+<ul>
+<li>FAIL adds the full weight in risk points, WARN adds half, N/A adds nothing.</li>
+<li>Any <b>critical</b> FAIL (active mint or freeze authority, confirmed honeypot, sell tax over 50%, or a token RugCheck marks as rugged) makes the verdict <b>Extreme</b>, regardless of points.</li>
+<li>Otherwise: <b>40+ points = High</b>, <b>15–39 = Medium</b>, <b>under 15 = Low</b>.</li>
+<li>If no security source answered (RugCheck / Solana RPC, or GoPlus / Honeypot.is), a would-be Low is shown as <b>Unknown</b>: we never call a token Low risk from market data alone.</li>
+</ul>
+<div class="lv"><span class="badge low">Low &lt; 15</span><span class="badge medium">Medium 15–39</span><span class="badge high">High 40+</span><span class="badge extreme">Extreme = critical fail</span></div>
+</div>
+
+<div class="card"><h2>2. Solana contract &amp; holder checks</h2>
+<table><thead><tr><th>Check</th><th>Rule</th><th>Points</th></tr></thead><tbody>
+<tr><td>Mint authority</td><td>Still active (creator can print tokens)</td><td>FAIL 40, critical</td></tr>
+<tr><td>Freeze authority</td><td>Still active (creator can freeze wallets = honeypot)</td><td>FAIL 40, critical</td></tr>
+<tr><td>Marked rugged</td><td>RugCheck reports the token as rugged</td><td>FAIL 50, critical</td></tr>
+<tr><td>LP locked / burned</td><td>≥ 90% = pass; 50–90% = warn; &lt; 50% = fail. pump.fun AMM pools count as burned; concentrated-liquidity pools are a warn</td><td>15 (warn 7.5)</td></tr>
+<tr><td>Top 10 holders</td><td>Pools and AMM accounts excluded. &gt; 50% fail, &gt; 30% warn</td><td>15 (warn 7.5)</td></tr>
+<tr><td>Largest holder</td><td>&gt; 10% of supply</td><td>WARN 4</td></tr>
+<tr><td>Insider networks</td><td>Linked insider wallets (RugCheck). Fail if they hold &gt; 10% or 10+ insiders, otherwise warn</td><td>15 (warn 7.5)</td></tr>
+<tr><td>Creator balance</td><td>Creator holds &gt; 5%</td><td>WARN 4</td></tr>
+<tr><td>Transfer fee (Token-2022)</td><td>&gt; 10% fail, any fee warn</td><td>20 (warn 10)</td></tr>
+<tr><td>Mutable metadata</td><td>Name/logo can still be changed</td><td>WARN 2</td></tr>
+<tr><td>RugCheck danger flags</td><td>Any "danger" level flag</td><td>WARN 4</td></tr>
+</tbody></table>
+<p class="muted">If RugCheck fails, mint/freeze authority, transfer fee and top holders are read straight from the chain through our Solana RPC relay (Helius, with public RPC fallback).</p>
+</div>
+
+<div class="card"><h2>3. Market checks (all chains, DexScreener)</h2>
+<table><thead><tr><th>Check</th><th>Rule</th><th>Points</th></tr></thead><tbody>
+<tr><td>Liquidity</td><td>&lt; $5K fail (20); &lt; $20K warn</td><td>20 / warn 7.5</td></tr>
+<tr><td>Pair age</td><td>Under 24 hours</td><td>WARN 4</td></tr>
+<tr><td>Drop from recent high</td><td>≥ 90% fail 20; &gt; 50% fail 12; &gt; 30% warn</td><td>20 / 12 / warn 6</td></tr>
+<tr><td>Sell pressure</td><td>&gt; 65% of 24h transactions are sells</td><td>WARN 2.5</td></tr>
+<tr><td>24h volume</td><td>Under $1K</td><td>WARN 2.5</td></tr>
+</tbody></table></div>
+
+<div class="card"><h2>4. Developer history (pump.fun coins)</h2>
+<p>We list the creator wallet's earlier launches (pump.fun) and check their markets on DexScreener. A previous coin is <i>dead</i> if it has no market or is under $10K market cap, <i>rugged</i> if it reached $50K+ and is now under 10% of that peak. Coins under 6 hours old are not judged.</p>
+<ul><li><b>FAIL, +10 points</b>: 3+ dead/rugged coins that are at least half of the judged ones, or a serial launcher (10+ coins) with under 10% still alive.</li>
+<li><b>WARN, +3 points</b>: 2+ dead/rugged coins.</li><li>Never critical on its own.</li></ul></div>
+
+<div class="card"><h2>5. EVM chains (Ethereum, Base, BSC)</h2>
+<p>GoPlus and Honeypot.is: a confirmed honeypot (or "cannot sell all") is a critical FAIL (50). Buy/sell tax &gt; 50% is critical, &gt; 10% FAIL 20, &gt; 5% WARN. Also checked: mintable (25), hidden owner (20), owner can take back ownership (15), unverified source code (15), creator with earlier honeypots (20), ownership not renounced, blacklist, proxy, modifiable slippage, trading cooldown, LP lock and top holders.</p></div>
+
+<div class="card"><h2>6. Extra Solana signals (shown, not added to the score)</h2>
+<ul>
+<li><b>Sniper detection</b>: the first buyers in the opening slots after launch. High sniper risk when sniper wallets hold or bought ≥ 25% of supply (or 12+ "pro" snipers), elevated at ≥ 12% (or 6+).</li>
+<li><b>Bubble map &amp; bundles</b>: top holders linked by shared funding wallets.</li>
+<li><b>Liquidity flows</b>: recent swaps around the pool; wallets doing round-trips, fast buy/sell flips, burst trading or the creator wallet are shown in red.</li>
+<li><b>Organic Volume indicator</b>: from the same recent swaps (up to 30, at least 15 needed), the share of SOL volume that came from the top 5 wallets. <b>Organic</b> (green) under 35%, <b>Suspicious</b> (yellow) 35–60%, <b>Wash-like</b> (red) over 60%. Fewer than 10 unique wallets moves Organic to Suspicious; 5 or fewer is Wash-like. Too few swaps = no badge (we don't guess).</li>
+</ul>
+<p class="muted">These are heuristics on a small recent sample, not proof of bot activity or wrongdoing.</p></div>
+
+<div class="card"><h2>7. Data sources actually used</h2>
+<ul>
+<li><b>RugCheck</b>: Solana token report (authorities, LP lock, holders, insider networks, risk flags).</li>
+<li><b>DexScreener</b>: pairs, price, liquidity, volume, age; market status of a developer's earlier coins.</li>
+<li><b>Solana RPC</b> (Helius, public RPC fallback): on-chain fallback checks, holders, bubble map, snipers, liquidity flows.</li>
+<li><b>pump.fun</b>: creator wallet, a developer's earlier launches, newest launches list.</li>
+<li><b>GoPlus</b> and <b>Honeypot.is</b>: EVM token security and buy/sell simulation.</li>
+<li><b>GeckoTerminal</b>: trending and new-pool lists.</li>
+</ul></div>
+
+<div class="warnbox"><b>Important:</b> <b>Low risk does not mean 100% safe.</b> Automated checks can miss new scam techniques, and data sources can be wrong or delayed; a legit token can also be flagged. MemeCheck is a free research tool, <b>not financial advice</b>. Always do your own research and never invest more than you can afford to lose.</div>
+<p class="muted">See real examples: <a href="/rugs">Rugs we caught</a> · Code: <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener">GitHub</a></p>
+</div>
+
+<!-- ================= ARABIC ================= -->
+<div data-l="ar">
+<nav class="crumbs" style="padding:0;margin:0 0 8px"><a href="/">الرئيسية</a><span>/</span><span>كيف يعمل التقييم</span></nav>
+<h1 style="font-size:22px;margin:8px 0 4px">كيف يعمل التقييم</h1>
+<p class="tag">كل فحص يجمع نتائج من عدة مصادر بيانات. كل نتيجة إما <b>ناجح</b> أو <b>تحذير</b> أو <b>فشل</b> أو <b>غير متاح</b>، ولها وزن. الأرقام أدناه هي نفسها المستخدمة في الكود (<code>core.js</code>، مفتوح المصدر).</p>
+
+<div class="card"><h2>1. من النتائج إلى مستوى الخطر</h2>
+<ul>
+<li>الفشل يضيف الوزن كاملًا كنقاط خطر، والتحذير يضيف نصفه، وغير المتاح لا يضيف شيئًا.</li>
+<li>أي فشل <b>حرج</b> (صلاحية سك أو تجميد نشطة، فخ عسل مؤكد، ضريبة بيع أعلى من 50%، أو عملة يصنفها RugCheck كمسحوبة) يجعل التقييم <b>خطر شديد</b> بغض النظر عن النقاط.</li>
+<li>غير ذلك: <b>40 نقطة فأكثر = مرتفع</b>، <b>15–39 = متوسط</b>، <b>أقل من 15 = منخفض</b>.</li>
+<li>إذا لم يستجب أي مصدر أمني (RugCheck / Solana RPC أو GoPlus / Honeypot.is) يظهر التقييم <b>غير معروف</b> بدل منخفض: لا نصف عملة بأنها منخفضة الخطر من بيانات السوق وحدها.</li>
+</ul>
+<div class="lv"><span class="badge low">منخفض &lt; 15</span><span class="badge medium">متوسط 15–39</span><span class="badge high">مرتفع 40+</span><span class="badge extreme">شديد = فشل حرج</span></div>
+</div>
+
+<div class="card"><h2>2. فحوص العقد والحاملين على سولانا</h2>
+<table><thead><tr><th>الفحص</th><th>القاعدة</th><th>النقاط</th></tr></thead><tbody>
+<tr><td>صلاحية السك</td><td>ما زالت نشطة (المنشئ يستطيع طباعة عملات)</td><td>فشل 40، حرج</td></tr>
+<tr><td>صلاحية التجميد</td><td>ما زالت نشطة (يمكن تجميد المحافظ = فخ عسل)</td><td>فشل 40، حرج</td></tr>
+<tr><td>مُعلَّمة كمسحوبة</td><td>RugCheck يصنف العملة كمسحوبة</td><td>فشل 50، حرج</td></tr>
+<tr><td>قفل/حرق السيولة</td><td>‏90% فأكثر = ناجح؛ 50–90% = تحذير؛ أقل من 50% = فشل. مجمعات pump.fun AMM تُحسب محروقة؛ مجمعات السيولة المركزة تحذير</td><td>15 (تحذير 7.5)</td></tr>
+<tr><td>أكبر 10 حاملين</td><td>بعد استبعاد المجمعات. أكثر من 50% فشل، أكثر من 30% تحذير</td><td>15 (تحذير 7.5)</td></tr>
+<tr><td>أكبر حامل</td><td>أكثر من 10% من المعروض</td><td>تحذير 4</td></tr>
+<tr><td>شبكات المطلعين</td><td>محافظ مطلعين مترابطة (RugCheck). فشل إذا تملك أكثر من 10% أو 10 مطلعين فأكثر، وإلا تحذير</td><td>15 (تحذير 7.5)</td></tr>
+<tr><td>رصيد المنشئ</td><td>المنشئ يملك أكثر من 5%</td><td>تحذير 4</td></tr>
+<tr><td>رسوم التحويل (Token-2022)</td><td>أكثر من 10% فشل، أي رسوم تحذير</td><td>20 (تحذير 10)</td></tr>
+<tr><td>بيانات قابلة للتعديل</td><td>يمكن تغيير الاسم/الشعار</td><td>تحذير 2</td></tr>
+<tr><td>إشارات خطر RugCheck</td><td>أي إشارة بمستوى "خطر"</td><td>تحذير 4</td></tr>
+</tbody></table>
+<p class="muted">إذا فشل RugCheck نقرأ صلاحيات السك والتجميد ورسوم التحويل وكبار الحاملين مباشرة من الشبكة عبر وسيط Solana RPC (Helius مع بديل عام).</p>
+</div>
+
+<div class="card"><h2>3. فحوص السوق (كل الشبكات، DexScreener)</h2>
+<table><thead><tr><th>الفحص</th><th>القاعدة</th><th>النقاط</th></tr></thead><tbody>
+<tr><td>السيولة</td><td>أقل من 5 آلاف دولار فشل (20)؛ أقل من 20 ألفًا تحذير</td><td>20 / تحذير 7.5</td></tr>
+<tr><td>عمر الزوج</td><td>أقل من 24 ساعة</td><td>تحذير 4</td></tr>
+<tr><td>الهبوط من القمة الأخيرة</td><td>‏90% فأكثر فشل 20؛ أكثر من 50% فشل 12؛ أكثر من 30% تحذير</td><td>20 / 12 / تحذير 6</td></tr>
+<tr><td>ضغط البيع</td><td>أكثر من 65% من صفقات 24 ساعة بيع</td><td>تحذير 2.5</td></tr>
+<tr><td>حجم 24 ساعة</td><td>أقل من 1000 دولار</td><td>تحذير 2.5</td></tr>
+</tbody></table></div>
+
+<div class="card"><h2>4. سجل المطور (عملات pump.fun)</h2>
+<p>نعرض إطلاقات محفظة المنشئ السابقة على pump.fun ونفحص أسواقها على DexScreener. العملة السابقة <i>ميتة</i> إن لم يكن لها سوق أو قيمتها السوقية أقل من 10 آلاف دولار، و<i>مسحوبة</i> إن وصلت 50 ألفًا فأكثر وهي الآن أقل من 10% من قمتها. العملات الأحدث من 6 ساعات لا يُحكم عليها.</p>
+<ul><li><b>فشل، +10 نقاط</b>: ‏3 عملات ميتة/مسحوبة فأكثر وتمثل نصف العملات المحكوم عليها على الأقل، أو مُطلق متسلسل (10 عملات فأكثر) أقل من 10% منها حية.</li>
+<li><b>تحذير، +3 نقاط</b>: عملتان ميتتان/مسحوبتان فأكثر.</li><li>لا يكون حرجًا وحده.</li></ul></div>
+
+<div class="card"><h2>5. شبكات EVM (إيثريوم، Base، BSC)</h2>
+<p>GoPlus وHoneypot.is: فخ العسل المؤكد (أو "لا يمكن بيع الكل") فشل حرج (50). ضريبة شراء/بيع أعلى من 50% حرجة، وأعلى من 10% فشل 20، وأعلى من 5% تحذير. ونفحص أيضًا: قابلية السك (25)، المالك المخفي (20)، استعادة الملكية (15)، كود غير موثق (15)، منشئ له فخاخ عسل سابقة (20)، عدم التخلي عن الملكية، القائمة السوداء، البروكسي، تعديل الانزلاق، فترة التهدئة، قفل السيولة وكبار الحاملين.</p></div>
+
+<div class="card"><h2>6. إشارات سولانا إضافية (تُعرض ولا تُضاف للنقاط)</h2>
+<ul>
+<li><b>كشف القناصين</b>: أول المشترين في الكتل الأولى بعد الإطلاق. خطر قنص مرتفع عندما تملك أو اشترت محافظ القناصين 25% فأكثر من المعروض (أو 12 قناصًا محترفًا فأكثر)، ونشاط مرتفع عند 12% (أو 6 فأكثر).</li>
+<li><b>خريطة الفقاعات والحزم</b>: كبار الحاملين المرتبطون بمحافظ تمويل مشتركة.</li>
+<li><b>تدفقات السيولة</b>: الصفقات الأخيرة حول المجمع؛ المحافظ التي تشتري وتبيع ذهابًا وإيابًا أو بسرعة أو برشقات، ومحفظة المنشئ، تظهر بالأحمر.</li>
+<li><b>مؤشر الحجم الطبيعي</b>: من نفس الصفقات الأخيرة (حتى 30، ويلزم 15 على الأقل)، نسبة حجم SOL القادمة من أكبر 5 محافظ. <b>طبيعي</b> (أخضر) أقل من 35%، <b>مشبوه</b> (أصفر) 35–60%، <b>يشبه التداول الوهمي</b> (أحمر) أكثر من 60%. أقل من 10 محافظ مختلفة يحوّل الطبيعي إلى مشبوه؛ و5 محافظ أو أقل = وهمي. إذا كانت الصفقات قليلة لا نعرض شيئًا (لا نخمّن).</li>
+</ul>
+<p class="muted">هذه مؤشرات تقريبية على عينة حديثة صغيرة، وليست دليلًا على وجود بوتات أو احتيال.</p></div>
+
+<div class="card"><h2>7. مصادر البيانات المستخدمة فعليًا</h2>
+<ul>
+<li><b>RugCheck</b>: تقرير عملة سولانا (الصلاحيات، قفل السيولة، الحاملون، شبكات المطلعين، إشارات الخطر).</li>
+<li><b>DexScreener</b>: الأزواج والسعر والسيولة والحجم والعمر؛ وحالة سوق عملات المطور السابقة.</li>
+<li><b>Solana RPC</b> (Helius مع بديل عام): الفحوص البديلة على الشبكة، الحاملون، خريطة الفقاعات، القناصون، تدفقات السيولة.</li>
+<li><b>pump.fun</b>: محفظة المنشئ، إطلاقات المطور السابقة، قائمة أحدث الإطلاقات.</li>
+<li><b>GoPlus</b> و<b>Honeypot.is</b>: أمان عملات EVM ومحاكاة الشراء والبيع.</li>
+<li><b>GeckoTerminal</b>: قوائم الرائجة والمجمعات الجديدة.</li>
+</ul></div>
+
+<div class="warnbox"><b>مهم:</b> <b>الخطر المنخفض لا يعني أمانًا بنسبة 100%.</b> الفحوص الآلية قد تفوّت أساليب احتيال جديدة، وقد تكون مصادر البيانات خاطئة أو متأخرة، وقد تُعلَّم عملة سليمة. MemeCheck أداة بحث مجانية و<b>ليست نصيحة مالية</b>. ابحث بنفسك دائمًا ولا تستثمر أكثر مما تستطيع خسارته.</div>
+<p class="muted">أمثلة حقيقية: <a href="/rugs">عمليات السحب التي رصدناها</a> · الكود: <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener">GitHub</a></p>
+</div>
+</main>
+<footer><span data-l="en">Not financial advice. Always DYOR.</span><span data-l="ar">ليست نصيحة مالية. ابحث بنفسك دائمًا.</span> · <a href="/" data-t="navChecker">Checker</a> · <a href="/rugs" data-t="navRugs">Rugs we caught</a> · <a href="/how" data-t="navHow">How the score works</a> · <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a></footer>
+<script>
+(function(){var b=document.getElementById('how-lang');var ar=document.documentElement.lang==='ar';b.textContent=ar?'English':'العربية';
+b.addEventListener('click',function(){localStorage.setItem('mc_lang',ar?'en':'ar');location.reload();});})();
+</script>
+<script src="nav.js?v=1792420000" defer></script>
+</body>
+</html>

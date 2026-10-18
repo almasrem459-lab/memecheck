@@ -30,6 +30,8 @@ const L = {
     noFlows: 'Recent pool txs found, but no clear swap flows could be parsed yet.',
     explorer: 'Solscan ↗',
     clear: 'Clear selection',
+    orgLbl: { organic: 'Organic volume', suspicious: 'Suspicious volume', wash: 'Wash-like volume' },
+    orgSent: (o) => `${o.topShare}% of recent volume came from ${o.top} wallet${o.top === 1 ? '' : 's'} (${o.wallets} unique wallets, last ${o.trades} swaps).`,
   },
   ar: {
     title: 'تدفقات السيولة', arTitle: 'خريطة السيولة المتحركة',
@@ -57,6 +59,8 @@ const L = {
     noFlows: 'وُجدت معاملات للمجمع، لكن لم تُستخرج تدفقات مبادلة واضحة بعد.',
     explorer: 'Solscan ↗',
     clear: 'إلغاء التحديد',
+    orgLbl: { organic: 'حجم تداول طبيعي', suspicious: 'حجم تداول مشبوه', wash: 'حجم يشبه التداول الوهمي' },
+    orgSent: (o) => `${o.topShare}% من حجم التداول الأخير جاء من ${o.top} محافظ (${o.wallets} محفظة مختلفة، آخر ${o.trades} صفقة).`,
   },
 };
 const lang = () => document.documentElement.lang === 'ar' ? 'ar' : 'en';
@@ -358,13 +362,18 @@ function detailHtml(data, id, t) {
       <button type="button" class="ghost act" id="lf-clear">${t.clear}</button></div>`;
 }
 
+const ORG_CLS = { organic: 'pass', suspicious: 'warn', wash: 'fail' };
+function orgBadge(o, t) { // nothing when the server could not judge (too few swaps)
+  if (!o || !ORG_CLS[o.level] || !(o.trades > 0)) return '';
+  return `<div class="lf-org"><span class="st ${ORG_CLS[o.level]}">${esc(t.orgLbl[o.level])}</span> <span class="muted">${esc(t.orgSent(o))}</span></div>`;
+}
 function draw(box, data) {
   const t = L[lang()];
   if (inst) { inst.destroy(); inst = null; }
   const sum = data.summary || {};
   box.innerHTML = `
     <div class="lf-head"><h3>${t.title} <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">· ${t.arTitle}</span></h3></div>
-    <p class="lf-sum">${esc(t.summary(sum))}</p>
+    ${orgBadge(data.organic, t)}<p class="lf-sum">${esc(t.summary(sum))}</p>
     <div class="lflg"><span><i style="background:${GREEN}"></i>${t.organic}</span><span><i style="background:${RED}"></i>${t.sus}</span><span><i style="background:${LP_COL}"></i>${t.lp}</span></div>
     <div class="lf-stage"><canvas id="lf-cv" width="600" height="360" aria-label="${esc(t.title)}"></canvas></div>
     <div class="lf-panel" id="lf-panel"></div>
