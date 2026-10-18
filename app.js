@@ -1,5 +1,5 @@
-import { analyze, detectChain, score } from './core.js?v=1792470000';
-import { T, usd } from './i18n.js?v=1792470000';
+import { analyze, detectChain, score } from './core.js?v=1792540000';
+import { T, usd } from './i18n.js?v=1792540000';
 const $ = (s) => document.querySelector(s);
 const params = new URLSearchParams(location.search);
 let lang = params.get('lang') || localStorage.getItem('mc_lang') || 'en'; if (!T[lang]) lang = 'en'; let last = null, runId = 0;
@@ -49,7 +49,7 @@ function onInput() {
   $('#det').textContent = k ? `${t.detected}: ${k === 'solana' ? t.solana : t.evm}` : '';
 }
 const pc = (v) => v === null || v === undefined ? '—' : `<span dir="ltr" class="${v >= 0 ? 'up' : 'dn'}">${v > 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
-const SLOTS = ['dh-box', 'db-box', 'ex-box', 'bm-box', 'bp-box', 'lf-box', 'sn-box'];
+const SLOTS = ['ai-box', 'dh-box', 'db-box', 'ex-box', 'bm-box', 'bp-box', 'lf-box', 'sn-box'];
 // Developer history (devhist-ui.js -> window.__mcDevHist) becomes one finding. Conservative score nudge: FAIL (serial
 // launcher / >= 3 dead-or-rugged coins) = +10 risk points, WARN (2+ dead) = +3 (half of weight 6), PASS = +0. Never critical.
 // "Risk unknown" stays unknown (no market/security data). The shared server snapshot (/api/deep core, OG image) is not nudged.
@@ -75,6 +75,8 @@ function withDev(r) {
   if (r.verdict.level === 'unknown' && v.level === 'low') v.level = 'unknown';
   return { ...r, findings, verdict: v };
 }
+// AI summary (ai-ui.js): the finished, dev-history-adjusted result only; null while a scan is still streaming
+window.__mcLast = () => (window.__done && last && !last.partial ? withDev(last) : null);
 document.addEventListener('mc:devhist', (e) => { if (last && last.addr === e.detail.addr && $('#out').dataset.addr === last.addr) render(last); });
 function render(r0, fire) {
   const r = withDev(r0);
@@ -103,6 +105,7 @@ function render(r0, fire) {
    ${[[t.price, usd(m.priceUsd)], [t.mcap, usd(m.mcap)], [t.fdv, usd(m.fdv)], [t.liq, m.launch?.curve && !(m.liquidity > 0) ? t.curveLiq : usd(m.liquidity)], [t.vol, usd(m.vol24)], [t.txns, m.buys24 != null ? `<span dir="ltr">${m.buys24} / ${m.sells24}</span>` : '—'],
       [`${t.change} <span dir="ltr">${t.ch1h24}</span>`, `<span dir="ltr">${pc(m.ch?.h1)} / ${pc(m.ch?.h24)}</span>`], [t.pairAge, ageH == null ? '—' : ageH < 48 ? ageH.toFixed(1) + (lang === 'ar' ? ' ساعة' : ' h') : (ageH / 24).toFixed(0) + (lang === 'ar' ? ' يوم' : ' d')], [t.holders, m.totalHolders ?? '—']]
       .map(([k, val]) => `<div class="kv"><span>${k}</span><b>${val}</b></div>`).join('')}</div></div>
+  <div id="ai-box"></div>
   <div class="card" id="fcard"><h3>${t.findings}</h3>${r.pending.filter(k => k !== 'DexScreener').map(k => `<div class="row"><span class="st na"><span class="spin sm"></span></span><span>${esc(t.waiting(k))}</span></div>`).join('')}${fs.map(f => `<div class="row"><span class="st ${f.status}">${st[f.status]}</span><span>${esc((t.r[f.id] || (() => f.id))(f.params, f.status))}</span></div>`).join('')}</div>
   <div id="dh-box"></div><div id="db-box"></div><div id="ex-box"></div><div id="bm-box" class="card"></div>${skel('bp')}${skel('lf')}${skel('sn')}
   ${r.extra.holders?.length ? `<div class="card"><h3>${t.topHolders}</h3>${r.extra.holders.map((h, i) => `<div class="row"><span class="st na">#${i + 1}</span><span class="mono">${esc(h.owner)}</span><b style="margin-inline-start:auto" dir="ltr">${(+h.pct).toFixed(2)}%</b></div>`).join('')}</div>` : ''}
@@ -271,7 +274,7 @@ function pfToggle() {
   b.textContent = $('#pf').classList.contains('collapsed') ? '▾ ' + t.showTrend : '▴ ' + t.hideTrend;
 }
 async function run(e, src) {
-  e?.preventDefault(); const a = $('#addr').value.trim(); const t = T[lang]; const my = ++runId;
+  e?.preventDefault(); const a = $('#addr').value.trim(); const t = T[lang]; const my = ++runId; window.__done = false;
   const source = src || (e && !e.submitter ? 'trending' : 'form'), k0 = detectChain(a), gch = k0 === 'solana' ? 'solana' : $('#chain').value;
   ga('scan_start', { chain: gch, ca: a, source });
   if (!k0) { ga('scan_error', { chain: gch, ca: a, source, error: 'invalid_address' }); $('#out').innerHTML = `<div class="card">${t.invalid}</div>`; return; }
@@ -287,6 +290,7 @@ async function run(e, src) {
     const r = await analyze(a, detectChain(a) === 'evm' ? $('#chain').value : 'solana', (p) => { if (my !== runId) return; last = p; render(p, !fired); fired = true; });
     if (my !== runId) return;
     last = r; render(r, true); window.__done = true; remember(r);
+    document.dispatchEvent(new CustomEvent('mc:final', { detail: { addr: r.addr, chain: r.chain } })); // ai-ui.js starts here, after the main result
     ga('scan_result', { chain: r.chain, risk_level: r.verdict?.level, score: r.verdict?.points, symbol: r.meta?.symbol || undefined, ca: r.addr, source });
     const q = new URLSearchParams(location.search); q.delete('a'); q.set('ca', r.addr); q.set('chain', r.chain);
     history.replaceState(null, '', '?' + q + location.hash);

@@ -5,3 +5,6 @@ compatibility_date = "2024-09-23"
 [[kv_namespaces]]
 binding = "MEMECHECK_CACHE"
 id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"  # wrangler kv namespace create MEMECHECK_CACHE
+
+[ai]
+binding = "AI"  # Workers AI (free daily allowance) for /api/ai
