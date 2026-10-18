@@ -59,10 +59,11 @@ function mount() {
   acts.before(bar);
   if (FEE_ON) feeOk().then(ok => { const n = bar.querySelector('.swfee'); if (ok && n) n.textContent = t.fee + ' · '; });
 }
-// EVM: no embedded widget, just deep links (BNB Chain -> PancakeSwap, Ethereum / Base -> Uniswap)
+// EVM: no embedded widget, just deep links (BNB Chain -> PancakeSwap, Ethereum / Base / Arbitrum -> Uniswap)
 const EVM_DEX = {
   bsc: { name: 'PancakeSwap', buy: (a) => `https://pancakeswap.finance/swap?chain=bsc&inputCurrency=BNB&outputCurrency=${a}`, sell: (a) => `https://pancakeswap.finance/swap?chain=bsc&inputCurrency=${a}&outputCurrency=BNB` },
   ethereum: { name: 'Uniswap', buy: (a) => `https://app.uniswap.org/swap?chain=mainnet&inputCurrency=ETH&outputCurrency=${a}`, sell: (a) => `https://app.uniswap.org/swap?chain=mainnet&inputCurrency=${a}&outputCurrency=ETH` },
+  arbitrum: { name: 'Uniswap', buy: (a) => `https://app.uniswap.org/swap?chain=arbitrum&inputCurrency=ETH&outputCurrency=${a}`, sell: (a) => `https://app.uniswap.org/swap?chain=arbitrum&inputCurrency=${a}&outputCurrency=ETH` },
   base: { name: 'Uniswap', buy: (a) => `https://app.uniswap.org/swap?chain=base&inputCurrency=ETH&outputCurrency=${a}`, sell: (a) => `https://app.uniswap.org/swap?chain=base&inputCurrency=${a}&outputCurrency=ETH` },
 };
 function mountEvm(r, lang) {

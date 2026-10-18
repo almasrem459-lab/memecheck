@@ -3,7 +3,8 @@
 // (/api/deep, warmer) or when the relay is down. Each upstream answer is cached in the Cache API (Workers only;
 // skipped in browsers) for TTL seconds; on an upstream failure the last good copy (<= STALE s) is served instead.
 // Result: { chain, ca, goplus:{s,d}, honeypot:{s,d}, four:{s,d}|null } with s = 'ok' | 'empty' | 'fail'.
-export const EVM_IDS = { ethereum: 1, bsc: 56, base: 8453 };
+export const EVM_IDS = { ethereum: 1, bsc: 56, base: 8453, arbitrum: 42161 };
+export const HP_CHAINS = new Set(['ethereum', 'bsc', 'base']); // Honeypot.is answers 400 "Invalid chain" for Arbitrum (42161)
 export const TTL = 300, STALE = 3600;
 const UA = { accept: 'application/json', 'user-agent': 'Mozilla/5.0 (MemeCheck/1.0)' };
 const C = () => (typeof caches !== 'undefined' && caches.default) ? caches.default : null; // Workers Cache API only
@@ -50,7 +51,7 @@ export async function getEvmSecurity(ca, chain, opt = {}) {
   const want = (k) => !opt.only || opt.only.includes(k); // opt.only: re-fetch just these parts (browser fallback)
   const [goplus, honeypot, four] = await Promise.all([
     want('goplus') ? upstream('goplus', `https://api.gopluslabs.io/api/v1/token_security/${id}?contract_addresses=${ca}`, judgeGoplus(ca), opt) : null,
-    want('honeypot') ? upstream('honeypot', `https://api.honeypot.is/v2/IsHoneypot?address=${ca}&chainID=${id}`, judgeHp, opt) : null,
+    !HP_CHAINS.has(chain) ? { s: 'unsupported', d: null } : want('honeypot') ? upstream('honeypot', `https://api.honeypot.is/v2/IsHoneypot?address=${ca}&chainID=${id}`, judgeHp, opt) : null,
     chain === 'bsc' && want('four') ? upstream('four', `https://four.meme/meme-api/v1/private/token/get/v2?address=${ca}`, judgeFour, { ...opt, ms: 5000 }) : null,
   ]);
   return { chain, ca, goplus, honeypot, four };

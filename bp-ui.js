@@ -152,7 +152,7 @@ function drawChart(box, sw, t) {
   bl.innerHTML = dex ? '' : big.map(z => `<div class="bp-big"><span class="st ${z.b ? 'pass' : 'fail'}">${z.b ? '▲' : '▼'} ${z.b ? t.bigBuy : t.bigSell}</span> <span class="muted">${z.pct.toFixed(0)}% ${t.ofSample} · <span dir="ltr">${tfmt(z.t, true)}</span> · <a href="https://solscan.io/account/${esc(z.w)}" target="_blank" rel="noopener" dir="ltr">${esc(short(z.w))}</a></span></div>`).join('');
 }
 // ---- EVM: GeckoTerminal OHLCV candles for the main DexScreener pair (Four.meme curve pairs use the token address) ----
-const GTN = { ethereum: 'eth', bsc: 'bsc', base: 'base' };
+const GTN = { ethereum: 'eth', bsc: 'bsc', base: 'base', arbitrum: 'arbitrum' };
 const ohlc = new Map(); // addr|chain -> 'loading' | { list:[{t,o,h,l,c,v}], agg } | { error }
 async function gtFetch(u) {
   const once = async (x) => { const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 8000); try { const r = await fetch(x, { headers: { accept: 'application/json' }, signal: ctl.signal }); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); } finally { clearTimeout(tm); } };

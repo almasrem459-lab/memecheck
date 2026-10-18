@@ -3,7 +3,7 @@
 // Canvas + tiny custom force simulation (no libraries): collide, repel, link springs, cluster cohesion, gravity.
 // Drag (mouse/touch), wheel/pinch zoom, pan, tap for details, cluster list. Lazy, cached, timeout, never invents data.
 import { holderLinks, withTimeout, rpc as rpcBatch, exitCache } from './devbundle.js?v=1792080000';
-import { rugReport } from './core.js?v=1792460000';
+import { rugReport } from './core.js?v=1792470000';
 const fn = (txt) => txt ? `<details class="fn"><summary title="info">ⓘ</summary><div>${txt}</div></details>` : '';
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -32,8 +32,8 @@ const lang = () => document.documentElement.lang === 'ar' ? 'ar' : 'en';
 const BURN = new Set(['1nc1nerator11111111111111111111111111111111', '0x000000000000000000000000000000000000dead', '0x0000000000000000000000000000000000000000']);
 const COLORS = ['#ff4d6a', '#ffd447', '#3ee08f', '#4f9dff', '#c77dff', '#ff8f3e', '#2ec4f1', '#f06bd0', '#a3e635', '#fb7185', '#5eead4', '#fbbf24'];
 const SOLO = '#7f8fd6', KNOWN = '#6b7280';
-const GOPLUS = { ethereum: 1, bsc: 56, base: 8453 };
-const EXPL = { solana: 'https://solscan.io/account/', ethereum: 'https://etherscan.io/address/', base: 'https://basescan.org/address/', bsc: 'https://bscscan.com/address/' };
+const GOPLUS = { ethereum: 1, bsc: 56, base: 8453, arbitrum: 42161 };
+const EXPL = { solana: 'https://solscan.io/account/', ethereum: 'https://etherscan.io/address/', base: 'https://basescan.org/address/', bsc: 'https://bscscan.com/address/', arbitrum: 'https://arbiscan.io/address/' };
 const MAXN = 100, LINKN = 60;
 const rpc = async (method, params) => (await rpcBatch([[method, params]]))[0];
 const getJ = async (url, ms) => { const c = new AbortController(); const tm = setTimeout(() => c.abort(), ms); try { const r = await fetch(url, { signal: c.signal }); return r.ok ? await r.json() : null; } catch { return null; } finally { clearTimeout(tm); } };
@@ -374,7 +374,7 @@ async function start(addr, chain) {
 }
 document.addEventListener('mc:render', async (e) => {
   const { r } = e.detail; cur = { addr: r.addr, chain: r.chain };
-  if (!['solana', 'ethereum', 'bsc', 'base'].includes(r.chain)) { const b = $('#bm-box'); if (b) b.hidden = true; if (inst) { inst.destroy(); inst = null; } return; }
+  if (!['solana', 'ethereum', 'bsc', 'base', 'arbitrum'].includes(r.chain)) { const b = $('#bm-box'); if (b) b.hidden = true; if (inst) { inst.destroy(); inst = null; } return; }
   const c = cache.get(r.addr);
   if (c && !c.error) { paint(); return; }
   start(r.addr, r.chain);

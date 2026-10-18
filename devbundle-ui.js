@@ -1,7 +1,7 @@
 // Renders "Developer" and "Early buyers / bundle" cards under a Solana pump.fun check result. Lazy + cached per mint.
 import { devCheck, bundleCheck, exitTrace, withTimeout, exitCache, setCreated } from './devbundle.js?v=1792080000';
 import { getDeep, ago, refreshLbl } from './mccache.js?v=1792080000';
-const CHN = { en: { bsc: 'BNB Chain', ethereum: 'Ethereum', base: 'Base' }, ar: { bsc: 'سلسلة BNB', ethereum: 'إيثريوم', base: 'Base' } }; // EVM chain names for the 'not available yet' line
+const CHN = { en: { bsc: 'BNB Chain', ethereum: 'Ethereum', base: 'Base', arbitrum: 'Arbitrum' }, ar: { bsc: 'سلسلة BNB', ethereum: 'إيثريوم', base: 'Base', arbitrum: 'أربيتروم' } }; // EVM chain names for the 'not available yet' line
 const L = {
   en: { dev:'Developer check', bundle:'Early buyers / bundle check', loading:'Analysing on-chain data…', na:'Unavailable', notPump:'Dev / bundle / exit-trace checks: Solana tokens only, when the launch history can be reached (pump.fun and other launchpads/DEXes).', notEvm:(c)=>`Developer, early-buyer bundle and exit-trace checks: not available on ${c} yet (Solana only for now).`,
     creator:'Creator wallet', launched:'Other coins launched', grad:'Graduated', dead:'Died', young:'Under 6 h old', sample:(n)=>`graduated/died counts cover only the ${n} coins pump.fun lists`, deadDef:'Died = not graduated, older than 6 h and market cap under $10K.',

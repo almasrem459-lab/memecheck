@@ -1,5 +1,5 @@
-import { analyze, detectChain, score } from './core.js?v=1792460000';
-import { T, usd } from './i18n.js?v=1792460000';
+import { analyze, detectChain, score } from './core.js?v=1792470000';
+import { T, usd } from './i18n.js?v=1792470000';
 const $ = (s) => document.querySelector(s);
 const params = new URLSearchParams(location.search);
 let lang = params.get('lang') || localStorage.getItem('mc_lang') || 'en'; if (!T[lang]) lang = 'en'; let last = null, runId = 0;
@@ -7,8 +7,8 @@ const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<':
 const SITE = 'https://memecheck.pages.dev/';
 // GA4 events (gtag snippet lives in index.html); never throws
 const ga = (n, p) => { try { if (typeof gtag === 'function') gtag('event', n, p); } catch {} }; window.__mcGa = ga;
-const CH0 = { solana: 'Solana', ethereum: 'Ethereum', bsc: 'BNB Chain', base: 'Base' }, CHAR = { solana: 'سولانا', ethereum: 'إيثريوم', bsc: 'سلسلة BNB', base: 'Base' };
-const CHIP = { bsc: 'BNB', ethereum: 'ETH', base: 'BASE', solana: 'SOL' }; // small chain chip on the result card
+const CH0 = { solana: 'Solana', ethereum: 'Ethereum', bsc: 'BNB Chain', base: 'Base', arbitrum: 'Arbitrum' }, CHAR = { solana: 'سولانا', ethereum: 'إيثريوم', bsc: 'سلسلة BNB', base: 'Base', arbitrum: 'أربيتروم' };
+const CHIP = { bsc: 'BNB', ethereum: 'ETH', base: 'BASE', arbitrum: 'ARB', solana: 'SOL' }; // small chain chip on the result card
 const CH = new Proxy({}, { get: (_, k) => (lang === 'ar' ? CHAR : CH0)[k] });
 // ---- recent searches + watchlist (localStorage) ----
 const ls = { get: (k) => { try { return JSON.parse(localStorage.getItem(k)) || []; } catch { return []; } }, set: (k, v) => localStorage.setItem(k, JSON.stringify(v)) };
@@ -92,6 +92,7 @@ function render(r0, fire) {
    <div class="mono muted" dir="ltr">${esc(r.addr)}</div><div class="muted">${v.points} ${t.riskPts}${m.url ? ` · <a href="${esc(m.url)}" target="_blank" rel="noopener">${t.viewDex}</a>` : ''}</div>
    ${m.dropFromHigh >= 90 ? `<div class="dn" style="margin-top:6px;font-weight:700">⚠️ ${esc(t.crashed(m.dropFromHigh))}</div>` : ''}
    ${(r.chains || []).length > 1 ? `<div class="chsw"><span class="muted">${t.chainSw}</span> ${r.chains.filter(c => c !== r.chain).map(c => `<button type="button" class="chch ${esc(c)}" data-ch="${esc(c)}" title="${esc(t.chainSwT(CH[c] || c))}">${CHIP[c] || esc(c)}</button>`).join(' ')}</div>` : ''}
+   ${m.uni ? `<div class="unipool">${esc(t.uniPool(m.uni.v))} · <a href="${esc(m.uni.url)}" target="_blank" rel="noopener" data-provider="uniswap">${t.uniLink} ↗</a></div>` : ''}
    ${m.launch?.four ? `<div class="fourm ${m.launch.curve ? 'curve' : 'grad'}">${esc(m.launch.curve ? t.fourCurve(m.launch.progress) : t.fourGrad)} <span class="muted">${esc(t.fourSrc(m.launch.src))}</span>${m.launch.curve ? ` <a href="https://four.meme/token/${esc(r.addr.toLowerCase())}" target="_blank" rel="noopener">four.meme ↗</a>` : ''}</div>` : ''}
    ${r.partial ? `<div class="muted">${t.partial}</div>` : ''}</div>
    <div class="acts"><button type="button" class="ghost act" id="a-star" aria-pressed="${wl}" title="${wl ? t.unstar : t.star}">${wl ? '★' : '☆'}</button>
@@ -106,13 +107,13 @@ function render(r0, fire) {
   <div id="dh-box"></div><div id="db-box"></div><div id="ex-box"></div><div id="bm-box" class="card"></div>${skel('bp')}${skel('lf')}${skel('sn')}
   ${r.extra.holders?.length ? `<div class="card"><h3>${t.topHolders}</h3>${r.extra.holders.map((h, i) => `<div class="row"><span class="st na">#${i + 1}</span><span class="mono">${esc(h.owner)}</span><b style="margin-inline-start:auto" dir="ltr">${(+h.pct).toFixed(2)}%</b></div>`).join('')}</div>` : ''}
   ${r.flags.length ? `<div class="card"><h3>${t.flags}</h3>${r.flags.map(x => `<div class="row"><span class="st ${x.level === 'danger' || x.level === 'high' ? 'fail' : 'warn'}">${esc(x.level)}</span><span dir="ltr">${esc(x.name)}${x.desc ? ' — ' + esc(x.desc) : ''}</span></div>`).join('')}</div>` : ''}
-  <div class="card"><h3>${t.sources}</h3>${Object.entries(r.sources).map(([k, s]) => `<div class="row"><span class="st ${s === 'ok' ? 'pass' : 'na'}">${s === 'ok' ? t.ok : s === 'empty' ? t.empty : t.fail}</span><span>${k}</span></div>`).join('')}</div>`;
+  <div class="card"><h3>${t.sources}</h3>${Object.entries(r.sources).map(([k, s]) => `<div class="row"><span class="st ${s === 'ok' ? 'pass' : 'na'}">${s === 'ok' ? t.ok : s === 'empty' ? t.empty : s === 'unsupported' ? t.unsup : t.fail}</span><span>${k}</span></div>`).join('')}</div>`;
   keep.forEach((n, i) => { if (n) document.getElementById(SLOTS[i]).replaceWith(n); });
   $('#a-new').onclick = goHome;
   document.querySelectorAll('#vcard [data-ch]').forEach(b => b.onclick = () => { $('#chain').value = b.dataset.ch; ga('chain_switch', { ca: r.addr, from: r.chain, to: b.dataset.ch }); run(null, 'chain_switch'); }); $('#a-star').onclick = () => { toggleWatch(r); render(r0); };
   const copy = (txt, btn) => navigator.clipboard?.writeText(txt).then(() => { const o = btn.textContent; btn.textContent = t.copied; setTimeout(() => btn.textContent = o, 1200); });
   // sharing: ask the server to cache the risk result (server-side compute + budget-guarded KV write) so the link preview shows it
-  const warm = () => { if (warmed.has(r.addr) || !['solana', 'ethereum', 'base', 'bsc'].includes(r.chain)) return; warmed.add(r.addr); fetch(`/api/deep?ca=${encodeURIComponent(r.addr)}&chain=${r.chain}&kind=core`, { keepalive: true }).catch(() => {}); };
+  const warm = () => { if (warmed.has(r.addr) || !['solana', 'ethereum', 'base', 'bsc', 'arbitrum'].includes(r.chain)) return; warmed.add(r.addr); fetch(`/api/deep?ca=${encodeURIComponent(r.addr)}&chain=${r.chain}&kind=core`, { keepalive: true }).catch(() => {}); };
   $('#a-x').addEventListener('click', () => { warm(); ga('share_x_click', { ca: r.addr, risk_level: r.verdict.level, where: 'result' }); });
   $('#a-ca').onclick = (e) => copy(r.addr, e.currentTarget); $('#a-link').onclick = (e) => { warm(); copy(shareUrl(r), e.currentTarget); };
   $('#a-img').onclick = () => { warm(); openShare(r); };
@@ -279,8 +280,8 @@ async function run(e, src) {
   let fired = false;
   // Prewarmed server snapshot of the main check (read-only peek): shows instantly, then the live check replaces it.
   const kind0 = detectChain(a), sel = $('#chain').value;
-  const chs = kind0 === 'solana' ? ['solana'] : (['ethereum', 'bsc', 'base'].includes(sel) ? [sel] : ['bsc', 'ethereum']);
-  Promise.any(chs.map(c => fetch(`/api/cache?kind=core&chain=${c}&ca=${encodeURIComponent(a)}`).then(r => r.ok ? r.json() : Promise.reject()).then(j => j?.data && j.lv >= 3 ? j : Promise.reject()))).then(j => { // lv: core-logic version (older snapshots used the stale pump.fun curve price)
+  const chs = kind0 === 'solana' ? ['solana'] : (['ethereum', 'bsc', 'base', 'arbitrum'].includes(sel) ? [sel] : ['bsc', 'ethereum', 'base', 'arbitrum']);
+  Promise.any(chs.map(c => fetch(`/api/cache?kind=core&chain=${c}&ca=${encodeURIComponent(a)}`).then(r => r.ok ? r.json() : Promise.reject()).then(j => j?.data && j.lv >= 4 ? j : Promise.reject()))).then(j => { // lv: core-logic version (older snapshots used the stale pump.fun curve price)
     if (my !== runId || fired || !j?.data?.verdict) return; const p = { ...j.data, cachedAt: j.at }; last = p; render(p, true); fired = true; }).catch(() => {});
   try {
     const r = await analyze(a, detectChain(a) === 'evm' ? $('#chain').value : 'solana', (p) => { if (my !== runId) return; last = p; render(p, !fired); fired = true; });

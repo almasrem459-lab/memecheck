@@ -2,7 +2,7 @@
 // cached DexScreener lookup for name/symbol. Never computes a risk score and never writes KV.
 import { readShared, keyOf, guardedPut } from './shared.js';
 export const CA_RE = /^(0x[0-9a-fA-F]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$/;
-const EVM = ['ethereum', 'base', 'bsc'];
+const EVM = ['ethereum', 'base', 'bsc', 'arbitrum'];
 const RPC = { ethereum: ['https://ethereum-rpc.publicnode.com', 'https://eth.drpc.org'], base: ['https://base-rpc.publicnode.com', 'https://base.drpc.org'], bsc: ['https://bsc-rpc.publicnode.com', 'https://bsc.drpc.org'] };
 function abiStr(hex) { // decode an ABI string (or bytes32) return value
   try { if (!hex || hex.length < 66) return ''; const b = hex.slice(2); let h;
@@ -39,7 +39,7 @@ export async function ogInfo(env, ca, chain) {
     const ps = (j?.pairs || []).filter(p => (p.baseToken?.address || '').toLowerCase() === ca.toLowerCase() && EVM.includes(p.chainId));
     const p = ps.find(p => !EVM.includes(chain) || p.chainId === chain) || ps[0];
     if (p) info = { sym: clean(p.baseToken.symbol), name: clean(p.baseToken.name), chain: p.chainId };
-    else { const NET = { ethereum: 'eth', base: 'base', bsc: 'bsc' };
+    else { const NET = { ethereum: 'eth', base: 'base', bsc: 'bsc', arbitrum: 'arbitrum' };
       const g = await get(`https://api.geckoterminal.com/api/v2/networks/${NET[EVM.includes(chain) ? chain : 'ethereum']}/tokens/${ca}`); const a = g?.data?.attributes;
       if (a?.symbol) info = { sym: clean(a.symbol), name: clean(a.name), chain: EVM.includes(chain) ? chain : 'ethereum' };
       else { // last resort: read symbol()/name() straight from the token contract over public RPCs (no shared rate limit)

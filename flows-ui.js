@@ -3,7 +3,7 @@
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const short = (a) => a && a.length > 12 ? a.slice(0, 4) + '…' + a.slice(-4) : (a || '');
-const CHN = { en: { bsc: 'BNB Chain', ethereum: 'Ethereum', base: 'Base' }, ar: { bsc: 'سلسلة BNB', ethereum: 'إيثريوم', base: 'Base' } }; // EVM chain names for the 'not available yet' line
+const CHN = { en: { bsc: 'BNB Chain', ethereum: 'Ethereum', base: 'Base', arbitrum: 'Arbitrum' }, ar: { bsc: 'سلسلة BNB', ethereum: 'إيثريوم', base: 'Base', arbitrum: 'أربيتروم' } }; // EVM chain names for the 'not available yet' line
 const L = {
   en: {
     title: 'Liquidity flows', arTitle: 'خريطة السيولة المتحركة',

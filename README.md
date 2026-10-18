@@ -2,7 +2,7 @@
 
 **Live: https://memecheck.pages.dev** · [Rugs we caught](https://memecheck.pages.dev/rugs) · [How the score works](https://memecheck.pages.dev/how)
 
-Free, open-source (MIT) meme-coin safety checker for **Solana, BNB Chain and Ethereum**. Paste a contract address and get a **Low / Medium / High / Extreme** risk verdict with plain-language reasons in seconds. No signup, no paywall. English + Arabic UI.
+Free, open-source (MIT) meme-coin safety checker for **Solana, BNB Chain, Ethereum, Base and Arbitrum**. Paste a contract address and get a **Low / Medium / High / Extreme** risk verdict with plain-language reasons in seconds. No signup, no paywall. English + Arabic UI.
 
 > Not financial advice. Low risk does not mean 100% safe. Automated checks can miss scams or flag legit tokens. Always DYOR.
 
@@ -28,14 +28,17 @@ Free, open-source (MIT) meme-coin safety checker for **Solana, BNB Chain and Eth
 - Developer history, bundles / snipers, bubble map, liquidity flows, organic volume
 - RugCheck danger flags; on-chain fallback via Solana RPC when RugCheck is unavailable
 
-**BNB Chain (chain id 56) and Ethereum (chain id 1)**
-- Paste any `0x…` address: the chain is auto-detected from DexScreener (the chain whose own pairs have the most liquidity); if the token trades on both, BNB / ETH chips let you switch
+**BNB Chain (56), Ethereum (1), Base (8453) and Arbitrum One (42161)**
+- Paste any `0x…` address: the chain is auto-detected from DexScreener (the chain whose own pairs have the most liquidity); if the token trades on several, BNB / ETH / BASE / ARB chips let you switch
 - GoPlus token security + Honeypot.is buy/sell simulation, scored in one function (`evmFindings()` in `core.js`): honeypot (critical), buy/sell tax, buying blocked, mintable, hidden owner, ownership reclaim, unverified source, proxy/upgradeable, blacklist, pausable transfers, trading cooldown, modifiable tax, ownership renounced, LP locked/burned %, top-10 holders, creator/owner holding, serial honeypot creator
+- Honeypot.is does not support Arbitrum, so on Arbitrum honeypot/tax checks use GoPlus only (shown as "not supported on this chain")
+- **Uniswap pools:** when the top pair is a Uniswap v2/v3/v4 pool, a small "Uniswap pool" note shows the version and links to the pool on app.uniswap.org
+- **Uniswap V3/V4 LP:** liquidity is an NFT position, so an LP lock usually can't be measured. ≥ 90% locked = pass; a regular wallet holding ≥ 50% of the position with no lock = warn; otherwise N/A info – never scored as "unlocked" without evidence
 - Owner-only switches (blacklist / pause / cooldown / tax) pass when ownership is renounced and cannot be reclaimed
 - **Four.meme** (BNB Chain): launchpad tokens are recognised (Four.meme API, GoPlus launchpad tag, DexScreener `fourmeme` pair); bonding-curve progress is shown and curve-only checks are handled (no LP / tax / holder data yet)
 - Same market checks as Solana (liquidity, pair age, drop from high, pressure, volume), Buy / Sell pressure with GeckoTerminal OHLCV candles, holder bubble map (GoPlus holders)
-- Buy / Sell buttons link to PancakeSwap (BNB Chain), Uniswap (Ethereum) or four.meme (bonding curve); hidden for confirmed honeypots
-- Not available on EVM yet: sniper detection, liquidity flows, developer history, bundle checks (Solana only, shown as "Not available on BNB Chain / Ethereum yet")
+- Buy / Sell buttons link to PancakeSwap (BNB Chain), Uniswap (Ethereum, Base, Arbitrum – correct `chain=` param) or four.meme (bonding curve); hidden for confirmed honeypots
+- Not available on EVM yet: sniper detection, liquidity flows, developer history, bundle checks (Solana only, shown as "Not available on <chain> yet")
 - Base still works when it is the only chain a token trades on
 
 Extras: trending (6h) and newest-launch lists, true-cost (tax+fee+slippage) calculator, optional Jupiter swap widget.
@@ -56,8 +59,8 @@ Every verdict lists the reasons and which data sources answered.
 | Source | Used for |
 |---|---|
 | [RugCheck](https://rugcheck.xyz) | Solana token report, risk flags, LP lock, insider networks |
-| [GoPlus](https://gopluslabs.io) | EVM token security (BNB Chain / Ethereum) |
-| [Honeypot.is](https://honeypot.is) | EVM honeypot / tax simulation |
+| [GoPlus](https://gopluslabs.io) | EVM token security (BNB Chain / Ethereum / Base / Arbitrum) |
+| [Honeypot.is](https://honeypot.is) | EVM honeypot / tax simulation (BNB Chain / Ethereum / Base; no Arbitrum) |
 | [Four.meme](https://four.meme) | BNB Chain launchpad + bonding-curve status |
 | [DexScreener](https://dexscreener.com) | Pairs, price, liquidity, volume, age |
 | [Helius](https://helius.dev) (Solana RPC + DAS), public Solana RPC fallback | On-chain fallback checks, holders, bubble map, snipers, liquidity flows (server-side, keyed) |

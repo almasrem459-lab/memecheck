@@ -11,7 +11,7 @@ export const onRequest = async (ctx) => {
   const ca = url.searchParams.get('ca') || url.searchParams.get('a');
   if (req.method !== 'GET' || !(url.pathname === '/' || url.pathname === '/index.html') || !ca || !CA_RE.test(ca) || !BOT.test(req.headers.get('user-agent') || '')) return next();
   const res = await next(); if (!(res.headers.get('content-type') || '').includes('text/html')) return res;
-  const chain = ['ethereum', 'bsc', 'base'].includes(url.searchParams.get('chain')) ? url.searchParams.get('chain') : 'auto';
+  const chain = ['ethereum', 'bsc', 'base', 'arbitrum'].includes(url.searchParams.get('chain')) ? url.searchParams.get('chain') : 'auto';
   let info = null; try { info = await ogInfo(env, ca, chain); } catch {}
   const share = `https://memecheck.pages.dev/?ca=${encodeURIComponent(ca)}${chain !== 'auto' ? '&chain=' + chain : ''}`;
   const img = `https://memecheck.pages.dev/api/og?ca=${encodeURIComponent(ca)}&chain=${chain}&v=${info?.level || 'n'}`;

@@ -27,10 +27,10 @@ async function fromPump() {
   }
   throw last || 0;
 }
-const OK = { solana: 'solana', ethereum: 'ethereum', base: 'base', bsc: 'bsc' }; // chains the checker supports
+const OK = { solana: 'solana', ethereum: 'ethereum', base: 'base', bsc: 'bsc', arbitrum: 'arbitrum' }; // chains the checker supports
 // Trending mode: approximates DexScreener's "Trending 6H" ranking (its own ranking API is not public/keyless).
 // GeckoTerminal trending_pools with duration=6h, kept in GeckoTerminal's rank order; liquidity >= $20K, majors/stables dropped.
-const GTN = { solana: 'solana', ethereum: 'eth', base: 'base', bsc: 'bsc' };
+const GTN = { solana: 'solana', ethereum: 'eth', base: 'base', bsc: 'bsc', arbitrum: 'arbitrum' };
 const MAJOR = /^(w?sol|w?eth|weth|w?bnb|w?btc|cbbtc|usdc|usdt|usd1|usds|dai|fdusd|usde|pyusd)$/i;
 let chain = OK[localStorage.getItem('mc_pf_chain')] || 'solana';
 async function fromDex() {
@@ -81,7 +81,7 @@ function price(v) {
 }
 const cusd = (n) => n == null ? '—' : '$' + (n >= 1e9 ? +(n / 1e9).toFixed(1) + 'B' : n >= 1e6 ? +(n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? Math.round(n / 1e3) + 'K' : Math.round(n));
 function age(ts) { if (!ts) return ''; const m = Math.max(0, Math.floor((Date.now() - ts) / 6e4)); return m < 60 ? m + 'm' : m < 1440 ? Math.floor(m / 60) + 'h' : m < 43200 ? Math.floor(m / 1440) + 'd' : Math.floor(m / 43200) + 'mo'; }
-const CHI = { solana: ['#9945ff', '#14f195'], ethereum: ['#627eea', '#8aa0f2'], base: ['#0052ff', '#3d7bff'], bsc: ['#f0b90b', '#f8d33a'] };
+const CHI = { solana: ['#9945ff', '#14f195'], ethereum: ['#627eea', '#8aa0f2'], base: ['#0052ff', '#3d7bff'], bsc: ['#f0b90b', '#f8d33a'], arbitrum: ['#213147', '#28a0f0'] };
 const chainIco = (c) => { const [a, b] = CHI[c] || CHI.solana; return `<span class="dsc" title="${esc(c)}" style="background:linear-gradient(135deg,${a},${b})">${esc((c || 's')[0].toUpperCase())}</span>`; };
 function render() {
   const t = L[lang()]; $('#pf-r').textContent = '↻'; $('#pf-r').title = t.refresh.replace('↻ ', ''); $('#pf h3').textContent = mode === 'dex' ? t.tTrend : t.title;

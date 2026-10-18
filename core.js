@@ -1,5 +1,5 @@
 // MemeCheck core: data fetching + scoring. Works in browser and Node 18+ (global fetch).
-export const EVM_CHAINS = { ethereum: { id: 1, ds: 'ethereum' }, base: { id: 8453, ds: 'base' }, bsc: { id: 56, ds: 'bsc' } };
+export const EVM_CHAINS = { ethereum: { id: 1, ds: 'ethereum' }, base: { id: 8453, ds: 'base' }, bsc: { id: 56, ds: 'bsc' }, arbitrum: { id: 42161, ds: 'arbitrum' } };
 
 export function detectChain(addr) {
   addr = (addr || '').trim();
@@ -74,7 +74,7 @@ function marketFindings(ds, chainKey, addr) {
     vol24: num(p.volume?.h24), buys24: p.txns?.h24?.buys, sells24: p.txns?.h24?.sells,
     txns: p.txns || null, volw: p.volume || null, // per-window buys/sells counts + volume (Buy / Sell pressure card)
     ch: { m5: num(p.priceChange?.m5), h1: num(p.priceChange?.h1), h6: num(p.priceChange?.h6), h24: num(p.priceChange?.h24) },
-    created: p.pairCreatedAt, dex: p.dexId, url: p.url, image: p.info?.imageUrl, pairs: good.length, pairAddr: p.pairAddress,
+    created: p.pairCreatedAt, dex: p.dexId, labels: p.labels || null, url: p.url, image: p.info?.imageUrl, pairs: good.length, pairAddr: p.pairAddress,
   });
   if (chainKey === 'bsc' && isCurve(p)) out.push(F('liquidity', 'warn', 15, { v: liq, curve: 1 })); // Four.meme bonding curve: no DEX pool yet (Solana curves keep their existing rule)
   else out.push(liq < 5000 ? F('liquidity', 'fail', 20, { v: liq }) : liq < 20000 ? F('liquidity', 'warn', 15, { v: liq }) : F('liquidity', 'pass', 15, { v: liq }));
@@ -183,6 +183,20 @@ export function fourMemeInfo({ chain, addr, ds, g, four }) {
   const progress = api && api.progress != null && isFinite(api.progress) ? Math.max(0, Math.min(100, api.progress * 100)) : null;
   return { four: 1, curve, progress: curve ? progress : 100, src: api ? 'four.meme' : gp ? 'GoPlus' : 'DexScreener', suffix, dex: api?.dexType || null };
 }
+// Main pool type: DexScreener labels (v2/v3/v4) of the main pair, else GoPlus' dex entry for that pair (UniV2/UniV3/UniV4).
+export function poolType({ meta, g }) {
+  const lab = (meta?.labels || []).map(x => String(x).toLowerCase()).find(x => /^v[234]$/.test(x));
+  const pa = String(meta?.pairAddr || '').toLowerCase(), d = (g?.dex || []).find(x => String(x.pair || '').toLowerCase() === pa);
+  const gv = d && (/V4/i.test(d.liquidity_type || '') ? 'v4' : /V3/i.test(d.liquidity_type || '') ? 'v3' : /V2/i.test(d.liquidity_type || '') ? 'v2' : null);
+  return { v: lab || gv || null, dex: meta?.dex || null, uni: /^uniswap/i.test(meta?.dex || '') || /^uniswap/i.test(d?.name || '') };
+}
+// "Uniswap pool" note: the main (most liquid) pair is a Uniswap v2/v3/v4 pool -> version + pool link (Uniswap explorer).
+const UNI_NET = { ethereum: 'ethereum', base: 'base', arbitrum: 'arbitrum', bsc: 'bnb' };
+export function uniswapInfo({ chain, meta, g }) {
+  const pt = poolType({ meta, g }); if (!pt.uni || !UNI_NET[chain] || !meta?.pairAddr) return null;
+  const id = String(meta.pairAddr).split(':')[0];
+  return { v: pt.v, url: `https://app.uniswap.org/explore/pools/${UNI_NET[chain]}/${id}`, ds: meta.url || null };
+}
 function evmFindings({ g, h, addr, launch, meta }) {
   const out = []; const extra = {}; const flags = [];
   const b = (k) => !g ? null : g[k] === '1' ? true : g[k] === '0' ? false : null;
@@ -223,15 +237,22 @@ function evmFindings({ g, h, addr, launch, meta }) {
   if (!g || g.owner_address === undefined) out.push(F('renounced', 'na', 0));
   else out.push(renounced ? F('renounced', 'pass', 10) : fourOwner ? F('renounced', 'pass', 10, { fm: 1 }) : F('renounced', 'warn', 10));
   if (b('honeypot_with_same_creator')) out.push(F('serialScammer', 'fail', 20));
-  // LP locked / burned (LP held by a burn address, a locker, or the token contract itself cannot be pulled)
-  const lps = g?.lp_holders || [];
+  // LP locked / burned (LP held by a burn address, a locker, or the token contract itself cannot be pulled).
+  // Uniswap V3/V4-style pools: liquidity is an NFT position, so "LP tokens locked %" usually cannot be measured. No lock
+  // evidence is NOT treated as unlocked: N/A (info) unless a plain wallet (EOA) holds most of the position (then WARN).
+  const lps = g?.lp_holders || [], pool = poolType({ meta, g });
   if (curve) out.push(F('lpLocked', 'na', 0, { curve: 1 }));
   else if (lps.length) {
     const self = String(addr || '').toLowerCase();
-    const locked = Math.min(100, lps.reduce((s, x) => s + ((x.is_locked === 1 || DEAD.test(x.address || '') || x.address?.toLowerCase() === self || /burn|null|dead|lock/i.test(x.tag || '')) ? +x.percent : 0), 0) * 100);
-    const v3 = (g.dex || []).length > 0 && (g.dex || []).every(d => /V3|V4/i.test(d.liquidity_type || d.name || ''));
-    out.push(locked >= 90 ? F('lpLocked', 'pass', 15, { v: locked }) : locked >= 50 || v3 ? F('lpLocked', 'warn', 15, { v: locked, v3: v3 ? 1 : 0 }) : F('lpLocked', 'fail', 15, { v: locked }));
-  } else out.push(F('lpLocked', 'na', 0, { unk: 1 }));
+    const isLocked = (x) => x.is_locked === 1 || DEAD.test(x.address || '') || x.address?.toLowerCase() === self || /burn|null|dead|lock/i.test(x.tag || '');
+    const locked = Math.min(100, lps.reduce((s, x) => s + (isLocked(x) ? +x.percent : 0), 0) * 100);
+    const conc = pool.v === 'v3' || pool.v === 'v4' || lps.some(x => x.NFT_list?.length) || (!pool.v && (g.dex || []).length > 0 && (g.dex || []).every(d => /V3|V4/i.test(d.liquidity_type || d.name || ''))); // NFT_list = GoPlus reports V3/V4 positions
+    if (!conc) out.push(locked >= 90 ? F('lpLocked', 'pass', 15, { v: locked }) : locked >= 50 ? F('lpLocked', 'warn', 15, { v: locked }) : F('lpLocked', 'fail', 15, { v: locked }));
+    else {
+      const eoa = Math.min(100, lps.filter(x => !isLocked(x) && x.is_contract !== 1).reduce((s, x) => s + +x.percent, 0) * 100), vv = pool.v || 'v3';
+      out.push(locked >= 90 ? F('lpLocked', 'pass', 15, { v: locked, v3: 1, pv: vv }) : eoa >= 50 ? F('lpLocked', 'warn', 15, { v: locked, v3: 1, eoa, pv: vv }) : F('lpLocked', 'na', 0, { v: locked, v3: 1, nft: 1, pv: vv }));
+    }
+  } else out.push(F('lpLocked', 'na', 0, pool.v === 'v3' || pool.v === 'v4' ? { unk: 1, v3: 1, nft: 1, pv: pool.v } : { unk: 1 }));
   // holders: contracts (pools, lockers, the curve), locked and burn addresses excluded
   const contracts = new Set((g?.holders || []).filter(x => x.is_contract === 1 || x.is_locked === 1).map(x => (x.address || '').toLowerCase()));
   const hs = (g?.holders || []).filter(x => !x.is_contract && !x.is_locked && !DEAD.test(x.address || '') && !FOUR_MANAGERS.has((x.address || '').toLowerCase()));
@@ -300,13 +321,14 @@ export async function evmSecurity(addr, chain) {
     const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 12000);
     try { const r = await fetch(`/api/evm-security?chain=${chain}&ca=${addr.toLowerCase()}`, { signal: ctl.signal }); if (r.ok) { const x = await r.json(); if (x?.goplus && x.honeypot) j = x; } } catch {} finally { clearTimeout(tm); }
   }
-  const { getEvmSecurity } = await import('./evmsec.js?v=1792460000');
+  const { getEvmSecurity } = await import('./evmsec.js?v=1792470000');
   if (!j) return getEvmSecurity(addr, chain);
-  const only = ['goplus', 'honeypot', ...(chain === 'bsc' ? ['four'] : [])].filter(k => !j[k] || j[k].s === 'fail');
+  const only = ['goplus', ...(HP_OK.has(chain) ? ['honeypot'] : []), ...(chain === 'bsc' ? ['four'] : [])].filter(k => !j[k] || j[k].s === 'fail');
   if (only.length) { const d = await getEvmSecurity(addr, chain, { only }).catch(() => null); only.forEach(k => { if (d?.[k] && d[k].s !== 'fail') j[k] = { ...d[k], via: 'browser' }; }); }
   return j;
 }
-export const EVM_AUTO = ['bsc', 'ethereum']; // auto-detect between these; Base only when the token trades nowhere else
+const HP_OK = new Set(['ethereum', 'bsc', 'base']); // chains Honeypot.is simulates (no Arbitrum)
+export const EVM_AUTO = ['bsc', 'ethereum', 'base', 'arbitrum']; // auto-detect: the chain with the most liquid own pairs
 // chains (of EVM_CHAINS) where the token has its own priced pairs, most liquid first: [{ chain, liq }]
 export function evmChainsOf(ds, addr) {
   return Object.keys(EVM_CHAINS).map(c => { const ps = sanePairs((ds?.pairs || []).filter(p => p.chainId === c), addr).filter(p => (p.baseToken?.address || '').toLowerCase() === addr.toLowerCase());
@@ -334,7 +356,7 @@ export async function analyze(addr, evmChain = 'auto', onUpdate = () => {}) {
   if (kind === 'evm') evmP = evmSecurity(addr, chainKey).catch(() => null);
   const part = (k) => evmP.then(j => { const x = j?.[k]; if (!x || x.s === 'fail') throw new Error('fail'); return x.s === 'ok' ? x.d : { __empty: 1, ...(x.d || {}) }; });
   const secs = kind === 'solana' ? { RugCheck: run('RugCheck', rugReport(addr)) }
-    : { GoPlus: run('GoPlus', part('goplus')), 'honeypot.is': run('honeypot.is', part('honeypot')), ...(chainKey === 'bsc' ? { four: evmP.then(j => j?.four?.s === 'ok' ? j.four.d : null) } : {}) };
+    : { GoPlus: run('GoPlus', part('goplus')), ...(HP_OK.has(chainKey) ? { 'honeypot.is': run('honeypot.is', part('honeypot')) } : {}), ...(chainKey === 'bsc' ? { four: evmP.then(j => j?.four?.s === 'ok' ? j.four.d : null) } : {}) };
   const got = {}; let ds;
   const build = () => {
     const findings = []; let meta = {}, extra = {}, flags = [];
@@ -350,14 +372,16 @@ export async function analyze(addr, evmChain = 'auto', onUpdate = () => {}) {
       if (got.four) sources['Four.meme'] = 'ok';
       const launch = fourMemeInfo({ chain: chainKey, addr, ds, g, four: got.four });
       if (launch) meta.launch = launch;
-      if (g || h || ('GoPlus' in got && 'honeypot.is' in got)) {
+      if (g || h || ('GoPlus' in got && (!HP_OK.has(chainKey) || 'honeypot.is' in got))) {
         const r = evmFindings({ g, h, addr, launch, meta }); findings.push(...r.out.filter(f => g || h || f.status !== 'na')); extra = r.extra; flags = r.flags;
       }
       // source status from what actually arrived ('GoPlus' in got = settled), so a re-render can never leave a stale 'fail'
       if (g) { sources.GoPlus = 'ok'; meta.name ||= g.token_name; meta.symbol ||= g.token_symbol; meta.totalHolders = num(g.holder_count) || meta.totalHolders; }
       else if ('GoPlus' in got) { sources.GoPlus = a ? 'empty' : 'fail'; findings.push(F('srcGoplus', 'na', 0)); }
-      if (h) sources['honeypot.is'] = 'ok';
+      if (!HP_OK.has(chainKey)) { sources['honeypot.is'] = 'unsupported'; findings.push(F('srcHp', 'na', 0, { unsup: 1 })); }
+      else if (h) sources['honeypot.is'] = 'ok';
       else if ('honeypot.is' in got) { sources['honeypot.is'] = b ? 'empty' : 'fail'; findings.push(F('srcHp', 'na', 0, { curve: launch?.curve ? 1 : 0 })); }
+      const uni = ds ? uniswapInfo({ chain: chainKey, meta, g }) : null; if (uni) meta.uni = uni;
       if (h?.token) { meta.name ||= h.token.name; meta.symbol ||= h.token.symbol; meta.totalHolders ??= num(h.token.totalHolders); }
     }
     // Old, deep-liquidity tokens: an unlocked/unknown LP is not a rug signal on its own -> neutral note instead of a FAIL.

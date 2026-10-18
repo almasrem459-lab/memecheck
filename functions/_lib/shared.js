@@ -5,7 +5,7 @@ import { analyze } from '../../core.js';
 import { enc } from '../../mccache.js';
 
 export const KINDS = new Set(['dev', 'exit', 'core']);
-export const validCa = (ca, chain) => chain === 'solana' ? /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(ca || '') : ['ethereum', 'bsc', 'base'].includes(chain) && /^0x[0-9a-fA-F]{40}$/.test(ca || '');
+export const validCa = (ca, chain) => chain === 'solana' ? /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(ca || '') : ['ethereum', 'bsc', 'base', 'arbitrum'].includes(chain) && /^0x[0-9a-fA-F]{40}$/.test(ca || '');
 export const keyOf = (kind, chain, ca) => `${kind}:${chain}:${chain === 'solana' ? ca : ca.toLowerCase()}`;
 // TTL (s): tokens < 24 h old change fast. core = market/security snapshot, short-lived.
 export const ttlFor = (created, kind) => kind === 'core' ? 15 * 60 : (created && Date.now() - created < 24 * 36e5) ? 30 * 60 : 6 * 3600;
@@ -40,7 +40,8 @@ export async function hotDel(k) { try { await C()?.delete(hotKey(k)); } catch {}
 // Version of the core (market + risk) logic. Bump it whenever core.js scoring/pair-picking changes: cached core results
 // written by older code (no/older `lv`) are treated as a miss, so /api/deep recomputes and overwrites them.
 // v2 = live-pair picker (ignores the frozen pump.fun bonding-curve pair after graduation).
-export const CORE_LV = 3; // v3 = unified EVM scoring (evmFindings), Four.meme awareness, BNB/ETH auto-detect
+export const CORE_LV = 4; // v4 = Base + Arbitrum, Uniswap V3/V4 LP handling
+// prev // v3 = unified EVM scoring (evmFindings), Four.meme awareness, BNB/ETH auto-detect
 const stale = (k, txt) => { if (!k.startsWith('core:')) return false; try { return JSON.parse(txt).lv !== CORE_LV; } catch { return true; } };
 // read: Cache API first, then KV (backfilling the Cache API)
 export async function readShared(KV, k) {

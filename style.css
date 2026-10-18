@@ -162,8 +162,9 @@ header{gap:10px}
 .chch{display:inline-block;font:700 11px/1 system-ui,sans-serif;letter-spacing:.04em;padding:4px 8px;border-radius:999px;border:1px solid #2a3348;background:#141b2a;color:#c9d0dc;vertical-align:middle;cursor:default}
 button.chch{cursor:pointer}button.chch:hover{border-color:#7fa2ff;color:#fff}
 .chch.bsc{color:#f0b90b;border-color:#5a4708}.chch.ethereum{color:#9fb2ff;border-color:#33407a}.chch.base{color:#5b8cff;border-color:#1d3a8a}
-.chch.on.bsc{background:#f0b90b;color:#111;border-color:#f0b90b}.chch.on.ethereum{background:#627eea;color:#fff;border-color:#627eea}.chch.on.base{background:#0052ff;color:#fff;border-color:#0052ff}
+.chch.on.bsc{background:#f0b90b;color:#111;border-color:#f0b90b}.chch.on.ethereum{background:#627eea;color:#fff;border-color:#627eea}.chch.arbitrum{color:#28a0f0;border-color:#1b4a6b}.chch.on.arbitrum{background:#28a0f0;color:#0b0f17;border-color:#28a0f0}.chch.on.base{background:#0052ff;color:#fff;border-color:#0052ff}
 .chsw{margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:13px}
 .fourm{margin-top:8px;padding:8px 10px;border-radius:10px;font-size:13px;line-height:1.45;background:#1a1810;border:1px solid #3d3510}.fourm.grad{background:#0f1f18;border-color:#1f4d36}.fourm a{white-space:nowrap}
 .swapbar a.act{text-decoration:none;display:inline-block}
 .evmna{display:flex;gap:8px;align-items:flex-start}
+.unipool{margin-top:8px;font-size:13px;color:#ff9be0}.unipool a{color:#ff7ad9}

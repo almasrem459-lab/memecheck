@@ -3,7 +3,7 @@
 // If DexScreener rate-limited the server, the browser fetches it directly (CORS-open) and classifies with devhist-core.js.
 // The result is published on window.__mcDevHist and announced with a 'mc:devhist' event; app.js turns it into a finding.
 import { summarize, dexMarkets } from './devhist-core.js?v=1792300000';
-const CHN = { en: { bsc: 'BNB Chain', ethereum: 'Ethereum', base: 'Base' }, ar: { bsc: 'سلسلة BNB', ethereum: 'إيثريوم', base: 'Base' } }; // EVM chain names for the 'not available yet' line
+const CHN = { en: { bsc: 'BNB Chain', ethereum: 'Ethereum', base: 'Base', arbitrum: 'Arbitrum' }, ar: { bsc: 'سلسلة BNB', ethereum: 'إيثريوم', base: 'Base', arbitrum: 'أربيتروم' } }; // EVM chain names for the 'not available yet' line
 const L = {
   en: { title:'Developer history', loading:'Looking up the creator\'s other coins…', na:'Unavailable', naWhy:'Developer history is unavailable for this token right now.', naMkt:'Market status of the earlier coins is unavailable right now.', evm:'Developer history: Solana tokens only.', notEvm:(c)=>`Not available on ${c} yet. Developer history currently looks up pump.fun (Solana) launches only.`,
     creator:'Creator wallet', made:'Other coins created', bad:'Dead / rugged', live:'Still live', grad:'Graduated', copy:'Copy', copied:'Copied ✓', solscan:'Solscan ↗',
