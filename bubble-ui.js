@@ -3,7 +3,7 @@
 // Canvas + tiny custom force simulation (no libraries): collide, repel, link springs, cluster cohesion, gravity.
 // Drag (mouse/touch), wheel/pinch zoom, pan, tap for details, cluster list. Lazy, cached, timeout, never invents data.
 import { holderLinks, withTimeout, rpc as rpcBatch, exitCache } from './devbundle.js?v=1792080000';
-import { rugReport } from './core.js?v=1792440000';
+import { rugReport } from './core.js?v=1792460000';
 const fn = (txt) => txt ? `<details class="fn"><summary title="info">ⓘ</summary><div>${txt}</div></details>` : '';
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -69,8 +69,10 @@ async function solHolders(mint) {
 async function evmHolders(addr, chain) {
   const id = GOPLUS[chain]; if (!id) throw new Error('chain');
   const ctl = new AbortController(); setTimeout(() => ctl.abort(), 10000);
-  const d = await fetch(`https://api.gopluslabs.io/api/v1/token_security/${id}?contract_addresses=${addr}`, { signal: ctl.signal }).then(r => r.json());
-  const g = d?.result?.[addr.toLowerCase()]; if (!g?.holders?.length) throw new Error('empty');
+  // same cached relay as the risk check (one GoPlus call per token per 5 min); direct GoPlus only if the relay fails
+  let g = await fetch(`/api/evm-security?chain=${chain}&ca=${addr.toLowerCase()}`, { signal: ctl.signal }).then(r => r.ok ? r.json() : null).then(j => j?.goplus?.s === 'ok' ? j.goplus.d : j?.goplus?.s === 'empty' ? {} : null).catch(() => null);
+  if (!g) { const d = await fetch(`https://api.gopluslabs.io/api/v1/token_security/${id}?contract_addresses=${addr}`, { signal: ctl.signal }).then(r => r.json()); g = d?.result?.[addr.toLowerCase()]; }
+  if (!g?.holders?.length) throw new Error('empty');
   const lp = new Set((g.lp_holders || []).map(x => x.address.toLowerCase()));
   return { src: 'GoPlus', total: +g.holder_count || null, holders: g.holders.map(h => ({ owner: h.address, pct: +h.percent * 100,
     known: BURN.has(h.address.toLowerCase()) ? 'Burn' : h.is_locked ? (h.tag || 'Locked') : h.is_contract ? (h.tag || 'Contract') : lp.has(h.address.toLowerCase()) ? 'LP' : null, label: h.tag || null })) };
@@ -367,7 +369,7 @@ function paint() {
 }
 async function start(addr, chain) {
   cache.set(addr, 'loading'); paint();
-  try { cache.set(addr, await build(addr, chain)); } catch (e) { cache.set(addr, { error: true, timeout: /timeout/.test(e?.message || '') }); }
+  try { cache.set(addr, await build(addr, chain)); } catch (e) { cache.set(addr, e?.message === 'empty' ? { empty: true } : { error: true, timeout: /timeout/.test(e?.message || '') }); }
   if (cur?.addr === addr) paint();
 }
 document.addEventListener('mc:render', async (e) => {

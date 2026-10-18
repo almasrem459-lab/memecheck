@@ -2,6 +2,7 @@
 // Listens for mc:render (Solana). Data from /api/snipers.
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const CHN = { en: { bsc: 'BNB Chain', ethereum: 'Ethereum', base: 'Base' }, ar: { bsc: 'سلسلة BNB', ethereum: 'إيثريوم', base: 'Base' } }; // EVM chain names for the 'not available yet' line
 const L = {
   en: {
     title: 'Live sniper detection', arTitle: 'كاشف القناصة اللحظي',
@@ -9,7 +10,7 @@ const L = {
     err: 'Sniper scan unavailable right now.',
     empty: 'Not enough launch data to detect snipers yet.',
     retry: 'Retry',
-    notSol: 'Sniper detection is available for Solana tokens only.',
+    notSol: 'Sniper detection is available for Solana tokens only.', notEvm: (c) => `Not available on ${c} yet. Sniper detection currently works for Solana launches only.`,
     high: 'High sniper risk', medium: 'Elevated sniper activity', low: 'Some early snipers', clear: 'Low sniper footprint', unknown: 'Unknown',
     headline: (n, pct) => n ? `${n} likely sniper bot${n === 1 ? '' : 's'} detected${pct != null ? ` holding ~${pct}% of supply` : ''}` : 'No clear sniper cluster in the launch sample',
     pro: (n) => n ? ` · ${n} pro (same/next slot)` : '',
@@ -33,7 +34,7 @@ const L = {
     err: 'فحص القناصة غير متاح حاليًا.',
     empty: 'لا توجد بيانات إطلاق كافية لكشف القناصة.',
     retry: 'إعادة المحاولة',
-    notSol: 'كشف القناصة متاح لعملات سولانا فقط.',
+    notSol: 'كشف القناصة متاح لعملات سولانا فقط.', notEvm: (c) => `غير متاح على ${c} بعد. كشف القناصة يعمل حاليًا لإطلاقات سولانا فقط.`,
     high: 'خطر قناصة مرتفع', medium: 'نشاط قناصة مرتفع', low: 'بعض القناصة الأوائل', clear: 'بصمة قناصة منخفضة', unknown: 'غير معروف',
     headline: (n, pct) => n ? `تم رصد ${n} بوت قنص محتمل${pct != null ? ` يملكون ~${pct}% من المعروض` : ''}` : 'لا توجد مجموعة قناصة واضحة في عيّنة الإطلاق',
     pro: (n) => n ? ` · ${n} محترف (نفس/التالي سلوط)` : '',
@@ -198,7 +199,7 @@ document.addEventListener('mc:render', (e) => {
   const box = ensureBox(); if (!box) return;
   box.hidden = false; delete box.dataset.skel;
   if (r.chain !== 'solana') { // not applicable: say so instead of hiding the section
-    box.innerHTML = `<h3>${L[lang()].title}</h3><span class="muted">${L[lang()].notSol}</span>`;
+    const nm = CHN[lang()]?.[r.chain]; box.innerHTML = `<h3>${L[lang()].title}</h3><div class="muted evmna">ⓘ <span>${nm ? L[lang()].notEvm(nm) : L[lang()].notSol}</span></div>`;
     return;
   }
   const c = cache.get(r.addr);

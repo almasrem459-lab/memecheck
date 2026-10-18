@@ -158,3 +158,12 @@ header{gap:10px}
 .bp-c{min-width:0}.bp-bar{display:flex;gap:2px;height:22px;border-radius:11px;overflow:hidden;background:#222833}.bp-bar i{display:flex;align-items:center;justify-content:center;font-style:normal;font-size:11.5px;font-weight:800;color:#06140d;min-width:0;white-space:nowrap;overflow:hidden}.bp-bar .bp-g{background:#3ee08f}.bp-bar .bp-r{background:#ff4d6a;color:#22060b}.bp-bar .bp-e{flex:1;color:#7d879c;font-weight:500}
 .bp-n{display:flex;justify-content:space-between;font-size:11.5px;margin-top:3px}.bp-n .up{color:#3ee08f}.bp-n .dn{color:#ff6b83}
 .bp-tl{width:100%;overflow:hidden;margin-top:4px}.bp-tl canvas{display:block;touch-action:pan-y;direction:ltr}.bp-tip{margin:6px 2px 0;min-height:1.3em;font-size:12.5px;color:#c9d0dc}.bp-src{margin:2px}.bp-big{font-size:13px;margin:6px 0}.bp-big .st{min-width:0}.bp-wait{margin:8px 0}
+/* EVM: chain chips (BNB / ETH / BASE) + Four.meme note + EVM DEX links + OHLCV chart */
+.chch{display:inline-block;font:700 11px/1 system-ui,sans-serif;letter-spacing:.04em;padding:4px 8px;border-radius:999px;border:1px solid #2a3348;background:#141b2a;color:#c9d0dc;vertical-align:middle;cursor:default}
+button.chch{cursor:pointer}button.chch:hover{border-color:#7fa2ff;color:#fff}
+.chch.bsc{color:#f0b90b;border-color:#5a4708}.chch.ethereum{color:#9fb2ff;border-color:#33407a}.chch.base{color:#5b8cff;border-color:#1d3a8a}
+.chch.on.bsc{background:#f0b90b;color:#111;border-color:#f0b90b}.chch.on.ethereum{background:#627eea;color:#fff;border-color:#627eea}.chch.on.base{background:#0052ff;color:#fff;border-color:#0052ff}
+.chsw{margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:13px}
+.fourm{margin-top:8px;padding:8px 10px;border-radius:10px;font-size:13px;line-height:1.45;background:#1a1810;border:1px solid #3d3510}.fourm.grad{background:#0f1f18;border-color:#1f4d36}.fourm a{white-space:nowrap}
+.swapbar a.act{text-decoration:none;display:inline-block}
+.evmna{display:flex;gap:8px;align-items:flex-start}

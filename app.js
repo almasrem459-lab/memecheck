@@ -1,5 +1,5 @@
-import { analyze, detectChain, score } from './core.js?v=1792440000';
-import { T, usd } from './i18n.js?v=1792420000';
+import { analyze, detectChain, score } from './core.js?v=1792460000';
+import { T, usd } from './i18n.js?v=1792460000';
 const $ = (s) => document.querySelector(s);
 const params = new URLSearchParams(location.search);
 let lang = params.get('lang') || localStorage.getItem('mc_lang') || 'en'; if (!T[lang]) lang = 'en'; let last = null, runId = 0;
@@ -7,7 +7,8 @@ const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<':
 const SITE = 'https://memecheck.pages.dev/';
 // GA4 events (gtag snippet lives in index.html); never throws
 const ga = (n, p) => { try { if (typeof gtag === 'function') gtag('event', n, p); } catch {} }; window.__mcGa = ga;
-const CH0 = { solana: 'Solana', ethereum: 'Ethereum', bsc: 'BSC', base: 'Base' }, CHAR = { solana: 'سولانا', ethereum: 'إيثريوم', bsc: 'BSC', base: 'Base' };
+const CH0 = { solana: 'Solana', ethereum: 'Ethereum', bsc: 'BNB Chain', base: 'Base' }, CHAR = { solana: 'سولانا', ethereum: 'إيثريوم', bsc: 'سلسلة BNB', base: 'Base' };
+const CHIP = { bsc: 'BNB', ethereum: 'ETH', base: 'BASE', solana: 'SOL' }; // small chain chip on the result card
 const CH = new Proxy({}, { get: (_, k) => (lang === 'ar' ? CHAR : CH0)[k] });
 // ---- recent searches + watchlist (localStorage) ----
 const ls = { get: (k) => { try { return JSON.parse(localStorage.getItem(k)) || []; } catch { return []; } }, set: (k, v) => localStorage.setItem(k, JSON.stringify(v)) };
@@ -44,7 +45,7 @@ function applyLang() {
 }
 function onInput() {
   const k = detectChain($('#addr').value); const t = T[lang];
-  $('#chain').style.display = k === 'evm' ? '' : 'none';
+  $('#chain').style.display = 'none'; // EVM chain is auto-detected; the result card's chain chips switch it
   $('#det').textContent = k ? `${t.detected}: ${k === 'solana' ? t.solana : t.evm}` : '';
 }
 const pc = (v) => v === null || v === undefined ? '—' : `<span dir="ltr" class="${v >= 0 ? 'up' : 'dn'}">${v > 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
@@ -87,16 +88,18 @@ function render(r0, fire) {
   out.innerHTML = `
   <div class="backrow"><button type="button" class="ghost act" id="a-new">${t.newCheck}</button></div>
   <div class="card verdict" id="vcard"><div class="badge ${v.level}">${t[v.level]}${r.partial ? ' <span class="spin"></span>' : ''}</div>
-   <div class="tok">${m.image ? `<img src="${esc(m.image)}" alt="">` : ''} <b>${esc(m.name || '?')}</b> <span class="muted">$${esc(m.symbol || '')} · ${esc(CH[r.chain] || r.chain)}</span>
+   <div class="tok">${m.image ? `<img src="${esc(m.image)}" alt="">` : ''} <b>${esc(m.name || '?')}</b> <span class="muted">$${esc(m.symbol || '')} · ${esc(CH[r.chain] || r.chain)}</span>${r.kind === 'evm' ? ` <span class="chch on ${esc(r.chain)}" title="${esc(CH[r.chain] || r.chain)}">${CHIP[r.chain] || esc(r.chain)}</span>` : ''}
    <div class="mono muted" dir="ltr">${esc(r.addr)}</div><div class="muted">${v.points} ${t.riskPts}${m.url ? ` · <a href="${esc(m.url)}" target="_blank" rel="noopener">${t.viewDex}</a>` : ''}</div>
    ${m.dropFromHigh >= 90 ? `<div class="dn" style="margin-top:6px;font-weight:700">⚠️ ${esc(t.crashed(m.dropFromHigh))}</div>` : ''}
+   ${(r.chains || []).length > 1 ? `<div class="chsw"><span class="muted">${t.chainSw}</span> ${r.chains.filter(c => c !== r.chain).map(c => `<button type="button" class="chch ${esc(c)}" data-ch="${esc(c)}" title="${esc(t.chainSwT(CH[c] || c))}">${CHIP[c] || esc(c)}</button>`).join(' ')}</div>` : ''}
+   ${m.launch?.four ? `<div class="fourm ${m.launch.curve ? 'curve' : 'grad'}">${esc(m.launch.curve ? t.fourCurve(m.launch.progress) : t.fourGrad)} <span class="muted">${esc(t.fourSrc(m.launch.src))}</span>${m.launch.curve ? ` <a href="https://four.meme/token/${esc(r.addr.toLowerCase())}" target="_blank" rel="noopener">four.meme ↗</a>` : ''}</div>` : ''}
    ${r.partial ? `<div class="muted">${t.partial}</div>` : ''}</div>
    <div class="acts"><button type="button" class="ghost act" id="a-star" aria-pressed="${wl}" title="${wl ? t.unstar : t.star}">${wl ? '★' : '☆'}</button>
     <a class="ghost act" id="a-x" target="_blank" rel="noopener" href="${esc(xIntent(r))}"><b>𝕏</b> ${t.shareX}</a>
     <button type="button" class="ghost act" id="a-ca">${t.copyCA}</button><button type="button" class="ghost act" id="a-link">${t.copyLink}</button>
     <button type="button" class="ghost act" id="a-img">📸 ${t.shareRes}</button></div></div>
   <div class="card"><h3>${t.market}</h3><div class="grid">
-   ${[[t.price, usd(m.priceUsd)], [t.mcap, usd(m.mcap)], [t.fdv, usd(m.fdv)], [t.liq, usd(m.liquidity)], [t.vol, usd(m.vol24)], [t.txns, m.buys24 != null ? `<span dir="ltr">${m.buys24} / ${m.sells24}</span>` : '—'],
+   ${[[t.price, usd(m.priceUsd)], [t.mcap, usd(m.mcap)], [t.fdv, usd(m.fdv)], [t.liq, m.launch?.curve && !(m.liquidity > 0) ? t.curveLiq : usd(m.liquidity)], [t.vol, usd(m.vol24)], [t.txns, m.buys24 != null ? `<span dir="ltr">${m.buys24} / ${m.sells24}</span>` : '—'],
       [`${t.change} <span dir="ltr">${t.ch1h24}</span>`, `<span dir="ltr">${pc(m.ch?.h1)} / ${pc(m.ch?.h24)}</span>`], [t.pairAge, ageH == null ? '—' : ageH < 48 ? ageH.toFixed(1) + (lang === 'ar' ? ' ساعة' : ' h') : (ageH / 24).toFixed(0) + (lang === 'ar' ? ' يوم' : ' d')], [t.holders, m.totalHolders ?? '—']]
       .map(([k, val]) => `<div class="kv"><span>${k}</span><b>${val}</b></div>`).join('')}</div></div>
   <div class="card" id="fcard"><h3>${t.findings}</h3>${r.pending.filter(k => k !== 'DexScreener').map(k => `<div class="row"><span class="st na"><span class="spin sm"></span></span><span>${esc(t.waiting(k))}</span></div>`).join('')}${fs.map(f => `<div class="row"><span class="st ${f.status}">${st[f.status]}</span><span>${esc((t.r[f.id] || (() => f.id))(f.params, f.status))}</span></div>`).join('')}</div>
@@ -105,7 +108,8 @@ function render(r0, fire) {
   ${r.flags.length ? `<div class="card"><h3>${t.flags}</h3>${r.flags.map(x => `<div class="row"><span class="st ${x.level === 'danger' || x.level === 'high' ? 'fail' : 'warn'}">${esc(x.level)}</span><span dir="ltr">${esc(x.name)}${x.desc ? ' — ' + esc(x.desc) : ''}</span></div>`).join('')}</div>` : ''}
   <div class="card"><h3>${t.sources}</h3>${Object.entries(r.sources).map(([k, s]) => `<div class="row"><span class="st ${s === 'ok' ? 'pass' : 'na'}">${s === 'ok' ? t.ok : s === 'empty' ? t.empty : t.fail}</span><span>${k}</span></div>`).join('')}</div>`;
   keep.forEach((n, i) => { if (n) document.getElementById(SLOTS[i]).replaceWith(n); });
-  $('#a-new').onclick = goHome; $('#a-star').onclick = () => { toggleWatch(r); render(r0); };
+  $('#a-new').onclick = goHome;
+  document.querySelectorAll('#vcard [data-ch]').forEach(b => b.onclick = () => { $('#chain').value = b.dataset.ch; ga('chain_switch', { ca: r.addr, from: r.chain, to: b.dataset.ch }); run(null, 'chain_switch'); }); $('#a-star').onclick = () => { toggleWatch(r); render(r0); };
   const copy = (txt, btn) => navigator.clipboard?.writeText(txt).then(() => { const o = btn.textContent; btn.textContent = t.copied; setTimeout(() => btn.textContent = o, 1200); });
   // sharing: ask the server to cache the risk result (server-side compute + budget-guarded KV write) so the link preview shows it
   const warm = () => { if (warmed.has(r.addr) || !['solana', 'ethereum', 'base', 'bsc'].includes(r.chain)) return; warmed.add(r.addr); fetch(`/api/deep?ca=${encodeURIComponent(r.addr)}&chain=${r.chain}&kind=core`, { keepalive: true }).catch(() => {}); };
@@ -250,7 +254,7 @@ function goHome() {
   runId++; last = null; window.__done = false;
   document.body.classList.remove('has-result');
   const out = $('#out'); out.innerHTML = ''; out.dataset.addr = '';
-  $('#addr').value = ''; $('#go').disabled = false; onInput();
+  $('#addr').value = ''; $('#chain').value = 'auto'; $('#go').disabled = false; onInput();
   const q = new URLSearchParams(location.search); q.delete('ca'); q.delete('a'); q.delete('chain');
   const s = q.toString(); history.replaceState(null, '', (s ? '?' + s : location.pathname) + location.hash);
   const tg = $('#pf-tg'); if (tg) { tg.dataset.init = ''; $('#pf').classList.remove('collapsed'); }
@@ -275,8 +279,8 @@ async function run(e, src) {
   let fired = false;
   // Prewarmed server snapshot of the main check (read-only peek): shows instantly, then the live check replaces it.
   const kind0 = detectChain(a), sel = $('#chain').value;
-  const chs = kind0 === 'solana' ? ['solana'] : (['ethereum', 'bsc', 'base'].includes(sel) ? [sel] : ['ethereum', 'bsc', 'base']);
-  Promise.any(chs.map(c => fetch(`/api/cache?kind=core&chain=${c}&ca=${encodeURIComponent(a)}`).then(r => r.ok ? r.json() : Promise.reject()).then(j => j?.data && j.lv >= 2 ? j : Promise.reject()))).then(j => { // lv: core-logic version (older snapshots used the stale pump.fun curve price)
+  const chs = kind0 === 'solana' ? ['solana'] : (['ethereum', 'bsc', 'base'].includes(sel) ? [sel] : ['bsc', 'ethereum']);
+  Promise.any(chs.map(c => fetch(`/api/cache?kind=core&chain=${c}&ca=${encodeURIComponent(a)}`).then(r => r.ok ? r.json() : Promise.reject()).then(j => j?.data && j.lv >= 3 ? j : Promise.reject()))).then(j => { // lv: core-logic version (older snapshots used the stale pump.fun curve price)
     if (my !== runId || fired || !j?.data?.verdict) return; const p = { ...j.data, cachedAt: j.at }; last = p; render(p, true); fired = true; }).catch(() => {});
   try {
     const r = await analyze(a, detectChain(a) === 'evm' ? $('#chain').value : 'solana', (p) => { if (my !== runId) return; last = p; render(p, !fired); fired = true; });
@@ -288,7 +292,7 @@ async function run(e, src) {
   } catch (err) { if (my === runId) { $('#out').innerHTML = `<div class="card">${esc(err.message)}</div>`; ga('scan_error', { chain: gch, ca: a, source, error: String(err?.message || err).slice(0, 100) }); } }
   $('#go').disabled = false;
 }
-$('#f').addEventListener('submit', run); $('#addr').addEventListener('input', onInput);
+$('#f').addEventListener('submit', run); $('#addr').addEventListener('input', () => { $('#chain').value = 'auto'; onInput(); }); // typed/pasted address: auto-detect the EVM chain again
 $('#lang').addEventListener('click', () => { lang = lang === 'en' ? 'ar' : 'en'; localStorage.setItem('mc_lang', lang); applyLang(); ga('language_change', { lang }); });
 // outbound links (DexScreener, X, Solscan, ...); trading-bot/swap links count as trade_click
 const BOTS = { 'axiom.trade': 'axiom', 'photon-sol.tinyastro.io': 'photon', 'bullx.io': 'bullx', 'gmgn.ai': 'gmgn', 'jup.ag': 'jupiter', 't.me': 'telegram_bot' };

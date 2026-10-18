@@ -1,4 +1,6 @@
-// Buy / Sell pressure card (Solana meme tokens). No extra on-chain calls:
+// Buy / Sell pressure card. Solana: no extra on-chain calls (below). BNB Chain / Ethereum / Base: the same DexScreener
+// window rows + a GeckoTerminal OHLCV candle chart of the main pool (USD, volume bars); summary rows only if that fails.
+// Solana details:
 //  - window summary (5m / 1h / 6h / 24h buys vs sells counts) from the DexScreener pair already fetched by the scan (r.meta.txns)
 //  - timeline of recent swaps from the Liquidity-flows sample (flows-ui.js emits 'mc:flows' with /api/liquidity-flows data)
 // Bars use swap COUNTS. "Big" markers rank swaps by TOKEN amount (SOL per swap can be inflated by the parser).
@@ -11,13 +13,15 @@ const L = {
     noDex: 'No DexScreener trade counts for this token yet.', noSwaps: 'Recent swap timeline unavailable right now.', fewSwaps: 'Not enough recent swaps to draw a timeline yet.',
     retry: 'Retry', bigBuy: 'big buy', bigSell: 'big sell', ofSample: 'of sample token volume', tap: 'Tap or hover the chart for time, price and buys / sells',
     notSol: 'Buy / Sell pressure is shown for Solana meme tokens only.', note: 'Candles from our recent swap sample (price = SOL per token, outliers removed, scaled to the DexScreener USD price). Bars under it: buys (green) and sells (red) per time bucket, counted per swap. Window rows: DexScreener transaction counts. Timeline: our recent swap sample (same one as Liquidity flows). Big = among the 3 largest swaps by token amount and ≥ 10% of the sample. Not part of the risk score. Not financial advice.',
-    bucket: (b, s) => `${b} buys / ${s} sells`, chipB: (p) => `${p}% buys`, chipS: (p) => `${p}% sells`, last5s: (b, s) => `last 5 min · ${b} buys / ${s} sells`, volLbl: 'Swaps', dexLine: 'Price line from DexScreener 5m / 1h / 6h / 24h changes (swap prices not reliable for this sample).' },
+    bucket: (b, s) => `${b} buys / ${s} sells`, chipB: (p) => `${p}% buys`, chipS: (p) => `${p}% sells`, last5s: (b, s) => `last 5 min · ${b} buys / ${s} sells`, volLbl: 'Swaps', dexLine: 'Price line from DexScreener 5m / 1h / 6h / 24h changes (swap prices not reliable for this sample).',
+    evmNote: (m) => `Candles: GeckoTerminal ${m}-minute OHLCV of the main pool (USD). Bars under it: traded volume per candle (green = candle closed up, red = down). Window rows: DexScreener transaction counts. Not part of the risk score. Not financial advice.`, evmLoading: 'Loading price chart…', evmNoChart: 'Price chart unavailable for this pool right now; showing the buy / sell summary only.', volUsd: 'Vol' },
   ar: { title: 'ضغط الشراء / البيع', loading: 'جارٍ تحميل الصفقات الأخيرة…', last5: (p, b, s) => `آخر 5 دقائق: ${p}% شراء (${b} شراء / ${s} بيع)`, no5: 'لا صفقات في آخر 5 دقائق',
     recent: (b, s) => `الصفقات الأخيرة: ${b} شراء / ${s} بيع`, w: { m5: '5د', h1: '1س', h6: '6س', h24: '24س' }, buys: 'شراء', sells: 'بيع',
     noDex: 'لا توجد أعداد صفقات من DexScreener لهذه العملة بعد.', noSwaps: 'الخط الزمني للصفقات غير متاح الآن.', fewSwaps: 'لا توجد صفقات حديثة كافية لرسم الخط الزمني بعد.',
     retry: 'إعادة المحاولة', bigBuy: 'شراء كبير', bigSell: 'بيع كبير', ofSample: 'من حجم العينة بالعملة', tap: 'اضغط أو مرّر على الرسم لعرض الوقت والسعر والشراء / البيع',
     notSol: 'ضغط الشراء / البيع متاح لعملات الميم على سولانا فقط.', note: 'الشموع من عينة صفقاتنا الأخيرة (SOL لكل عملة، بعد استبعاد القيم الشاذة، ومحوّل لسعر DexScreener بالدولار). الأعمدة تحته: شراء (أخضر) وبيع (أحمر) لكل فترة زمنية، بعدد الصفقات. صفوف الفترات: أعداد صفقات DexScreener. الخط الزمني: عينة صفقاتنا الأخيرة (نفس عينة تدفقات السيولة). كبير = من أكبر 3 صفقات بكمية العملة و≥ 10% من العينة. لا يدخل في تقييم الخطر. ليست نصيحة مالية.',
-    bucket: (b, s) => `${b} شراء / ${s} بيع`, chipB: (p) => `${p}% شراء`, chipS: (p) => `${p}% بيع`, last5s: (b, s) => `آخر 5 دقائق · ${b} شراء / ${s} بيع`, volLbl: 'الصفقات', dexLine: 'خط السعر من تغيّرات DexScreener ‏5د / 1س / 6س / 24س (أسعار الصفقات غير موثوقة لهذه العينة).' },
+    bucket: (b, s) => `${b} شراء / ${s} بيع`, chipB: (p) => `${p}% شراء`, chipS: (p) => `${p}% بيع`, last5s: (b, s) => `آخر 5 دقائق · ${b} شراء / ${s} بيع`, volLbl: 'الصفقات', dexLine: 'خط السعر من تغيّرات DexScreener ‏5د / 1س / 6س / 24س (أسعار الصفقات غير موثوقة لهذه العينة).',
+    evmNote: (m) => `الشموع: بيانات OHLCV من GeckoTerminal كل ${m} دقيقة للمجمع الرئيسي (بالدولار). الأعمدة تحتها: حجم التداول لكل شمعة (أخضر = أغلقت صاعدة، أحمر = هابطة). صفوف الفترات: أعداد صفقات DexScreener. لا يدخل في تقييم الخطر. ليست نصيحة مالية.`, evmLoading: 'جارٍ تحميل رسم السعر…', evmNoChart: 'رسم السعر غير متاح لهذا المجمع الآن؛ نعرض ملخص الشراء / البيع فقط.', volUsd: 'الحجم' },
 };
 const lang = () => document.documentElement.lang === 'ar' ? 'ar' : 'en';
 const GREEN = '#3ee08f', RED = '#ff4d6a';
@@ -147,10 +151,75 @@ function drawChart(box, sw, t) {
   const bl = box.querySelector('#bp-big');
   bl.innerHTML = dex ? '' : big.map(z => `<div class="bp-big"><span class="st ${z.b ? 'pass' : 'fail'}">${z.b ? '▲' : '▼'} ${z.b ? t.bigBuy : t.bigSell}</span> <span class="muted">${z.pct.toFixed(0)}% ${t.ofSample} · <span dir="ltr">${tfmt(z.t, true)}</span> · <a href="https://solscan.io/account/${esc(z.w)}" target="_blank" rel="noopener" dir="ltr">${esc(short(z.w))}</a></span></div>`).join('');
 }
+// ---- EVM: GeckoTerminal OHLCV candles for the main DexScreener pair (Four.meme curve pairs use the token address) ----
+const GTN = { ethereum: 'eth', bsc: 'bsc', base: 'base' };
+const ohlc = new Map(); // addr|chain -> 'loading' | { list:[{t,o,h,l,c,v}], agg } | { error }
+async function gtFetch(u) {
+  const once = async (x) => { const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 8000); try { const r = await fetch(x, { headers: { accept: 'application/json' }, signal: ctl.signal }); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); } finally { clearTimeout(tm); } };
+  try { return await once(u); } catch (e) { if (/HTTP 404/.test(e.message)) throw e; return once('/api/proxy?url=' + encodeURIComponent(u)); }
+}
+async function loadOhlcv(c) {
+  const k = c.addr + '|' + c.chain; if (ohlc.has(k)) return; ohlc.set(k, 'loading');
+  const pool = String(c.meta?.pairAddr || '').split(':')[0];
+  if (!GTN[c.chain] || !/^0x[0-9a-fA-F]{40}$/.test(pool)) { ohlc.set(k, { error: 'nopool' }); return; }
+  const agg = c.meta?.created && Date.now() - c.meta.created < 12 * 36e5 ? 5 : 15;
+  try {
+    const j = await gtFetch(`https://api.geckoterminal.com/api/v2/networks/${GTN[c.chain]}/pools/${pool}/ohlcv/minute?aggregate=${agg}&limit=96&currency=usd&token=base`);
+    const list = (j?.data?.attributes?.ohlcv_list || []).map(a => ({ t: +a[0], o: +a[1], h: +a[2], l: +a[3], c: +a[4], v: +a[5] })).filter(x => x.t && x.c > 0).sort((a, b) => a.t - b.t);
+    ohlc.set(k, list.length >= 3 ? { list, agg } : { error: 'few' });
+  } catch { ohlc.set(k, { error: 'fail' }); }
+  if (cur?.addr === c.addr && cur?.chain === c.chain) paint();
+}
+const vfmt = (v) => !(v > 0) ? '$0' : v >= 1e6 ? '$' + (v / 1e6).toFixed(2) + 'M' : v >= 1e3 ? '$' + (v / 1e3).toFixed(1) + 'K' : '$' + v.toFixed(0);
+function drawOhlcv(box, list, t) {
+  const wrap = box.querySelector('#bp-tl');
+  wrap.innerHTML = `<canvas id="bp-cv" dir="ltr" aria-label="${esc(t.title)}"></canvas><div class="bp-tip" id="bp-tip" dir="auto">${t.tap}</div>`;
+  const cv = wrap.querySelector('#bp-cv'), dpr = Math.min(3, window.devicePixelRatio || 1);
+  const W = Math.max(260, wrap.clientWidth || 320), H = 236; cv.style.width = W + 'px'; cv.style.height = H + 'px'; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); try { g.direction = 'ltr'; } catch {}
+  const AX = 64, L0 = 4, R0 = W - AX, PT = 10, PB = 150, VT = 166, VB = 214, TY = H - 6, n = list.length, bw = (R0 - L0) / n;
+  const lo = Math.min(...list.map(x => x.l)), hi = Math.max(...list.map(x => x.h)), pad = (hi - lo) * 0.1 || hi * 0.02 || 1, pmin = lo - pad, pmax = hi + pad;
+  const Y = (p) => PB - (p - pmin) / (pmax - pmin) * (PB - PT), XC = (i) => L0 + (i + 0.5) * bw, vmax = Math.max(1e-9, ...list.map(x => x.v));
+  const last = list[n - 1], upAll = last.c >= list[0].o, col = upAll ? GREEN : RED;
+  function render(hi_) {
+    g.clearRect(0, 0, W, H); g.font = '10.5px system-ui,-apple-system,Segoe UI,sans-serif'; g.textBaseline = 'middle';
+    g.strokeStyle = 'rgba(125,135,156,.16)'; g.lineWidth = 1; g.fillStyle = '#8b93a5'; g.textAlign = 'left';
+    for (let i = 0; i <= 4; i++) { const y = PT + (PB - PT) * i / 4; g.beginPath(); g.moveTo(L0, Math.round(y) + .5); g.lineTo(R0, Math.round(y) + .5); g.stroke(); if (Math.abs(y - Y(last.c)) > 13) g.fillText(pfmt(pmax - (pmax - pmin) * i / 4, true), R0 + 6, y); }
+    const ticks = W < 480 ? 3 : 5;
+    for (let i = 0; i <= ticks; i++) { const idx = Math.round((n - 1) * i / ticks), x = XC(idx); g.beginPath(); g.moveTo(Math.round(x) + .5, PT); g.lineTo(Math.round(x) + .5, VB); g.stroke();
+      g.textAlign = i === 0 ? 'left' : i === ticks ? 'right' : 'center'; g.fillText(tfmt(list[idx].t), Math.min(R0, Math.max(L0, x)), TY); }
+    const cw = Math.max(2, Math.min(12, bw * 0.64));
+    list.forEach((k, i) => { const x = XC(i), c = k.c >= k.o ? GREEN : RED; g.strokeStyle = c; g.lineWidth = 1.1; g.beginPath(); g.moveTo(Math.round(x) + .5, Y(k.h)); g.lineTo(Math.round(x) + .5, Y(k.l)); g.stroke();
+      const y1 = Y(Math.max(k.o, k.c)), y2 = Y(Math.min(k.o, k.c)); g.fillStyle = c; g.fillRect(Math.round(x - cw / 2), y1, Math.round(cw), Math.max(1.5, y2 - y1));
+      const vh = k.v / vmax * (VB - VT); g.globalAlpha = .8; g.fillRect(Math.round(x - cw / 2), VB - vh, Math.round(cw), vh); g.globalAlpha = 1; });
+    g.strokeStyle = 'rgba(125,135,156,.25)'; g.beginPath(); g.moveTo(L0, VB + .5); g.lineTo(R0, VB + .5); g.stroke();
+    g.fillStyle = '#8b93a5'; g.textAlign = 'left'; g.fillText(t.volUsd, R0 + 6, VT + 6);
+    const ly = Y(last.c); g.save(); g.setLineDash([2, 3]); g.strokeStyle = col; g.globalAlpha = .55; g.beginPath(); g.moveTo(L0, Math.round(ly) + .5); g.lineTo(R0, Math.round(ly) + .5); g.stroke(); g.restore();
+    g.fillStyle = col; g.fillRect(R0 + 1, ly - 8, AX - 2, 16); g.fillStyle = '#0b0f17'; g.font = '600 10.5px system-ui,sans-serif'; g.fillText(pfmt(last.c, true), R0 + 5, ly); g.font = '10.5px system-ui,sans-serif';
+    if (hi_ != null) { const x = XC(hi_); g.strokeStyle = 'rgba(230,233,239,.45)'; g.setLineDash([3, 3]); g.beginPath(); g.moveTo(Math.round(x) + .5, PT); g.lineTo(Math.round(x) + .5, VB); g.stroke(); g.setLineDash([]); }
+  }
+  render(null);
+  const tip = wrap.querySelector('#bp-tip');
+  const show = (ev) => { const r = cv.getBoundingClientRect(), i = Math.min(n - 1, Math.max(0, Math.floor((ev.clientX - r.left - L0) / bw))), k = list[i]; render(i);
+    tip.textContent = `${tfmt(k.t)} · O ${pfmt(k.o, true)} H ${pfmt(k.h, true)} L ${pfmt(k.l, true)} C ${pfmt(k.c, true)} · ${t.volUsd} ${vfmt(k.v)}`; };
+  cv.addEventListener('pointermove', show); cv.addEventListener('pointerdown', show); cv.addEventListener('pointerleave', () => render(null));
+}
+function headOf(tx, t) {
+  const m5 = tx?.m5, n5 = (+m5?.buys || 0) + (+m5?.sells || 0), p5 = n5 ? Math.round(m5.buys / n5 * 100) : null;
+  return tx ? (n5 ? `<span class="bp-chip ${p5 >= 50 ? 'pass' : 'fail'}">${p5 >= 50 ? t.chipB(p5) : t.chipS(100 - p5)}</span><span class="bp-hs">${t.last5s(m5.buys, m5.sells)}</span>` : `<span class="bp-hs">${t.no5}</span>`) : '';
+}
+function paintEvm(box, t) {
+  const tx = cur.txns, head = headOf(tx, t), o = ohlc.get(cur.addr + '|' + cur.chain);
+  const tl = !o || o === 'loading' ? `<div class="bp-wait"><span class="spin"></span> ${t.evmLoading}</div>` : o.list ? `<div id="bp-tl" class="bp-tl"></div>` : `<span class="muted">${t.evmNoChart}</span>`;
+  box.innerHTML = `<h3>${t.title}</h3>${head ? `<div class="bp-head">${head}</div>` : ''}${windowRows(tx, t)}${tl}
+    <details class="fn"><summary title="info">ⓘ</summary><div>${t.evmNote(o?.agg || 15)}</div></details>`;
+  if (o?.list) { try { drawOhlcv(box, o.list, t); } catch (e) { box.querySelector('#bp-tl').innerHTML = `<span class="muted">${t.evmNoChart}</span>`; } }
+  if (!o) loadOhlcv(cur).then(() => { if (cur && box.isConnected) paint(); });
+}
 function paint() {
   if (!cur) return; const t = L[lang()]; const box = ensureBox(); if (!box) return;
   box.hidden = false; delete box.dataset.skel;
-  if (cur.chain !== 'solana') { box.innerHTML = `<h3>${t.title}</h3><span class="muted">${t.notSol}</span>`; return; }
+  if (cur.chain !== 'solana') { if (GTN[cur.chain]) return paintEvm(box, t); box.innerHTML = `<h3>${t.title}</h3><span class="muted">${t.notSol}</span>`; return; }
   const tx = cur.txns, m5 = tx?.m5, n5 = (+m5?.buys || 0) + (+m5?.sells || 0), p5 = n5 ? Math.round(m5.buys / n5 * 100) : null;
   const d = flows.get(cur.addr), sw = Array.isArray(d?.swaps) ? d.swaps.filter(x => x && x.t) : null;
   const head = tx ? (n5 ? `<span class="bp-chip ${p5 >= 50 ? 'pass' : 'fail'}">${p5 >= 50 ? t.chipB(p5) : t.chipS(100 - p5)}</span><span class="bp-hs">${t.last5s(m5.buys, m5.sells)}</span>` : `<span class="bp-hs">${t.no5}</span>`) : '';
@@ -171,3 +240,4 @@ document.addEventListener('mc:render', (e) => { const { r } = e.detail; cur = { 
   clearTimeout(wd); const a = r.addr; wd = setTimeout(() => { if (cur?.addr === a && r.chain === 'solana' && !flows.has(a)) { flows.set(a, { error: true }); paint(); } }, 45000); });
 document.getElementById('lang')?.addEventListener('click', () => setTimeout(paint, 0));
 let rz = 0; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (document.getElementById('bp-cv')) paint(); }, 200); });
+

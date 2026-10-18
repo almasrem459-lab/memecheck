@@ -3,6 +3,7 @@
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const short = (a) => a && a.length > 12 ? a.slice(0, 4) + '…' + a.slice(-4) : (a || '');
+const CHN = { en: { bsc: 'BNB Chain', ethereum: 'Ethereum', base: 'Base' }, ar: { bsc: 'سلسلة BNB', ethereum: 'إيثريوم', base: 'Base' } }; // EVM chain names for the 'not available yet' line
 const L = {
   en: {
     title: 'Liquidity flows', arTitle: 'خريطة السيولة المتحركة',
@@ -10,7 +11,7 @@ const L = {
     err: 'Liquidity flow data unavailable right now.',
     empty: 'Not enough recent pool trades to draw flows yet.',
     retry: 'Retry',
-    notSol: 'Liquidity flows are mapped for Solana tokens only.',
+    notSol: 'Liquidity flows are mapped for Solana tokens only.', notEvm: (c) => `Not available on ${c} yet. Liquidity flows currently map Solana pools only.`,
     organic: 'Organic (real traders)',
     sus: 'Suspicious (wash-like)',
     hint: 'Tap a wallet or arrow · click again to clear',
@@ -40,7 +41,7 @@ const L = {
     err: 'بيانات التدفق غير متاحة حاليًا.',
     empty: 'لا توجد صفقات حديثة كافية لرسم التدفقات.',
     retry: 'إعادة المحاولة',
-    notSol: 'خريطة تدفقات السيولة متاحة لعملات سولانا فقط.',
+    notSol: 'خريطة تدفقات السيولة متاحة لعملات سولانا فقط.', notEvm: (c) => `غير متاح على ${c} بعد. خريطة تدفقات السيولة تدعم مجمعات سولانا فقط حاليًا.`,
     organic: 'طبيعي (متداولون حقيقيون)',
     sus: 'مشبوه (غسيل حجم)',
     hint: 'اضغط محفظة أو سهم · اضغط مرة ثانية للإلغاء',
@@ -498,7 +499,7 @@ document.addEventListener('mc:render', (e) => {
   box.hidden = false; delete box.dataset.skel;
   if (r.chain !== 'solana') { // not applicable: say so instead of hiding the section
     if (inst) { inst.destroy(); inst = null; }
-    box.innerHTML = `<h3>${L[lang()].title}</h3><span class="muted">${L[lang()].notSol}</span>`;
+    const nm = CHN[lang()]?.[r.chain]; box.innerHTML = `<h3>${L[lang()].title}</h3><div class="muted evmna">ⓘ <span>${nm ? L[lang()].notEvm(nm) : L[lang()].notSol}</span></div>`;
     return;
   }
   const c = cache.get(r.addr);

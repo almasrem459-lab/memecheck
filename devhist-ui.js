@@ -3,15 +3,16 @@
 // If DexScreener rate-limited the server, the browser fetches it directly (CORS-open) and classifies with devhist-core.js.
 // The result is published on window.__mcDevHist and announced with a 'mc:devhist' event; app.js turns it into a finding.
 import { summarize, dexMarkets } from './devhist-core.js?v=1792300000';
+const CHN = { en: { bsc: 'BNB Chain', ethereum: 'Ethereum', base: 'Base' }, ar: { bsc: 'سلسلة BNB', ethereum: 'إيثريوم', base: 'Base' } }; // EVM chain names for the 'not available yet' line
 const L = {
-  en: { title:'Developer history', loading:'Looking up the creator\'s other coins…', na:'Unavailable', naWhy:'Developer history is unavailable for this token right now.', naMkt:'Market status of the earlier coins is unavailable right now.', evm:'Developer history: Solana tokens only.',
+  en: { title:'Developer history', loading:'Looking up the creator\'s other coins…', na:'Unavailable', naWhy:'Developer history is unavailable for this token right now.', naMkt:'Market status of the earlier coins is unavailable right now.', evm:'Developer history: Solana tokens only.', notEvm:(c)=>`Not available on ${c} yet. Developer history currently looks up pump.fun (Solana) launches only.`,
     creator:'Creator wallet', made:'Other coins created', bad:'Dead / rugged', live:'Still live', grad:'Graduated', copy:'Copy', copied:'Copied ✓', solscan:'Solscan ↗',
     vFail:(b,c,t)=>`Serial launcher red flag: ${b} of ${c} checked previous coins are dead or rugged (${t} coins created).`, vWarn:(b,c)=>`${b} of ${c} checked previous coins are dead or rugged.`,
     vFirst:'First coin from this creator wallet (no earlier launches found).', vOk:(l,c)=>`${l} of ${c} checked previous coins are still live.`, vNew:'Only very new previous coins (< 6 h); too early to judge.',
     last:'Latest coins by this creator', st:{ live:'LIVE', dead:'DEAD', rugged:'RUGGED', new:'NEW', unknown:'?' }, mc:'mcap', ath:'ATH', noMkt:'no market', scan:'Check this coin',
     note:(n,c)=>`Creator = the wallet that launched the coin (pump.fun; RugCheck for other launchpads). Coins: up to 200 listed by pump.fun for this wallet; market status checked on DexScreener for the ${c} most recent. Dead = no DexScreener market or market cap < $10K. Rugged = reached ≥ $50K (pump.fun ATH) and is now < 10% of it or gone. New = under 6 h old, not judged. Red flag (adds risk points): ≥ 3 dead/rugged and at least half of them, or 10+ launches with < 10% still live.`,
     ago:(h)=>h < 1 ? 'just now' : h < 48 ? `${Math.round(h)} h ago` : `${Math.round(h / 24)} d ago` },
-  ar: { title:'سجل المطوّر', loading:'جارٍ البحث عن العملات الأخرى للمنشئ…', na:'غير متاح', naWhy:'سجل المطوّر غير متاح لهذه العملة حاليًا.', naMkt:'حالة السوق للعملات السابقة غير متاحة حاليًا.', evm:'سجل المطوّر: لعملات سولانا فقط.',
+  ar: { title:'سجل المطوّر', loading:'جارٍ البحث عن العملات الأخرى للمنشئ…', na:'غير متاح', naWhy:'سجل المطوّر غير متاح لهذه العملة حاليًا.', naMkt:'حالة السوق للعملات السابقة غير متاحة حاليًا.', evm:'سجل المطوّر: لعملات سولانا فقط.', notEvm:(c)=>`غير متاح على ${c} بعد. سجل المطوّر يبحث حاليًا في إطلاقات pump.fun (سولانا) فقط.`,
     creator:'محفظة المنشئ', made:'عملات أخرى أنشأها', bad:'ميتة / مسحوبة', live:'ما زالت نشطة', grad:'تخرّجت', copy:'نسخ', copied:'تم النسخ ✓', solscan:'Solscan ↗',
     vFail:(b,c,t)=>`تحذير مُطلق متسلسل: ${b} من ${c} عملة سابقة تم فحصها ميتة أو مسحوبة (أنشأ ${t} عملة).`, vWarn:(b,c)=>`${b} من ${c} عملة سابقة تم فحصها ميتة أو مسحوبة.`,
     vFirst:'أول عملة من محفظة هذا المنشئ (لم نجد إطلاقات سابقة).', vOk:(l,c)=>`${l} من ${c} عملة سابقة تم فحصها ما زالت نشطة.`, vNew:'العملات السابقة جديدة جدًا (أقل من 6 ساعات)؛ من المبكر الحكم.',
@@ -70,7 +71,7 @@ function html(d, t, lang) {
 function paint() {
   const box = document.getElementById('dh-box'); if (!box || !cur) return;
   const t = L[cur.lang] || L.en;
-  if (cur.chain !== 'solana') { box.innerHTML = ''; return; }
+  if (cur.chain !== 'solana') { const nm = CHN[L[cur.lang] ? cur.lang : 'en']?.[cur.chain]; box.innerHTML = nm ? `<div class="card" id="dh-card"><h3>${t.title}</h3><div class="muted evmna">ⓘ <span>${t.notEvm(nm)}</span></div></div>` : ''; return; }
   const d = store.get(cur.addr) || 'loading';
   box.innerHTML = `<div class="card" id="dh-card"><h3>${t.title}</h3>${html(d, t, cur.lang)}</div>`;
   box.querySelector('.dh-copy')?.addEventListener('click', (e) => { const b = e.currentTarget; navigator.clipboard?.writeText(b.dataset.c).then(() => { b.textContent = t.copied; setTimeout(() => b.textContent = t.copy, 1200); }).catch(() => {}); });

@@ -1,8 +1,9 @@
 // Renders "Developer" and "Early buyers / bundle" cards under a Solana pump.fun check result. Lazy + cached per mint.
 import { devCheck, bundleCheck, exitTrace, withTimeout, exitCache, setCreated } from './devbundle.js?v=1792080000';
 import { getDeep, ago, refreshLbl } from './mccache.js?v=1792080000';
+const CHN = { en: { bsc: 'BNB Chain', ethereum: 'Ethereum', base: 'Base' }, ar: { bsc: 'سلسلة BNB', ethereum: 'إيثريوم', base: 'Base' } }; // EVM chain names for the 'not available yet' line
 const L = {
-  en: { dev:'Developer check', bundle:'Early buyers / bundle check', loading:'Analysing on-chain data…', na:'Unavailable', notPump:'Dev / bundle / exit-trace checks: Solana tokens only, when the launch history can be reached (pump.fun and other launchpads/DEXes).',
+  en: { dev:'Developer check', bundle:'Early buyers / bundle check', loading:'Analysing on-chain data…', na:'Unavailable', notPump:'Dev / bundle / exit-trace checks: Solana tokens only, when the launch history can be reached (pump.fun and other launchpads/DEXes).', notEvm:(c)=>`Developer, early-buyer bundle and exit-trace checks: not available on ${c} yet (Solana only for now).`,
     creator:'Creator wallet', launched:'Other coins launched', grad:'Graduated', dead:'Died', young:'Under 6 h old', sample:(n)=>`graduated/died counts cover only the ${n} coins pump.fun lists`, deadDef:'Died = not graduated, older than 6 h and market cap under $10K.',
     devHolds:'Dev holds now', devBuy:'Dev buy at launch', devSold:'Dev sold / moved',
     window:'Window', windowV:(n)=>`creation slot + 2 (${n} txs)`, buyers:'Early buyer wallets', sameSlot:'Bought in creation slot', bought:'Bought by early wallets', stillHeld:'Still in those accounts',
@@ -15,7 +16,7 @@ const L = {
     exHold:(n,h)=>`${n} linked wallets still hold ${h}% — they could dump on you.`, exExit:(clean,n,b,so)=>`${clean ? 'Looks clean, but ' : ''}${n} linked wallets took ${b}% at launch and sold ${so}% — you may be buying their exit.`,
     exMix:(n,b,h)=>`${n} linked wallets bought ${b}% at launch and hold ${h}% now.`, exCl:'Linked groups', exW:'wallets', exDev:'incl. dev', exBought:'bought', exHeld:'holds', exSold:'sold', exFunder:'funder',
     exNote:(n,k,m)=>`First ${n} buyers. Wallets are linked when funded by the same wallet (earliest incoming SOL) or when another wallet paid their buy fees; exchange/bot hot wallets are ignored. Funding source found for ${k} of ${m} wallets. "Sold" includes tokens moved to other wallets.` },
-  ar: { dev:'فحص المطوّر', bundle:'فحص المشترين الأوائل / الحزم', loading:'جارٍ تحليل بيانات السلسلة…', na:'غير متاح', notPump:'فحوصات المطوّر / الحزم / تتبّع الخروج: لعملات pump.fun (سولانا) فقط.',
+  ar: { dev:'فحص المطوّر', bundle:'فحص المشترين الأوائل / الحزم', loading:'جارٍ تحليل بيانات السلسلة…', na:'غير متاح', notPump:'فحوصات المطوّر / الحزم / تتبّع الخروج: لعملات pump.fun (سولانا) فقط.', notEvm:(c)=>`فحوصات المطوّر والمشترين الأوائل (الحزم) وتتبّع الخروج: غير متاحة على ${c} بعد (سولانا فقط حاليًا).`,
     creator:'محفظة المنشئ', launched:'عملات أخرى أطلقها', grad:'تخرّجت', dead:'ماتت', young:'عمرها أقل من 6 ساعات', sample:(n)=>`أعداد المتخرّجة/الميتة تشمل فقط ${n} عملة تعرضها pump.fun`, deadDef:'ماتت = لم تتخرّج، عمرها أكثر من 6 ساعات وقيمتها السوقية أقل من 10 آلاف دولار.',
     devHolds:'يملك المطوّر الآن', devBuy:'شراء المطوّر عند الإطلاق', devSold:'باع / نقل المطوّر',
     window:'النافذة', windowV:(n)=>`خانة الإنشاء + 2 (${n} معاملة)`, buyers:'محافظ المشترين الأوائل', sameSlot:'اشتروا في خانة الإنشاء', bought:'اشترته المحافظ المبكرة', stillHeld:'ما زال في تلك الحسابات',
@@ -129,7 +130,7 @@ async function run(addr, force) {
   await runExit(addr, d, true);
 }
 document.addEventListener('mc:render', (e) => {
-  const { r, lang } = e.detail; if (r.chain !== 'solana') { cur = null; const b = document.querySelector('#db-box'); if (b) b.innerHTML = `<div class="card oneline muted">ⓘ ${(L[lang] || L.en).notPump}</div>`; return; }
+  const { r, lang } = e.detail; if (r.chain !== 'solana') { cur = null; const b = document.querySelector('#db-box'); const lg = L[lang] ? lang : 'en', nm = CHN[lg]?.[r.chain]; if (b) b.innerHTML = `<div class="card oneline muted">ⓘ ${nm ? L[lg].notEvm(nm) : L[lg].notPump}</div>`; return; }
   cur = { addr: r.addr, lang, level: r.verdict?.level };
   const c = cache.get(r.addr); if (!c || c.error || c.bundle?.error || c.exit?.error) run(r.addr); else paint(r.addr, lang);
 });

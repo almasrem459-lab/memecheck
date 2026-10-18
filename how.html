@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>How the score works — MemeCheck</title>
-<meta name="description" content="How MemeCheck turns RugCheck, DexScreener, GoPlus, Honeypot.is and on-chain data into a Low / Medium / High / Extreme meme-coin risk score. Real weights and thresholds.">
+<meta name="description" content="How MemeCheck turns RugCheck, DexScreener, GoPlus, Honeypot.is, Four.meme and on-chain data into a Low / Medium / High / Extreme meme-coin risk score for Solana, BNB Chain and Ethereum. Real weights and thresholds.">
 <link rel="canonical" href="https://memecheck.pages.dev/how">
 <meta name="theme-color" content="#0b0f17">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-<link rel="stylesheet" href="style.css?v=1792440000">
+<link rel="stylesheet" href="style.css?v=1792460000">
 <style>
 nav.crumbs{display:flex;gap:8px;align-items:center;padding:0 20px;max-width:860px;margin:12px auto 0;font-size:14px}
 nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef}nav.crumbs span{color:#7d879c}
@@ -83,8 +83,30 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 <ul><li><b>FAIL, +10 points</b>: 3+ dead/rugged coins that are at least half of the judged ones, or a serial launcher (10+ coins) with under 10% still alive.</li>
 <li><b>WARN, +3 points</b>: 2+ dead/rugged coins.</li><li>Never critical on its own.</li></ul></div>
 
-<div class="card"><h2>5. EVM chains (Ethereum, Base, BSC)</h2>
-<p>GoPlus and Honeypot.is: a confirmed honeypot (or "cannot sell all") is a critical FAIL (50). Buy/sell tax &gt; 50% is critical, &gt; 10% FAIL 20, &gt; 5% WARN. Also checked: mintable (25), hidden owner (20), owner can take back ownership (15), unverified source code (15), creator with earlier honeypots (20), ownership not renounced, blacklist, proxy, modifiable slippage, trading cooldown, LP lock and top holders.</p></div>
+<div class="card" id="evm"><h2>5. BNB Chain &amp; Ethereum (EVM) checks</h2>
+<p>Paste a <code>0x…</code> address and we pick the chain automatically: the one (BNB Chain or Ethereum) where the token's own DexScreener pairs have the most liquidity. If it trades on both, the result shows chips (<b>BNB</b> / <b>ETH</b>) to switch. Security data comes from <b>GoPlus</b> (contract scan) and <b>Honeypot.is</b> (a real buy + sell simulation), fetched through our server with a 5-minute cache. All EVM contract rules live in one function, <code>evmFindings()</code> in <code>core.js</code>; liquidity, pair age, drop, pressure and volume use the shared market checks above.</p>
+<table><thead><tr><th>Check</th><th>Rule</th><th>Points</th></tr></thead><tbody>
+<tr><td>Honeypot</td><td>GoPlus says honeypot / "cannot sell all", or the Honeypot.is sell simulation fails. Either source is enough</td><td>FAIL 50, critical</td></tr>
+<tr><td>Buy / sell tax</td><td>Worst of GoPlus and simulated tax. &gt; 50% critical; &gt; 10% fail; &gt; 5% warn</td><td>25 critical / 20 / warn 10</td></tr>
+<tr><td>Buying blocked</td><td>Contract refuses buys</td><td>FAIL 20</td></tr>
+<tr><td>Owner can mint</td><td>Mint function exists</td><td>FAIL 25</td></tr>
+<tr><td>Hidden owner</td><td>Control kept through a hidden owner</td><td>FAIL 20</td></tr>
+<tr><td>Can take back ownership</td><td>"Renounced" ownership can be reclaimed</td><td>FAIL 15</td></tr>
+<tr><td>Source code</td><td>Not verified (closed source)</td><td>FAIL 15</td></tr>
+<tr><td>Same creator made honeypots</td><td>GoPlus creator history</td><td>FAIL 20</td></tr>
+<tr><td>Proxy / upgradeable</td><td>Code can be swapped later</td><td>WARN 3</td></tr>
+<tr><td>Blacklist</td><td>Owner can block wallets</td><td>WARN 5</td></tr>
+<tr><td>Pausable transfers</td><td>Owner can stop all trading</td><td>WARN 5</td></tr>
+<tr><td>Trading cooldown</td><td>Time limits between trades</td><td>WARN 2</td></tr>
+<tr><td>Tax can be changed</td><td>Owner can raise taxes later</td><td>WARN 6</td></tr>
+<tr><td>Ownership</td><td>Owner not renounced. Blacklist / pause / cooldown / tax switches PASS when ownership is renounced and there is no hidden owner or reclaim function (nobody can use them)</td><td>WARN 5</td></tr>
+<tr><td>LP locked / burned</td><td>≥ 90% pass; 50–90% (or only V3/V4 positions) warn; &lt; 50% fail. LP held by burn addresses, lockers or the token contract counts as locked</td><td>15 (warn 7.5)</td></tr>
+<tr><td>Top 10 holders</td><td>Contracts, lockers, burn addresses excluded. &gt; 50% fail, &gt; 30% warn</td><td>15 (warn 7.5)</td></tr>
+<tr><td>Creator / owner holding</td><td>Largest of creator and (real-wallet) owner share. &gt; 20% fail, &gt; 5% warn</td><td>8 (warn 4)</td></tr>
+<tr><td>Honeypot.is risk rating</td><td>Risk level ≥ 60 fail, ≥ 20 warn</td><td>10 (warn 5)</td></tr>
+</tbody></table>
+<p><b>Four.meme (BNB Chain):</b> we recognise Four.meme launches from the Four.meme token API, GoPlus' launchpad tag or a DexScreener <code>fourmeme</code> pair (the address ending in <code>4444</code> / <code>ffff</code> is only a hint, never enough on its own). While the token is still on its bonding curve we show the progress to graduation; LP lock, tax and holder checks are N/A (there is no pool yet), the curve contract as owner is normal, and "no DEX pool" is a WARN (15) instead of the low-liquidity FAIL. After graduation the normal PancakeSwap checks apply.</p>
+<p class="muted">Not available on BNB Chain / Ethereum yet: sniper detection, liquidity flows, developer history and bundle checks (Solana only for now). The Buy / Sell pressure card works on every chain (DexScreener counts + GeckoTerminal candles). Buy / Sell buttons open PancakeSwap (BNB Chain), Uniswap (Ethereum) or four.meme (bonding curve) and are hidden for confirmed honeypots.</p></div>
 
 <div class="card"><h2>6. Extra Solana signals (shown, not added to the score)</h2>
 <ul>
@@ -103,7 +125,8 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 <li><b>Solana RPC</b> (Helius, public RPC fallback): on-chain fallback checks, holders, bubble map, snipers, liquidity flows.</li>
 <li><b>pump.fun</b>: creator wallet, a developer's earlier launches, newest launches list.</li>
 <li><b>GoPlus</b> and <b>Honeypot.is</b>: EVM token security and buy/sell simulation.</li>
-<li><b>GeckoTerminal</b>: trending and new-pool lists.</li>
+<li><b>Four.meme</b>: launch and bonding-curve status of BNB Chain launchpad tokens.</li>
+<li><b>GeckoTerminal</b>: trending and new-pool lists; price candles (OHLCV) for BNB Chain / Ethereum pools.</li>
 </ul></div>
 
 <div class="warnbox"><b>Important:</b> <b>Low risk does not mean 100% safe.</b> Automated checks can miss new scam techniques, and data sources can be wrong or delayed; a legit token can also be flagged. MemeCheck is a free research tool, <b>not financial advice</b>. Always do your own research and never invest more than you can afford to lose.</div>
@@ -157,8 +180,30 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 <ul><li><b>فشل، +10 نقاط</b>: ‏3 عملات ميتة/مسحوبة فأكثر وتمثل نصف العملات المحكوم عليها على الأقل، أو مُطلق متسلسل (10 عملات فأكثر) أقل من 10% منها حية.</li>
 <li><b>تحذير، +3 نقاط</b>: عملتان ميتتان/مسحوبتان فأكثر.</li><li>لا يكون حرجًا وحده.</li></ul></div>
 
-<div class="card"><h2>5. شبكات EVM (إيثريوم، Base، BSC)</h2>
-<p>GoPlus وHoneypot.is: فخ العسل المؤكد (أو "لا يمكن بيع الكل") فشل حرج (50). ضريبة شراء/بيع أعلى من 50% حرجة، وأعلى من 10% فشل 20، وأعلى من 5% تحذير. ونفحص أيضًا: قابلية السك (25)، المالك المخفي (20)، استعادة الملكية (15)، كود غير موثق (15)، منشئ له فخاخ عسل سابقة (20)، عدم التخلي عن الملكية، القائمة السوداء، البروكسي، تعديل الانزلاق، فترة التهدئة، قفل السيولة وكبار الحاملين.</p></div>
+<div class="card" id="evm-ar"><h2>5. فحوص سلسلة BNB وإيثريوم (EVM)</h2>
+<p>الصق عنوانًا يبدأ بـ <code>0x…</code> ونختار الشبكة تلقائيًا: الشبكة (سلسلة BNB أو إيثريوم) التي تملك فيها أزواج العملة على DexScreener أعلى سيولة. إذا كانت العملة متداولة على الشبكتين تظهر في النتيجة أزرار (<b>BNB</b> / <b>ETH</b>) للتبديل. بيانات الأمان من <b>GoPlus</b> (فحص العقد) و<b>Honeypot.is</b> (محاكاة شراء وبيع حقيقية)، عبر خادمنا مع تخزين مؤقت لمدة 5 دقائق. كل قواعد عقود EVM موجودة في دالة واحدة: <code>evmFindings()</code> في <code>core.js</code>؛ أما السيولة وعمر الزوج والهبوط والضغط والحجم فتستخدم فحوص السوق المشتركة أعلاه.</p>
+<table><thead><tr><th>الفحص</th><th>القاعدة</th><th>النقاط</th></tr></thead><tbody>
+<tr><td>مصيدة (Honeypot)</td><td>GoPlus يصنفها مصيدة / "لا يمكن بيع الكل"، أو تفشل محاكاة البيع في Honeypot.is. يكفي مصدر واحد</td><td>فشل 50، حرج</td></tr>
+<tr><td>ضريبة الشراء / البيع</td><td>الأسوأ بين GoPlus والضريبة المحاكاة. أكثر من 50% حرج؛ أكثر من 10% فشل؛ أكثر من 5% تحذير</td><td>25 حرج / 20 / تحذير 10</td></tr>
+<tr><td>الشراء محظور</td><td>العقد يرفض الشراء</td><td>فشل 20</td></tr>
+<tr><td>المالك يستطيع السك</td><td>توجد دالة سك</td><td>فشل 25</td></tr>
+<tr><td>مالك مخفي</td><td>السيطرة عبر مالك مخفي</td><td>فشل 20</td></tr>
+<tr><td>استعادة الملكية</td><td>يمكن استعادة الملكية بعد "التخلي" عنها</td><td>فشل 15</td></tr>
+<tr><td>الكود المصدري</td><td>غير موثّق (مغلق المصدر)</td><td>فشل 15</td></tr>
+<tr><td>نفس المنشئ صنع مصائد</td><td>سجل المنشئ لدى GoPlus</td><td>فشل 20</td></tr>
+<tr><td>وكيل / قابل للترقية</td><td>يمكن تبديل الكود لاحقًا</td><td>تحذير 3</td></tr>
+<tr><td>قائمة سوداء</td><td>المالك يستطيع حظر محافظ</td><td>تحذير 5</td></tr>
+<tr><td>إيقاف التحويلات</td><td>المالك يستطيع إيقاف كل التداول</td><td>تحذير 5</td></tr>
+<tr><td>فترة تهدئة</td><td>قيود زمنية بين الصفقات</td><td>تحذير 2</td></tr>
+<tr><td>تعديل الضريبة</td><td>المالك يستطيع رفع الضرائب لاحقًا</td><td>تحذير 6</td></tr>
+<tr><td>الملكية</td><td>لم يتم التخلي عن الملكية. مفاتيح القائمة السوداء / الإيقاف / التهدئة / الضريبة تُعتبر ناجحة إذا تم التخلي عن الملكية ولا يوجد مالك مخفي أو دالة استعادة (لا أحد يستطيع استخدامها)</td><td>تحذير 5</td></tr>
+<tr><td>قفل/حرق السيولة</td><td>‏90% فأكثر ناجح؛ 50–90% (أو مراكز V3/V4 فقط) تحذير؛ أقل من 50% فشل. السيولة لدى عناوين الحرق أو الخزائن أو عقد العملة نفسه تُحسب مقفلة</td><td>15 (تحذير 7.5)</td></tr>
+<tr><td>أكبر 10 حاملين</td><td>باستثناء العقود والخزائن وعناوين الحرق. أكثر من 50% فشل، أكثر من 30% تحذير</td><td>15 (تحذير 7.5)</td></tr>
+<tr><td>حصة المنشئ / المالك</td><td>الأكبر بين حصة المنشئ وحصة المالك (إن كان محفظة حقيقية). أكثر من 20% فشل، أكثر من 5% تحذير</td><td>8 (تحذير 4)</td></tr>
+<tr><td>تقييم مخاطر Honeypot.is</td><td>مستوى الخطر 60 فأكثر فشل، 20 فأكثر تحذير</td><td>10 (تحذير 5)</td></tr>
+</tbody></table>
+<p><b>Four.meme (سلسلة BNB):</b> نتعرّف على إطلاقات Four.meme من واجهة Four.meme أو وسم منصة الإطلاق في GoPlus أو زوج <code>fourmeme</code> على DexScreener (انتهاء العنوان بـ <code>4444</code> / <code>ffff</code> مجرد تلميح ولا يكفي وحده). ما دامت العملة على منحنى الترابط نعرض نسبة التقدّم نحو التخرّج؛ وتكون فحوص قفل السيولة والضريبة والحاملين غير متاحة (لا يوجد مجمع بعد)، وكون عقد المنحنى هو المالك أمر طبيعي، و"لا يوجد مجمع" تحذير (15) بدل فشل السيولة المنخفضة. بعد التخرّج تُطبَّق فحوص PancakeSwap العادية.</p>
+<p class="muted">غير متاح على سلسلة BNB / إيثريوم بعد: كشف القناصة، تدفقات السيولة، سجل المطوّر وفحص الحزم (سولانا فقط حاليًا). بطاقة ضغط الشراء / البيع تعمل على كل الشبكات (أعداد DexScreener + شموع GeckoTerminal). أزرار الشراء / البيع تفتح PancakeSwap (سلسلة BNB) أو Uniswap (إيثريوم) أو four.meme (منحنى الترابط) وتُخفى للمصائد المؤكدة.</p></div>
 
 <div class="card"><h2>6. إشارات سولانا إضافية (تُعرض ولا تُضاف للنقاط)</h2>
 <ul>
@@ -177,7 +222,8 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 <li><b>Solana RPC</b> (Helius مع بديل عام): الفحوص البديلة على الشبكة، الحاملون، خريطة الفقاعات، القناصون، تدفقات السيولة.</li>
 <li><b>pump.fun</b>: محفظة المنشئ، إطلاقات المطور السابقة، قائمة أحدث الإطلاقات.</li>
 <li><b>GoPlus</b> و<b>Honeypot.is</b>: أمان عملات EVM ومحاكاة الشراء والبيع.</li>
-<li><b>GeckoTerminal</b>: قوائم الرائجة والمجمعات الجديدة.</li>
+<li><b>Four.meme</b>: حالة الإطلاق ومنحنى الترابط لعملات منصة الإطلاق على سلسلة BNB.</li>
+<li><b>GeckoTerminal</b>: قوائم الرائجة والمجمعات الجديدة؛ شموع الأسعار (OHLCV) لمجمعات سلسلة BNB / إيثريوم.</li>
 </ul></div>
 
 <div class="warnbox"><b>مهم:</b> <b>الخطر المنخفض لا يعني أمانًا بنسبة 100%.</b> الفحوص الآلية قد تفوّت أساليب احتيال جديدة، وقد تكون مصادر البيانات خاطئة أو متأخرة، وقد تُعلَّم عملة سليمة. MemeCheck أداة بحث مجانية و<b>ليست نصيحة مالية</b>. ابحث بنفسك دائمًا ولا تستثمر أكثر مما تستطيع خسارته.</div>
@@ -189,6 +235,6 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 (function(){var b=document.getElementById('how-lang');var ar=document.documentElement.lang==='ar';b.textContent=ar?'English':'العربية';
 b.addEventListener('click',function(){localStorage.setItem('mc_lang',ar?'en':'ar');location.reload();});})();
 </script>
-<script src="nav.js?v=1792420000" defer></script>
+<script src="nav.js?v=1792460000" defer></script>
 </body>
 </html>
