@@ -436,6 +436,7 @@ function paint() {
   if (!box) return;
   const d = cache.get(cur.addr);
   box.hidden = false; delete box.dataset.skel;
+  if (d && d !== 'loading') document.dispatchEvent(new CustomEvent('mc:flows', { detail: { addr: cur.addr, data: d } })); // Buy / Sell pressure card reuses this sample
   if (!d || d === 'loading') {
     if (inst) { inst.destroy(); inst = null; }
     box.innerHTML = `<h3>${t.title}</h3><div><span class="spin"></span> ${t.loading}</div>`;
@@ -466,6 +467,7 @@ function paint() {
 // Always ends in a painted state for the current token: data, a friendly empty/busy line + Retry, never an empty box.
 // Busy / timeout / network errors are retried automatically (2 more tries, ~4 s and ~9 s later, bypassing a cached busy answer).
 const inflight = new Set();
+window.__mcFlowsRetry = (a) => { if (cur?.addr !== a) return; cache.delete(a); start(a, true); };
 async function start(addr, manual = false) {
   if (inflight.has(addr)) { paint(); return; }
   inflight.add(addr); cache.set(addr, 'loading'); paint();

@@ -13,6 +13,7 @@ Free, open-source (MIT) meme-coin safety checker, Solana-first. Paste a contract
 - **Sniper detection**: first buyers in the opening slots after launch, how much supply they bought and still hold.
 - **Liquidity Flows**: animated map of recent swaps into/out of the pool; round-trips, fast flips, burst trading and the creator wallet are highlighted.
 - **Organic Volume indicator**: Organic / Suspicious / Wash-like badge from the same swap sample (share of recent swaps made by the top 5 wallets), e.g. "40% of the last 24 swaps came from 5 wallets". Shown only when there are enough swaps to judge.
+- **Buy / Sell pressure**: buys vs sells for 5m / 1h / 6h / 24h (DexScreener transaction counts) plus a green/red timeline of recent swaps from the same sample as Liquidity Flows (no extra RPC calls), with "big buy / big sell" markers. Context only, not scored.
 - **Rugs we caught** ([/rugs](https://memecheck.pages.dev/rugs)): a public proof page. Every fresh Solana meme coin that meets the entry rules is scored and rechecked 24h and 48h later, Low, Medium and High alike, and **all** outcomes are published, not just the hits. Accuracy tracking of flagged tokens is ongoing; the sample is still small.
 - **Arabic support**: full EN / AR interface (RTL).
 - **Share card**: 1200×675 PNG result card (token, risk level, score, top reasons) with Download, Share on X, Copy link and the Web Share API.
@@ -68,7 +69,7 @@ functions/                     Cloudflare Pages Functions
   api/rpc.js                   Solana RPC relay (Helius if configured)
   api/dev.js                   developer history (pump.fun + RugCheck + DexScreener, edge-cached)
   api/new-tokens.js            newest tokens list: pump.fun -> DexScreener -> GeckoTerminal fallback, edge-cached ~90 s
-  api/liquidity-flows.js       recent pool swaps, wash-like flags, organic volume indicator
+  api/liquidity-flows.js       recent pool swaps, wash-like flags, organic volume indicator, swap sample for bp-ui.js
   api/snipers.js               early buyers / sniper detection
   api/holders.js               bubble map (top holders + funders)
   api/img.js                   allowlisted logo relay so the share card canvas can draw token logos

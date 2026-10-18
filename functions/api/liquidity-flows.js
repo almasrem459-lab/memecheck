@@ -370,6 +370,13 @@ function organicVolume(flows) {
   return { level, basis: 'trades', topShare: Math.round(share * 100), top, wallets, trades: tr.length };
 }
 
+// Compact per-swap sample for the Buy / Sell pressure card (same data, no extra RPC): t = blockTime (s), b = 1 buy / 0 sell,
+// a = token amount (reliable), v = SOL (may be inflated by router/wSOL effects; the UI only uses it after outlier filtering), w = wallet.
+function compactSwaps(flows) {
+  const sig = (x) => x == null ? null : +(+x).toPrecision(4);
+  return flows.filter(f => f.ts).sort((a, b) => a.ts - b.ts).map(f => ({ t: f.ts, b: f.side === 'buy' ? 1 : 0, a: sig(f.token), v: sig(f.sol), w: f.wallet }));
+}
+
 function reasonLabel(code) {
   return ({
     flip_30s: 'Buy+sell within 30s (same wallet)',
@@ -552,7 +559,7 @@ async function build(env, mint, preferPublic = false) {
 
   return {
     ok: true, configured: !!key, mint, pool, creator, empty: false,
-    ...graph, organic: organicVolume(flows), src: rpcUsed, parsed: flows.length, sampled: want.length, at: Date.now(),
+    ...graph, organic: organicVolume(flows), swaps: compactSwaps(flows), src: rpcUsed, parsed: flows.length, sampled: want.length, at: Date.now(),
     legend: {
       green: 'Organic / real trader flow',
       red: 'Suspicious / wash-like (round-trip, flip, creator, burst)',
@@ -566,7 +573,7 @@ export const onRequest = async ({ request: req, env, waitUntil }) => {
   const mint = u.searchParams.get('mint') || u.searchParams.get('ca') || '';
   if (!MINT_RE.test(mint)) return json(400, { error: 'bad mint' });
   const bust = u.searchParams.get('fresh') === '1';
-  const cacheKey = new Request('https://memecheck-cache.internal/liq-flows/v6/' + mint);
+  const cacheKey = new Request('https://memecheck-cache.internal/liq-flows/v7/' + mint);
   const cache = typeof caches !== 'undefined' ? caches.default : null;
   if (!bust) try {
     const hit = cache && await cache.match(cacheKey);

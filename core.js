@@ -72,6 +72,7 @@ function marketFindings(ds, chainKey, addr) {
   Object.assign(m, {
     name: p.baseToken?.name, symbol: p.baseToken?.symbol, priceUsd: num(p.priceUsd), mcap: num(p.marketCap), fdv: num(p.fdv), liquidity: liq,
     vol24: num(p.volume?.h24), buys24: p.txns?.h24?.buys, sells24: p.txns?.h24?.sells,
+    txns: p.txns || null, volw: p.volume || null, // per-window buys/sells counts + volume (Buy / Sell pressure card)
     ch: { m5: num(p.priceChange?.m5), h1: num(p.priceChange?.h1), h6: num(p.priceChange?.h6), h24: num(p.priceChange?.h24) },
     created: p.pairCreatedAt, dex: p.dexId, url: p.url, image: p.info?.imageUrl, pairs: good.length, pairAddr: p.pairAddress,
   });
