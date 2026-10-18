@@ -102,27 +102,27 @@ function paint(addr, lang) {
   box.querySelector('#db-refresh')?.addEventListener('click', () => run(addr, true));
 }
 async function runExit(addr, d, force) {
-  d.exit = 'loading'; paint(addr, cur.lang);
+  d.exit = 'loading'; (cur && paint(addr, cur.lang));
   // server computes the exit trace once for everyone; if it can't (subrequest cap / RPC), compute locally (never written to the shared cache)
   const he = force ? null : await getDeep(addr, 'exit', 'solana', { maxMs: 70000 });
-  if (he?.data && !he.data.error) { d.exit = he.data; exitCache.set(addr, he.data); d.cachedAt = Math.min(d.cachedAt || he.at, he.at); paint(addr, cur.lang); return; }
+  if (he?.data && !he.data.error) { d.exit = he.data; exitCache.set(addr, he.data); d.cachedAt = Math.min(d.cachedAt || he.at, he.at); (cur && paint(addr, cur.lang)); return; }
   try { d.exit = await withTimeout(exitTrace(addr, d.creator, d.coin.curve), 75000, 'exit'); } catch { d.exit = { error: true }; }
-  paint(addr, cur.lang);
+  (cur && paint(addr, cur.lang));
 }
 async function run(addr, force) {
-  cache.set(addr, 'loading'); paint(addr, cur.lang);
+  cache.set(addr, 'loading'); (cur && paint(addr, cur.lang));
   if (!force) { // shared server result: cached, or computed server-side once (concurrent visitors wait on the same run)
     const hd = await getDeep(addr, 'dev', 'solana', { maxMs: 45000 });
     const d = hd?.data;
-    if (d && d.pump === false) { cache.set(addr, d); paint(addr, cur.lang); return; }
+    if (d && d.pump === false) { cache.set(addr, d); (cur && paint(addr, cur.lang)); return; }
     if (d?.pump && d.bundle && !d.bundle.error && !d.error) {
-      d.cachedAt = hd.at; setCreated(addr, d.coin?.created); d.exit = 'wait'; cache.set(addr, d); paint(addr, cur.lang);
+      d.cachedAt = hd.at; setCreated(addr, d.coin?.created); d.exit = 'wait'; cache.set(addr, d); (cur && paint(addr, cur.lang));
       return runExit(addr, d);
     }
   }
   let d;
   try { d = await withTimeout(devCheck(addr), 20000, 'dev'); } catch { d = { error: true }; }
-  if (d.pump) d.bundle = 'loading'; cache.set(addr, d); paint(addr, cur.lang);
+  if (d.pump) d.bundle = 'loading'; cache.set(addr, d); (cur && paint(addr, cur.lang));
   if (!d.pump) return;
   d.exit = 'wait';
   try { d.bundle = await withTimeout(bundleCheck(addr, d.creator, d.coin.curve), 45000, 'bundle'); } catch { d.bundle = { error: true }; }
