@@ -5,7 +5,7 @@
 // still holding a large early bag. Read-only; Cache API 10–15 min on success. Soft-degrade (never raw 429).
 // Staggers with /api/liquidity-flows via shared Cache API helius-recent mark.
 const MINT_RE = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
-const TTL = 900, TTL_SOFT = 90, EARLY_TX = 28, EARLY_SLOTS = 3, SIG_PAGE = 50, SIG_PAGES_MAX = 3;
+const TTL = 900, TTL_SOFT = 20, EARLY_TX = 28, EARLY_SLOTS = 3, SIG_PAGE = 50, SIG_PAGES_MAX = 3;
 const BATCH = 4, UA = 'Mozilla/5.0 (MemeCheck/1.0)';
 const HELIUS_MARK = 'https://memecheck-cache.internal/helius-recent/v1';
 const HELIUS_COOLDOWN_S = 25;
@@ -17,6 +17,9 @@ const json = (status, body, extra = {}) => new Response(typeof body === 'string'
   status, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*', ...extra },
 });
 
+// Per-request time budget: every upstream call is clamped to it so the endpoint answers within ~8-9 s (partial sample if needed).
+let DL = 0; const BUDGET_MS = 8000, PACE_MS = 450;
+const left = (ms) => DL ? Math.max(400, Math.min(ms, DL - Date.now())) : ms;
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 const isRate = (e) => /429|403|402|rate|limit|too many|busy|-32429|-32005/i.test(String(e?.message || e || ''));
 const softMsg = (reason) => ({
@@ -48,7 +51,7 @@ async function markHeliusUsed(cache, waitUntil) {
 }
 
 async function getJson(url, ms = 10000, init = {}) {
-  const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), ms);
+  const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), left(ms));
   try {
     const r = await fetch(url, { ...init, signal: ctl.signal, headers: { accept: 'application/json', 'user-agent': UA, ...(init.headers || {}) } });
     if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -86,7 +89,7 @@ async function rpcBatch(url, calls, ms = 22000, retries = 1) {
   const body = calls.map((c, i) => ({ jsonrpc: '2.0', id: i + 1, method: c[0], params: c[1] }));
   let last;
   for (let attempt = 0; attempt <= retries; attempt++) {
-    const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), ms);
+    const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), left(ms));
     try {
       const r = await fetch(url, { method: 'POST', signal: ctl.signal, headers: { 'content-type': 'application/json', 'user-agent': UA }, body: JSON.stringify(body) });
       if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -225,10 +228,11 @@ async function fetchTxs(ups, use) {
     try {
       const wraps = [];
       for (let i = 0; i < use.length; i += BATCH) {
-        if (i) await sleep(120);
+        if (i && DL && Date.now() > DL - 1500 && wraps.length) break; // out of time: use the partial sample
+        if (i) await sleep(PACE_MS); // ~9 calls/s: a batch of 4 counts as 4 against the Helius rate limit
         const ch = use.slice(i, i + BATCH);
         const calls = ch.map(s => ['getTransaction', [s.signature, { encoding: 'jsonParsed', maxSupportedTransactionVersion: 1 }]]);
-        const res = await rpcBatch(up, calls, 22000);
+        let res; try { res = await rpcBatch(up, calls, 22000, wraps.length ? 0 : 1); } catch (e) { if (wraps.some(w => w.tx)) break; throw e; } // keep what we already have
         res.forEach((tx, j) => wraps.push({ tx, slot: ch[j].slot, blockTime: ch[j].blockTime, signature: ch[j].signature }));
       }
       const ok = wraps.filter(w => w.tx).length;
@@ -382,19 +386,18 @@ export const onRequest = async ({ request: req, env, waitUntil }) => {
   const cache = typeof caches !== 'undefined' ? caches.default : null;
   if (!bust) try {
     const hit = cache && await cache.match(cacheKey);
-    if (hit) return json(200, await hit.text(), { 'cache-control': `public, max-age=${TTL}`, 'x-cache': 'HIT' });
+    if (hit) { const txt = await hit.text(); if (!(u.searchParams.get('retry') === '1' && /"soft":true|"reason":"rate_limited"/.test(txt))) return json(200, txt, { 'cache-control': `public, max-age=${TTL}`, 'x-cache': 'HIT' }); }
   } catch {}
 
   // If flows just hit Helius, prefer public RPC / cache path first
   const preferPublic = await heliusRecentlyUsed(cache);
   // Claim Helius window up-front so a concurrent /api/liquidity-flows prefers public/cache
-  if (!preferPublic && env && env.HELIUS_KEY) await markHeliusUsed(cache, waitUntil);
 
-  let res, tm;
+  let res, tm; DL = Date.now() + BUDGET_MS;
   try {
     res = await Promise.race([
       build(env, mint, preferPublic),
-      new Promise((_, rej) => { tm = setTimeout(() => rej(new Error('timeout')), 26000); }),
+      new Promise((_, rej) => { tm = setTimeout(() => rej(new Error('timeout')), BUDGET_MS + 1000); }),
     ]);
   } catch (e) {
     const reason = /timeout/i.test(String(e?.message || e)) ? 'timeout' : (isRate(e) ? 'rate_limited' : 'sigs');
@@ -404,7 +407,7 @@ export const onRequest = async ({ request: req, env, waitUntil }) => {
     };
   } finally { clearTimeout(tm); }
 
-  if (isHelius(res.src)) await markHeliusUsed(cache, waitUntil);
+  if (res.reason === 'rate_limited' && !preferPublic && env && env.HELIUS_KEY) await markHeliusUsed(cache, waitUntil);
 
   const body = JSON.stringify(res);
   const ttl = (res.soft || res.reason === 'rate_limited') ? TTL_SOFT : TTL;

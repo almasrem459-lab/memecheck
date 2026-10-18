@@ -1,6 +1,6 @@
 // Minimal service worker: caches same-origin static assets only. Never touches /api/* or cross-origin requests.
-const V = 'mc-static-grant1';
-const CORE = ['/', '/style.css?v=1792420000', '/app.js?v=1792420000', '/nav.js?v=1792420000', '/manifest.webmanifest', '/icon-192.png', '/favicon-32.png'];
+const V = 'mc-static-grant4';
+const CORE = ['/', '/style.css?v=1792432000', '/app.js?v=1792432000', '/nav.js?v=1792432000', '/manifest.webmanifest', '/icon-192.png', '/favicon-32.png'];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).catch(() => {})); self.skipWaiting(); });
 self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', (e) => {
@@ -11,5 +11,5 @@ self.addEventListener('fetch', (e) => {
     return;
   }
   if (!/\.(js|css|png|svg|webmanifest|ico)$/.test(u.pathname)) return;
-  e.respondWith(caches.open(V).then(async c => { const hit = await c.match(req); const net = fetch(req).then(r => { if (r.ok) c.put(req, r.clone()); return r; }).catch(() => hit); return hit || net; }));
+  e.respondWith(caches.open(V).then(async c => { const hit = await c.match(req); const net = fetch(req).then(r => { if (r.ok) c.put(req, r.clone()); return r; }); if (hit) { net.catch(() => {}); return hit; } return net; // no cached copy: plain network (never resolve to undefined) }));
 });

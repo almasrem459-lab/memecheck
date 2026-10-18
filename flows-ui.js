@@ -10,6 +10,7 @@ const L = {
     err: 'Liquidity flow data unavailable right now.',
     empty: 'Not enough recent pool trades to draw flows yet.',
     retry: 'Retry',
+    notSol: 'Liquidity flows are mapped for Solana tokens only.',
     organic: 'Organic (real traders)',
     sus: 'Suspicious (wash-like)',
     hint: 'Tap a wallet or arrow · click again to clear',
@@ -31,7 +32,7 @@ const L = {
     explorer: 'Solscan ↗',
     clear: 'Clear selection',
     orgLbl: { organic: 'Organic volume', suspicious: 'Suspicious volume', wash: 'Wash-like volume' },
-    orgSent: (o) => `${o.topShare}% of recent volume came from ${o.top} wallet${o.top === 1 ? '' : 's'} (${o.wallets} unique wallets, last ${o.trades} swaps).`,
+    orgSent: (o) => `${o.topShare}% of the last ${o.trades} swaps came from ${o.top} wallet${o.top === 1 ? '' : 's'} (${o.wallets} unique wallets).`,
   },
   ar: {
     title: 'تدفقات السيولة', arTitle: 'خريطة السيولة المتحركة',
@@ -39,6 +40,7 @@ const L = {
     err: 'بيانات التدفق غير متاحة حاليًا.',
     empty: 'لا توجد صفقات حديثة كافية لرسم التدفقات.',
     retry: 'إعادة المحاولة',
+    notSol: 'خريطة تدفقات السيولة متاحة لعملات سولانا فقط.',
     organic: 'طبيعي (متداولون حقيقيون)',
     sus: 'مشبوه (غسيل حجم)',
     hint: 'اضغط محفظة أو سهم · اضغط مرة ثانية للإلغاء',
@@ -60,14 +62,14 @@ const L = {
     explorer: 'Solscan ↗',
     clear: 'إلغاء التحديد',
     orgLbl: { organic: 'حجم تداول طبيعي', suspicious: 'حجم تداول مشبوه', wash: 'حجم يشبه التداول الوهمي' },
-    orgSent: (o) => `${o.topShare}% من حجم التداول الأخير جاء من ${o.top} محافظ (${o.wallets} محفظة مختلفة، آخر ${o.trades} صفقة).`,
+    orgSent: (o) => `${o.topShare}% من آخر ${o.trades} صفقة جاءت من ${o.top} محافظ (${o.wallets} محفظة مختلفة).`,
   },
 };
 const lang = () => document.documentElement.lang === 'ar' ? 'ar' : 'en';
 const GREEN = '#3ee08f', RED = '#ff4d6a', ORANGE = '#ff8f3e', LP_COL = '#4f9dff', MUTED = '#6b7280';
 const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const cache = new Map();
+const cache = new Map(), DELAY = 0;
 let cur = null, anim = null, inst = null;
 
 function layout(nodes, w, h) {
@@ -393,11 +395,11 @@ function draw(box, data) {
 function isBusy(j) {
   return !!(j && (j.soft || j.reason === 'rate_limited' || j.reason === 'timeout'));
 }
-async function fetchFlows(mint) {
+async function fetchFlows(mint, retry = false) {
   const ctl = new AbortController();
   const tm = setTimeout(() => ctl.abort(), 22000);
   try {
-    const r = await fetch('/api/liquidity-flows?mint=' + encodeURIComponent(mint), { signal: ctl.signal });
+    const r = await fetch('/api/liquidity-flows?mint=' + encodeURIComponent(mint) + (retry ? '&retry=1' : ''), { signal: ctl.signal });
     // Never surface raw HTTP 429/503 — bilingual soft degrade only
     if (r.status === 429 || r.status === 503) {
       return { ok: true, empty: true, soft: true, reason: 'rate_limited' };
@@ -433,7 +435,7 @@ function paint() {
   const box = ensureBox();
   if (!box) return;
   const d = cache.get(cur.addr);
-  box.hidden = false;
+  box.hidden = false; delete box.dataset.skel;
   if (!d || d === 'loading') {
     if (inst) { inst.destroy(); inst = null; }
     box.innerHTML = `<h3>${t.title}</h3><div><span class="spin"></span> ${t.loading}</div>`;
@@ -443,7 +445,7 @@ function paint() {
     if (inst) { inst.destroy(); inst = null; }
     box.innerHTML = `<h3>${t.title}</h3><span class="muted">${d.timeout ? t.timeout : t.err}</span>
       <button type="button" class="ghost act" id="lf-retry">${t.retry}</button>`;
-    $('#lf-retry')?.addEventListener('click', () => start(cur.addr));
+    $('#lf-retry')?.addEventListener('click', () => { cache.delete(cur.addr); start(cur.addr, true); });
     return;
   }
   if (d.empty) {
@@ -455,41 +457,34 @@ function paint() {
     box.innerHTML = `<h3>${t.title}</h3><span class="muted">${esc(msg)}</span>
       <button type="button" class="ghost act" id="lf-retry">${t.retry}</button>
       <details class="fn"><summary title="info">ⓘ</summary><div>${t.note}</div></details>`;
-    $('#lf-retry')?.addEventListener('click', () => start(cur.addr));
+    $('#lf-retry')?.addEventListener('click', () => { cache.delete(cur.addr); start(cur.addr, true); });
     return;
   }
   draw(box, d);
 }
 
-async function start(addr) {
-  cache.set(addr, 'loading'); paint();
-  const apply = (j, timed) => {
-    if (!j) cache.set(addr, { error: true, timeout: !!timed });
-    else if (j.ok === false && (j.error || !j.empty)) cache.set(addr, { error: true, timeout: !!j.timeout || !!timed });
-    else cache.set(addr, j);
-  };
+// Always ends in a painted state for the current token: data, a friendly empty/busy line + Retry, never an empty box.
+// Busy / timeout / network errors are retried automatically (2 more tries, ~4 s and ~9 s later, bypassing a cached busy answer).
+const inflight = new Set();
+async function start(addr, manual = false) {
+  if (inflight.has(addr)) { paint(); return; }
+  inflight.add(addr); cache.set(addr, 'loading'); paint();
+  const waits = [0, 4000, 9000]; let res = null;
   try {
-    let j = await fetchFlows(addr);
-    // Auto-retry once after 3–5s on busy/timeout soft-degrade
-    if (isBusy(j)) {
-      await new Promise(r => setTimeout(r, 3500 + Math.random() * 1500));
-      if (cur?.addr !== addr) return;
-      j = await fetchFlows(addr);
-    }
-    apply(j, false);
-  } catch (e) {
-    const timed = /abort|timeout/i.test(String(e?.name || e?.message || ''));
-    if (timed) {
+    for (let i = 0; i < waits.length; i++) {
+      if (waits[i]) await new Promise(r => setTimeout(r, waits[i] + Math.random() * 800));
+      else if (!manual && DELAY) await new Promise(r => setTimeout(r, DELAY)); // stagger vs the other on-chain card
+      if (cur?.addr !== addr) break; // user moved on; a later scan of this token restarts
       try {
-        await new Promise(r => setTimeout(r, 4000));
-        if (cur?.addr !== addr) return;
-        apply(await fetchFlows(addr), false);
-      } catch {
-        cache.set(addr, { error: true, timeout: true });
-      }
-    } else {
-      cache.set(addr, { error: true, timeout: false });
+        const j = await fetchFlows(addr, i > 0 || manual);
+        if (!j || (j.ok === false && (j.error || !j.empty))) res = { error: true, timeout: !!j?.timeout };
+        else res = j;
+      } catch (e) { res = { error: true, timeout: /abort|timeout/i.test(String(e?.name || e?.message || '')) }; }
+      if (!(res.error || isBusy(res))) break;
     }
+  } finally {
+    inflight.delete(addr);
+    if (res) cache.set(addr, res); else cache.delete(addr);
   }
   if (cur?.addr === addr) paint();
 }
@@ -497,15 +492,15 @@ async function start(addr) {
 document.addEventListener('mc:render', (e) => {
   const { r } = e.detail;
   cur = { addr: r.addr, chain: r.chain };
-  if (r.chain !== 'solana') {
-    const box = document.getElementById('lf-box');
-    if (box) box.hidden = true;
+  const box = ensureBox(); if (!box) return;
+  box.hidden = false; delete box.dataset.skel;
+  if (r.chain !== 'solana') { // not applicable: say so instead of hiding the section
     if (inst) { inst.destroy(); inst = null; }
+    box.innerHTML = `<h3>${L[lang()].title}</h3><span class="muted">${L[lang()].notSol}</span>`;
     return;
   }
-  ensureBox();
   const c = cache.get(r.addr);
-  if (c && c !== 'loading' && !c.error) { paint(); return; }
+  if (c && c !== 'loading' && !c.error && !isBusy(c)) { paint(); return; }
   start(r.addr);
 });
 

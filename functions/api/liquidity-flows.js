@@ -7,7 +7,7 @@ const WSOL = 'So11111111111111111111111111111111111111112';
 const USDC = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 const USDT = 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB';
 const STABLE = new Set([WSOL, USDC, USDT]);
-const TTL = 600, TTL_SOFT = 90, SIG_N = 40, TX_N = 30, BATCH = 4, UA = 'Mozilla/5.0 (MemeCheck/1.0)';
+const TTL = 600, TTL_SOFT = 20, SIG_N = 40, TX_N = 24, BATCH = 4, UA = 'Mozilla/5.0 (MemeCheck/1.0)';
 const ROUND_TRIP_S = 120;
 const SIZE_SIM = 0.25;
 const HELIUS_MARK = 'https://memecheck-cache.internal/helius-recent/v1';
@@ -20,6 +20,9 @@ const json = (status, body, extra = {}) => new Response(typeof body === 'string'
   status, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*', ...extra },
 });
 
+// Per-request time budget: every upstream call is clamped to it so the endpoint answers within ~8-9 s (partial sample if needed).
+let DL = 0; const BUDGET_MS = 8000, PACE_MS = 450;
+const left = (ms) => DL ? Math.max(400, Math.min(ms, DL - Date.now())) : ms;
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 const isRate = (e) => /429|403|402|rate|limit|too many|busy|-32429|-32005/i.test(String(e?.message || e || ''));
 const softMsg = (reason) => ({
@@ -50,7 +53,7 @@ async function markHeliusUsed(cache, waitUntil) {
 }
 
 async function getJson(url, ms = 12000, init = {}) {
-  const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), ms);
+  const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), left(ms));
   try {
     const r = await fetch(url, { ...init, signal: ctl.signal, headers: { accept: 'application/json', 'user-agent': UA, ...(init.headers || {}) } });
     if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -84,7 +87,7 @@ async function rpcBatch(url, calls, ms = 20000, retries = 1) {
   const body = calls.map((c, i) => ({ jsonrpc: '2.0', id: i + 1, method: c[0], params: c[1] }));
   let last;
   for (let attempt = 0; attempt <= retries; attempt++) {
-    const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), ms);
+    const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), left(ms));
     try {
       const r = await fetch(url, { method: 'POST', signal: ctl.signal, headers: { 'content-type': 'application/json', 'user-agent': UA }, body: JSON.stringify(body) });
       if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -350,22 +353,21 @@ function detectWash(flows, creator) {
   return reasons;
 }
 
-// Organic Volume indicator: how concentrated recent swap volume (SOL) is among the top wallets of this same sample.
-// No extra API calls. Returns null when the sample is too small to judge (the UI then shows nothing).
+// Organic Volume indicator: how concentrated the recent swaps of this same sample are among the top wallets.
+// Measured on swap COUNT, not SOL size: per-swap SOL parsed from balance deltas can be inflated by router / wSOL-account
+// effects (seen: 900+ SOL "volume" in 23 small swaps), which made almost every token look wash-like. Counting swaps per
+// wallet is robust to that and still catches a few wallets cycling the volume. No extra API calls; null = too few swaps.
 const ORG_MIN_TRADES = 15;
 function organicVolume(flows) {
-  const tr = flows.filter(f => f.wallet && f.sol > 0);
+  const tr = flows.filter(f => f.wallet);
   if (tr.length < ORG_MIN_TRADES) return null;
-  const by = new Map(); let total = 0;
-  for (const f of tr) { by.set(f.wallet, (by.get(f.wallet) || 0) + f.sol); total += f.sol; }
-  if (!(total > 0)) return null;
-  const vols = [...by.values()].sort((a, b) => b - a), top = Math.min(5, vols.length);
-  const share = vols.slice(0, top).reduce((a, b) => a + b, 0) / total;
-  const wallets = vols.length;
+  const by = new Map(); for (const f of tr) by.set(f.wallet, (by.get(f.wallet) || 0) + 1);
+  const cnt = [...by.values()].sort((a, b) => b - a), top = Math.min(5, cnt.length), wallets = cnt.length;
+  const share = cnt.slice(0, top).reduce((a, b) => a + b, 0) / tr.length;
   let level = share > 0.6 ? 'wash' : share >= 0.35 ? 'suspicious' : 'organic';
-  if (wallets <= 5) level = 'wash';                                   // a handful of wallets is all the volume
+  if (wallets <= 5) level = 'wash';                                   // a handful of wallets is all the trading
   else if (wallets < 10 && level === 'organic') level = 'suspicious'; // too few distinct traders to call it organic
-  return { level, topShare: Math.round(share * 100), top, wallets, trades: tr.length, sol: +total.toFixed(3) };
+  return { level, basis: 'trades', topShare: Math.round(share * 100), top, wallets, trades: tr.length };
 }
 
 function reasonLabel(code) {
@@ -469,10 +471,11 @@ async function loadTxs(ups, want) {
     try {
       const parts = [];
       for (let i = 0; i < want.length; i += BATCH) {
-        if (i) await sleep(100);
+        if (i && DL && Date.now() > DL - 1500 && parts.length) break; // out of time: use the partial sample
+        if (i) await sleep(PACE_MS); // ~9 calls/s: a batch of 4 counts as 4 against the Helius rate limit
         const ch = want.slice(i, i + BATCH);
         const calls = ch.map(sig => ['getTransaction', [sig, { encoding: 'jsonParsed', maxSupportedTransactionVersion: 1 }]]);
-        const res = await rpcBatch(up, calls, 22000);
+        let res; try { res = await rpcBatch(up, calls, 22000, parts.length ? 0 : 1); } catch (e) { if (parts.some(Boolean)) break; throw e; } // keep what we already have
         parts.push(...res);
       }
       const ok = parts.filter(Boolean).length;
@@ -563,23 +566,22 @@ export const onRequest = async ({ request: req, env, waitUntil }) => {
   const mint = u.searchParams.get('mint') || u.searchParams.get('ca') || '';
   if (!MINT_RE.test(mint)) return json(400, { error: 'bad mint' });
   const bust = u.searchParams.get('fresh') === '1';
-  const cacheKey = new Request('https://memecheck-cache.internal/liq-flows/v5/' + mint);
+  const cacheKey = new Request('https://memecheck-cache.internal/liq-flows/v6/' + mint);
   const cache = typeof caches !== 'undefined' ? caches.default : null;
   if (!bust) try {
     const hit = cache && await cache.match(cacheKey);
-    if (hit) return json(200, await hit.text(), { 'cache-control': `public, max-age=${TTL}`, 'x-cache': 'HIT' });
+    if (hit) { const txt = await hit.text(); if (!(u.searchParams.get('retry') === '1' && /"soft":true|"reason":"rate_limited"/.test(txt))) return json(200, txt, { 'cache-control': `public, max-age=${TTL}`, 'x-cache': 'HIT' }); }
   } catch {}
 
   // If snipers (or a prior flows miss) just burned Helius, prefer public RPC first
   const preferPublic = await heliusRecentlyUsed(cache);
   // Claim Helius window up-front so a concurrent /api/snipers prefers public/cache
-  if (!preferPublic && env && env.HELIUS_KEY) await markHeliusUsed(cache, waitUntil);
 
-  let res, tm;
+  let res, tm; DL = Date.now() + BUDGET_MS;
   try {
     res = await Promise.race([
       build(env, mint, preferPublic),
-      new Promise((_, rej) => { tm = setTimeout(() => rej(new Error('timeout')), 26000); }),
+      new Promise((_, rej) => { tm = setTimeout(() => rej(new Error('timeout')), BUDGET_MS + 1000); }),
     ]);
   } catch (e) {
     const reason = /timeout/i.test(String(e?.message || e)) ? 'timeout' : (isRate(e) ? 'rate_limited' : 'no_sigs');
@@ -589,7 +591,7 @@ export const onRequest = async ({ request: req, env, waitUntil }) => {
     };
   } finally { clearTimeout(tm); }
 
-  if (isHelius(res.src)) await markHeliusUsed(cache, waitUntil);
+  if (res.reason === 'rate_limited' && !preferPublic && env && env.HELIUS_KEY) await markHeliusUsed(cache, waitUntil);
 
   const body = JSON.stringify(res);
   const ttl = (res.soft || res.reason === 'rate_limited') ? TTL_SOFT : TTL;

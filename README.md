@@ -12,7 +12,7 @@ Free, open-source (MIT) meme-coin safety checker, Solana-first. Paste a contract
 - **Bubble map**: interactive graph of top holders linked by shared funding wallets (bundles / clusters).
 - **Sniper detection**: first buyers in the opening slots after launch, how much supply they bought and still hold.
 - **Liquidity Flows**: animated map of recent swaps into/out of the pool; round-trips, fast flips, burst trading and the creator wallet are highlighted.
-- **Organic Volume indicator**: Organic / Suspicious / Wash-like badge from the same swap sample, e.g. "61% of recent volume came from 5 wallets". Shown only when there are enough swaps to judge.
+- **Organic Volume indicator**: Organic / Suspicious / Wash-like badge from the same swap sample (share of recent swaps made by the top 5 wallets), e.g. "40% of the last 24 swaps came from 5 wallets". Shown only when there are enough swaps to judge.
 - **Rugs we caught** ([/rugs](https://memecheck.pages.dev/rugs)): a public proof page. Every fresh Solana meme coin that meets the entry rules is scored and rechecked 24h and 48h later, Low, Medium and High alike, and **all** outcomes are published, not just the hits. Accuracy tracking of flagged tokens is ongoing; the sample is still small.
 - **Arabic support**: full EN / AR interface (RTL).
 - **Share card**: 1200×675 PNG result card (token, risk level, score, top reasons) with Download, Share on X, Copy link and the Web Share API.

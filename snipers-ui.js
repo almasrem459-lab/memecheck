@@ -9,6 +9,7 @@ const L = {
     err: 'Sniper scan unavailable right now.',
     empty: 'Not enough launch data to detect snipers yet.',
     retry: 'Retry',
+    notSol: 'Sniper detection is available for Solana tokens only.',
     high: 'High sniper risk', medium: 'Elevated sniper activity', low: 'Some early snipers', clear: 'Low sniper footprint', unknown: 'Unknown',
     headline: (n, pct) => n ? `${n} likely sniper bot${n === 1 ? '' : 's'} detected${pct != null ? ` holding ~${pct}% of supply` : ''}` : 'No clear sniper cluster in the launch sample',
     pro: (n) => n ? ` · ${n} pro (same/next slot)` : '',
@@ -32,6 +33,7 @@ const L = {
     err: 'فحص القناصة غير متاح حاليًا.',
     empty: 'لا توجد بيانات إطلاق كافية لكشف القناصة.',
     retry: 'إعادة المحاولة',
+    notSol: 'كشف القناصة متاح لعملات سولانا فقط.',
     high: 'خطر قناصة مرتفع', medium: 'نشاط قناصة مرتفع', low: 'بعض القناصة الأوائل', clear: 'بصمة قناصة منخفضة', unknown: 'غير معروف',
     headline: (n, pct) => n ? `تم رصد ${n} بوت قنص محتمل${pct != null ? ` يملكون ~${pct}% من المعروض` : ''}` : 'لا توجد مجموعة قناصة واضحة في عيّنة الإطلاق',
     pro: (n) => n ? ` · ${n} محترف (نفس/التالي سلوط)` : '',
@@ -51,7 +53,7 @@ const L = {
   },
 };
 const lang = () => document.documentElement.lang === 'ar' ? 'ar' : 'en';
-const cache = new Map();
+const cache = new Map(), DELAY = 2000;
 let cur = null;
 
 const levelClass = { high: 'fail', medium: 'warn', low: 'warn', clear: 'pass', unknown: 'na' };
@@ -101,11 +103,11 @@ function draw(box, d) {
 function isBusy(j) {
   return !!(j && (j.soft || j.reason === 'rate_limited' || j.reason === 'timeout'));
 }
-async function fetchSnipers(mint) {
+async function fetchSnipers(mint, retry = false) {
   const ctl = new AbortController();
-  const tm = setTimeout(() => ctl.abort(), 24000);
+  const tm = setTimeout(() => ctl.abort(), 15000);
   try {
-    const r = await fetch('/api/snipers?mint=' + encodeURIComponent(mint), { signal: ctl.signal });
+    const r = await fetch('/api/snipers?mint=' + encodeURIComponent(mint) + (retry ? '&retry=1' : ''), { signal: ctl.signal });
     if (r.status === 429 || r.status === 503) {
       return { ok: true, empty: true, soft: true, reason: 'rate_limited' };
     }
@@ -140,7 +142,7 @@ function paint() {
   const box = ensureBox();
   if (!box) return;
   const d = cache.get(cur.addr);
-  box.hidden = false;
+  box.hidden = false; delete box.dataset.skel;
   if (!d || d === 'loading') {
     box.innerHTML = `<h3>${t.title}</h3><div><span class="spin"></span> ${t.loading}</div>`;
     return;
@@ -148,7 +150,7 @@ function paint() {
   if (d.error) {
     box.innerHTML = `<h3>${t.title}</h3><span class="muted">${d.timeout ? t.timeout : t.err}</span>
       <button type="button" class="ghost act" id="sn-retry">${t.retry}</button>`;
-    $('#sn-retry')?.addEventListener('click', () => start(cur.addr));
+    $('#sn-retry')?.addEventListener('click', () => { cache.delete(cur.addr); start(cur.addr, true); });
     return;
   }
   if (d.empty) {
@@ -158,40 +160,34 @@ function paint() {
     box.innerHTML = `<h3>${t.title}</h3><span class="muted">${esc(msg)}</span>
       <button type="button" class="ghost act" id="sn-retry">${t.retry}</button>
       <details class="fn"><summary title="info">ⓘ</summary><div>${t.note}</div></details>`;
-    $('#sn-retry')?.addEventListener('click', () => start(cur.addr));
+    $('#sn-retry')?.addEventListener('click', () => { cache.delete(cur.addr); start(cur.addr, true); });
     return;
   }
   draw(box, d);
 }
 
-async function start(addr) {
-  cache.set(addr, 'loading'); paint();
-  const apply = (j, timed) => {
-    if (!j) cache.set(addr, { error: true, timeout: !!timed });
-    else if (j.ok === false && (j.error || !j.empty)) cache.set(addr, { error: true, timeout: !!j.timeout || !!timed });
-    else cache.set(addr, j);
-  };
+// Always ends in a painted state for the current token: data, a friendly empty/busy line + Retry, never an empty box.
+// Busy / timeout / network errors are retried automatically (2 more tries, ~4 s and ~9 s later, bypassing a cached busy answer).
+const inflight = new Set();
+async function start(addr, manual = false) {
+  if (inflight.has(addr)) { paint(); return; }
+  inflight.add(addr); cache.set(addr, 'loading'); paint();
+  const waits = [0, 4000, 9000]; let res = null;
   try {
-    let j = await fetchSnipers(addr);
-    if (isBusy(j)) {
-      await new Promise(r => setTimeout(r, 3500 + Math.random() * 1500));
-      if (cur?.addr !== addr) return;
-      j = await fetchSnipers(addr);
-    }
-    apply(j, false);
-  } catch (e) {
-    const timed = /abort|timeout/i.test(String(e?.name || e?.message || ''));
-    if (timed) {
+    for (let i = 0; i < waits.length; i++) {
+      if (waits[i]) await new Promise(r => setTimeout(r, waits[i] + Math.random() * 800));
+      else if (!manual && DELAY) await new Promise(r => setTimeout(r, DELAY)); // stagger vs the other on-chain card
+      if (cur?.addr !== addr) break; // user moved on; a later scan of this token restarts
       try {
-        await new Promise(r => setTimeout(r, 4000));
-        if (cur?.addr !== addr) return;
-        apply(await fetchSnipers(addr), false);
-      } catch {
-        cache.set(addr, { error: true, timeout: true });
-      }
-    } else {
-      cache.set(addr, { error: true, timeout: false });
+        const j = await fetchSnipers(addr, i > 0 || manual);
+        if (!j || (j.ok === false && (j.error || !j.empty))) res = { error: true, timeout: !!j?.timeout };
+        else res = j;
+      } catch (e) { res = { error: true, timeout: /abort|timeout/i.test(String(e?.name || e?.message || '')) }; }
+      if (!(res.error || isBusy(res))) break;
     }
+  } finally {
+    inflight.delete(addr);
+    if (res) cache.set(addr, res); else cache.delete(addr);
   }
   if (cur?.addr === addr) paint();
 }
@@ -199,14 +195,14 @@ async function start(addr) {
 document.addEventListener('mc:render', (e) => {
   const { r } = e.detail;
   cur = { addr: r.addr, chain: r.chain };
-  if (r.chain !== 'solana') {
-    const box = document.getElementById('sn-box');
-    if (box) box.hidden = true;
+  const box = ensureBox(); if (!box) return;
+  box.hidden = false; delete box.dataset.skel;
+  if (r.chain !== 'solana') { // not applicable: say so instead of hiding the section
+    box.innerHTML = `<h3>${L[lang()].title}</h3><span class="muted">${L[lang()].notSol}</span>`;
     return;
   }
-  ensureBox();
   const c = cache.get(r.addr);
-  if (c && c !== 'loading' && !c.error) { paint(); return; }
+  if (c && c !== 'loading' && !c.error && !isBusy(c)) { paint(); return; }
   start(r.addr);
 });
 
