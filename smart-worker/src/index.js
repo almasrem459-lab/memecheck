@@ -23,8 +23,8 @@ const CORE_LV = 4;                                   // = functions/_lib/shared.
 const MIN = 60e3, EVERY_MS = 2 * MIN;
 const PROBE_W = 30, HOT = 30, WATCH_MAX = 14;        // 30 top-weighted wallets x 30 hot coins = 900 pairs
 const DERIVE_PER = 30, DERIVE_STEPS = 6, GMA_PER_STEP = 3, VERIFY_PER_RUN = 6;
-const VER = '2026-10-19c';
-const KV_KEY = 'smart:v1', KV_EVERY = 5;
+const VER = '2026-10-19d';
+const KV_KEY = 'smart:v1', KV_EVERY_MS = 9.5 * 60e3;
 const NOT_MEME = /securities|xstock|tokenized|\bindex\b|\bstock\b|\betf\b|wrapped|bridged|staked|wormhole|\(portal\)/i;
 const PICK_SCORE = 2.5, PICK_MAX_H = 6, FRICTION = 0.02, NEW_MIN = 60;
 const SKIP = new Set(['So11111111111111111111111111111111111111112', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', 'USD1ttGY1N17NEEHLmELoaybftRBUSErhqYiQzvEmuB', 'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN']);
@@ -233,8 +233,9 @@ export class SmartDO extends DurableObject {
       record, model: { tracked: WALLETS.length, probed: PW.length, scalpers: WALLETS.filter(w => w.s).length, at: WALLETS_AT, hot: HOT },
       coverage: { hot: (job.hot || []).length, pairs: job.pairs || null, ms: now - (job.t0 || now), runs: runs.n, log: log.slice(-12), rpc: { ok: st.rpcOk || 0, err: st.rpcErr || 0 } } };
     await this.ctx.storage.put({ picks, risk, snap, meta });
-    // publish to KV for the Pages Function: every KV_EVERY runs (~10 min) => ~144 writes/day, well under the 1000/day free cap
-    if (this.env.MEMECHECK_CACHE && run % KV_EVERY === 0) { try { await this.env.MEMECHECK_CACHE.put(KV_KEY, JSON.stringify({ ...snap, kvAt: now }), { expirationTtl: 6 * 3600 }); log.push('kv write'); } catch (e) { log.push('kv ' + e.message); } }
+    // publish to KV for the Pages Function: at most once per ~10 min => ~144 writes/day, well under the 1000/day free cap
+    const kvAt = await this.get('kvAt', 0);
+    if (this.env.MEMECHECK_CACHE && now - kvAt >= KV_EVERY_MS) { await this.ctx.storage.put('kvAt', now); try { await this.env.MEMECHECK_CACHE.put(KV_KEY, JSON.stringify({ ...snap, kvAt: now }), { expirationTtl: 6 * 3600 }); log.push('kv write'); } catch (e) { log.push('kv ' + e.message); } }
     return todo;
   }
 
