@@ -1,5 +1,5 @@
-import { analyze, detectChain, score } from './core.js?v=1792600000';
-import { T, usd } from './i18n.js?v=1792600000';
+import { analyze, detectChain, score } from './core.js?v=1792700000';
+import { T, usd } from './i18n.js?v=1792700000';
 const $ = (s) => document.querySelector(s);
 const params = new URLSearchParams(location.search);
 let lang = params.get('lang') || localStorage.getItem('mc_lang') || 'en'; if (!T[lang]) lang = 'en'; let last = null, runId = 0;

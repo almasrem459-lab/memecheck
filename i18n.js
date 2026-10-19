@@ -12,7 +12,7 @@ export const T = {
   ch1h24:'1h / 24h', waiting:(s)=>`Waiting for ${s}…`, partial:'Security checks still loading — score may change.', crashed:(v)=>`Already down ~${f(v,0)}% from its recent high — this coin crashed before your scan.`, shareX:'Share on X', copyCA:'Copy CA', copied:'Copied!', shareImg:'Share image', dlImg:'Download image', copyLink:'Copy link',
   recent:'Recent', watch:'Watchlist', star:'Add to watchlist', unstar:'Remove from watchlist', auto:'Auto-detect', clear:'Clear', autoChain:(c)=>`Auto-detected chain: ${c}`,
   shareText:(sym,lvl)=>`I checked $${sym} on MemeCheck: ${lvl} risk`, lvlWord:{low:'Low',medium:'Medium',high:'High',extreme:'Extreme',unknown:'Unknown'}, score:'Risk score',
-  pumpOnly:'Dev / bundle / exit-trace checks: pump.fun (Solana) tokens only.', more:'More info', tagline2:'Check any meme coin on Solana, BNB Chain, Ethereum, Base or Arbitrum before you ape in. Rug, honeypot, dev & bundle checks. Free.', followX:'Follow on X', navMenu:'Menu', navChecker:'Checker', navWhales:'Whale buys', navSmart:'Smart money', navRugs:'Rugs we caught', navHow:'How the score works', rugsCta:'🚩 Rugs we caught', rugsSub:'See real tokens we flagged before they rugged', navOpenSrc:'Open source', showTrend:'Show trending / new tokens', hideTrend:'Hide list',
+  pumpOnly:'Dev / bundle / exit-trace checks: pump.fun (Solana) tokens only.', more:'More info', tagline2:'Check any meme coin on Solana, BNB Chain, Ethereum, Base or Arbitrum before you ape in. Rug, honeypot, dev & bundle checks. Free.', followX:'Follow on X', navMenu:'Menu', navChecker:'Checker', navWhales:'Whale buys', navSmart:'Smart money', navChat:'Community chat', navRugs:'Rugs we caught', navHow:'How the score works', rugsCta:'🚩 Rugs we caught', rugsSub:'See real tokens we flagged before they rugged', navOpenSrc:'Open source', showTrend:'Show trending / new tokens', hideTrend:'Hide list',
   shareRes:'Share result', newCheck:'New check', backHome:'Back to home', close:'Close', cardMaking:'Creating image…', shareNative:'Share…', cardTip:'Tip: download the image and attach it to your post on X.', cardWhy:'Top reasons', cardClean:'No major red flags from the automated checks', cardTag:'Meme-coin rug-risk check', cardNfa:'Not financial advice · DYOR', cardErr:'Could not create the image on this device.',
   curveLiq:'Bonding curve', unsup:'not supported on this chain', uniPool:(v)=>`🦄 Main pool: Uniswap${v?' '+v.toUpperCase():''}`, uniLink:'View pool on Uniswap', chainSw:'Also trades on:', chainSwT:(c)=>`Scan this token on ${c}`, fourCurve:(p)=>`🟡 Four.meme token, still on the bonding curve${p!=null?` (${p<1?f(p,2):f(p,0)}% to graduation)`:''}. Trades go through Four.meme until it graduates to PancakeSwap.`, fourGrad:'🟢 Four.meme token, graduated to PancakeSwap.', fourSrc:(s)=>`Detected via ${s}.`,
   r: {
@@ -63,7 +63,7 @@ export const T = {
   ch1h24:'1س / 24س', waiting:(s)=>`بانتظار ${s}…`, partial:'فحوصات الأمان ما زالت قيد التحميل — قد تتغير النتيجة.', crashed:(v)=>`العملة منهارة أصلاً بنحو ${f(v,0)}% من أعلى سعر حديث — الانهيار حدث قبل فحصك.`, shareX:'شارك على X', copyCA:'نسخ العنوان', copied:'تم النسخ!', shareImg:'مشاركة صورة', dlImg:'تنزيل صورة', copyLink:'نسخ الرابط',
   recent:'عمليات البحث الأخيرة', watch:'قائمة المتابعة', star:'أضف لقائمة المتابعة', unstar:'أزل من قائمة المتابعة', auto:'كشف تلقائي', clear:'مسح', autoChain:(c)=>`الشبكة المكتشفة تلقائيًا: ${c}`,
   shareText:(sym,lvl)=>`I checked $${sym} on MemeCheck: ${lvl} risk`, lvlWord:{low:'Low',medium:'Medium',high:'High',extreme:'Extreme',unknown:'Unknown'}, score:'درجة المخاطرة',
-  pumpOnly:'فحوصات المطوّر / الحزم / تتبّع الخروج: لعملات pump.fun (سولانا) فقط.', more:'مزيد من المعلومات', tagline2:'افحص أي عملة ميم على سولانا أو سلسلة BNB أو إيثريوم أو Base أو أربيتروم قبل أن تشتري. فحص السحب والمصيدة والمطوّر والحزم. مجانًا.', followX:'تابعنا على X', navMenu:'القائمة', navChecker:'الفاحص', navWhales:'حيتان', navSmart:'الأموال الذكية', navRugs:'عمليات السحب التي رصدناها', navHow:'كيف يعمل التقييم', rugsCta:'🚩 عمليات السحب التي رصدناها', rugsSub:'شاهد عملات حقيقية نبّهنا إليها قبل أن تُسحب سيولتها', navOpenSrc:'مفتوح المصدر', showTrend:'عرض العملات الرائجة / الجديدة', hideTrend:'إخفاء القائمة',
+  pumpOnly:'فحوصات المطوّر / الحزم / تتبّع الخروج: لعملات pump.fun (سولانا) فقط.', more:'مزيد من المعلومات', tagline2:'افحص أي عملة ميم على سولانا أو سلسلة BNB أو إيثريوم أو Base أو أربيتروم قبل أن تشتري. فحص السحب والمصيدة والمطوّر والحزم. مجانًا.', followX:'تابعنا على X', navMenu:'القائمة', navChecker:'الفاحص', navWhales:'حيتان', navSmart:'الأموال الذكية', navChat:'غرفة النقاش', navRugs:'عمليات السحب التي رصدناها', navHow:'كيف يعمل التقييم', rugsCta:'🚩 عمليات السحب التي رصدناها', rugsSub:'شاهد عملات حقيقية نبّهنا إليها قبل أن تُسحب سيولتها', navOpenSrc:'مفتوح المصدر', showTrend:'عرض العملات الرائجة / الجديدة', hideTrend:'إخفاء القائمة',
   shareRes:'مشاركة النتيجة', newCheck:'فحص جديد', backHome:'العودة للرئيسية', close:'إغلاق', cardMaking:'جارٍ إنشاء الصورة…', shareNative:'مشاركة…', cardTip:'نصيحة: نزّل الصورة وأرفقها بمنشورك على X.', cardWhy:'أهم الأسباب', cardClean:'لا توجد تحذيرات كبيرة من الفحوصات الآلية', cardTag:'فحص مخاطر سحب عملات الميم', cardNfa:'ليست نصيحة مالية · ابحث بنفسك', cardErr:'تعذّر إنشاء الصورة على هذا الجهاز.',
   curveLiq:'منحنى الترابط', unsup:'غير مدعوم على هذه الشبكة', uniPool:(v)=>`🦄 المجمع الرئيسي: Uniswap${v?' '+v.toUpperCase():''}`, uniLink:'عرض المجمع على Uniswap', chainSw:'متداولة أيضًا على:', chainSwT:(c)=>`افحص هذه العملة على ${c}`, fourCurve:(p)=>`🟡 عملة من Four.meme، ما زالت على منحنى الترابط${p!=null?` (${p<1?f(p,2):f(p,0)}% نحو التخرّج)`:''}. التداول يتم عبر Four.meme حتى تنتقل إلى PancakeSwap.`, fourGrad:'🟢 عملة من Four.meme، انتقلت (تخرّجت) إلى PancakeSwap.', fourSrc:(s)=>`تم الكشف عبر ${s}.`,
   r: {
@@ -104,5 +104,150 @@ export const T = {
    hpTax:(p,s)=>s==='pass'?`الضريبة المحاكاة: شراء ${f(p.b)}% / بيع ${f(p.s)}%.`:`الضريبة المحاكاة مرتفعة: شراء ${f(p.b)}% / بيع ${f(p.s)}%.`,
    hpRisk:(p)=>`تقييم مخاطر honeypot.is: ${({low:'منخفض',medium:'متوسط',high:'مرتفع','very low':'منخفض جدًا','very high':'مرتفع جدًا',honeypot:'مصيدة'})[String(p.v).toLowerCase()]||p.v}.`,
   }
+ }
+};
+
+// Smart money page, "Bots" section (bots-ui.js). SIMULATED paper trading only.
+const pctS = (x) => (x > 0 ? '+' : '') + (Math.abs(x) >= 100 ? x.toFixed(0) : x.toFixed(1)) + '%';
+export const BOTS = {
+ en: {
+  h: 'Paper-trading bots', pill: 'SIMULATED PAPER TRADING',
+  banner: '<b>Simulated paper trading. Not financial advice.</b> These bots never trade real money and hold no keys. They record what would have happened buying $20 per signal at the price we observed, plus 2% fees/slippage on each side. Each bot starts from a virtual $1,000. Simulated results are not real returns and do not predict the future.',
+  loading: 'Loading bots…', none: 'Bot data is not available yet. Check back later.',
+  updated: (a) => `Updated ${a}`, tick: (a) => `last price check ${a}`,
+  paused: (a) => `Bot data paused. The simulation has not sent an update for a while (last snapshot ${a}). The numbers below are from that snapshot.`,
+  sorted: 'Sorted by total PnL. Tap a bot to see its trades.',
+  equity: 'Equity', fromBank: (b) => `from $${b}`, pnl: 'Total PnL', win: 'Win rate', counts: 'Open / closed',
+  rejectedN: (n) => `${n} rejected`, sparkT: 'Equity over time (closed trades)',
+  show: 'Show trades', hide: 'Hide trades',
+  openH: 'Open positions', closedH: 'Closed trades', closedLast: (n, t) => n < t ? `last ${n} of ${t}` : `${t}`, rejH: 'Rejected by the filter, and how they did afterwards',
+  noOpen: 'No open positions right now.', noClosed: 'No closed trades yet.', noRej: 'No coins rejected yet.', filterOff: 'Filter off: this bot buys without the MemeCheck check, so nothing is rejected.',
+  bought: 'Bought', sold: 'Sold', rejected: 'Rejected', held: 'held', entry: 'Entry', now: 'Now', value: 'Value', cost: 'cost', mcap: 'MC', price: 'price', left: (p) => `${p}% still held`,
+  exit: 'Exit', partials: 'Partial sells', wallets: 'Triggering wallets', weight: 'weight',
+  after: 'Afterwards (vs price at rejection)', xNow: 'now', xMax: 'peak', xMin: 'low', x1h: '1 h', x6h: '6 h', x24h: '24 h',
+  mcLv: { low: 'Low risk', medium: 'Medium risk', high: 'High risk', extreme: 'Extreme risk', unknown: 'Not scanned' }, pts: 'pts',
+  scan: 'Full scan', score: 'signal score', chase: 'price vs first wallet buy',
+  title(c) {
+    if (c.kind === 'wq') return 'Quality-weighted consensus' + ({ strict: ', strict filter', basic: ', basic filter', none: ', no filter' }[c.gate] || '') + (c.accel ? ' + momentum' : '');
+    if (c.kind === 'instant') return `Instant copy (top ${c.top})` + (c.size ? ', strict filter + size' : ', basic filter');
+    return `${c.n}-wallet consensus` + (c.filter ? ', MemeCheck filter on' : ', no filter');
+  },
+  rule(c) {
+    const gate = { strict: 'strict MemeCheck filter (Low risk only, plus dev, holder and sniper checks)', basic: 'MemeCheck filter on (skips High/Extreme)', none: 'MemeCheck filter off' };
+    if (c.kind === 'wq') return `Buys when ${c.min_n}+ quality-weighted top wallets (combined score ${c.score}+) buy within ${c.window_min} min, if the price is not already up more than ${Math.round(c.chase * 100)}% and MC is $15K–$500K; ${gate[c.gate] || ''}` + (c.accel ? '; only when buying is speeding up' : '') + '.';
+    if (c.kind === 'instant') return `Copies a buy by any of the top ${c.top} quality wallets (seen within ${c.fresh_min} min of the buy)` + (c.chase ? `, if the price is not up more than ${Math.round(c.chase * 100)}% and MC is $15K–$500K` : '') + `; ${gate[c.gate] || ''}.`;
+    return `Buys when ${c.n}+ top wallets buy within ${c.window_min} min, MemeCheck filter ${c.filter ? 'on (skips High/Extreme risk)' : 'off'}.`;
+  },
+  exits(c) {
+    if (c.exits === 'smart') return 'Sells: half at +50%, then a trailing stop 25% below the peak; −30% stop before that; follows the wallets out; 12 h max.';
+    if (c.exits === 'instant') return 'Sells: when the copied wallet sells; −40% stop; 12 h max.';
+    return 'Sells: half at 2x, a quarter at 4x; −40% stop (break-even after the first take-profit); follows the wallets out; 12 h max.';
+  },
+  why(r) {
+    let m;
+    if ((m = /^stop_-(\d+)%$/.exec(r))) return `Stop-loss: price fell ${m[1]}% below entry`;
+    if (r === 'stop_breakeven') return 'Stopped at break-even after taking profit';
+    if ((m = /^trail_stop_-(\d+)%_from_peak$/.exec(r))) return `Trailing stop: fell ${m[1]}% from its peak`;
+    if ((m = /^follow_sell_([\d.]+)\/([\d.]+)_weight$/.exec(r))) return `Followed the wallets out: wallets with ${m[1]} of ${m[2]} signal weight sold`;
+    if ((m = /^follow_sell_(\d+)\/(\d+)$/.exec(r))) return `Followed the wallets out: ${m[1]} of ${m[2]} trigger wallets sold`;
+    if (r === 'follow_sell_wallet') return 'Followed the copied wallet out: it sold';
+    if ((m = /^time_stop_(\d+)h$/.exec(r))) return `Time limit: closed after ${m[1]} h`;
+    if (r === 'dead_no_price') return 'No price for 45 min: counted as dead ($0)';
+    if ((m = /^tp\d_\+(\d+)%$/.exec(r))) return `Take-profit at +${m[1]}%`;
+    return r || '—';
+  },
+  rej(r) {
+    let m;
+    if ((m = /^memecheck_(\w+)$/.exec(r))) return `MemeCheck rated it ${(this.mcLv[m[1]] || m[1])}`;
+    if (!/^strict:/.test(r)) return r || '—';
+    const one = (x) => {
+      let k;
+      if ((k = /^level_(\w+)$/.exec(x))) return `MemeCheck ${this.mcLv[k[1]] || k[1]} (strict needs Low)`;
+      if ((k = /^serial_launcher_(\d+)$/.exec(x))) return `creator launched ${(+k[1]).toLocaleString('en')} coins`;
+      if ((k = /^dev_history_(\w+)$/.exec(x))) return k[1] === 'fail' ? "creator's past coins mostly died or rugged" : "many of the creator's past coins died";
+      if ((k = /^dev_holds_([\d.]+)%$/.exec(x))) return `dev holds ${k[1]}%`;
+      if ((k = /^top1_([\d.]+)%$/.exec(x))) return `largest holder has ${k[1]}%`;
+      if ((k = /^top10_([\d.]+)%$/.exec(x))) return `top 10 holders have ${k[1]}%`;
+      if (x === 'holders_unknown') return 'holder data unavailable';
+      if ((k = /^snipers_\w+_([\d.]+)%$/.exec(x))) return `snipers hold ${k[1]}%`;
+      return 'risk flag: ' + x.replace(/_/g, ' ');
+    };
+    return 'Strict filter: ' + r.slice(7).split(',').filter(Boolean).map(one).join('; ');
+  },
+  x: (v) => v == null ? '—' : `×${v >= 10 ? v.toFixed(0) : v.toFixed(2)} (${pctS((v - 1) * 100)})`,
+  dur: (s) => s < 3600 ? `${Math.max(1, Math.round(s / 60))} min` : s < 86400 ? `${(s / 3600).toFixed(1)} h` : `${(s / 86400).toFixed(1)} d`,
+  ago: (s) => s < 60 ? 'just now' : s < 3600 ? `${Math.floor(s / 60)} min ago` : s < 86400 ? `${Math.floor(s / 3600)} h ago` : `${Math.floor(s / 86400)} d ago`,
+  locale: 'en-GB',
+  foot: 'Simulated paper trading for research. Not financial advice. Wallet names are public labels and may be wrong.',
+ },
+ ar: {
+  h: 'روبوتات التداول الورقي', pill: 'تداول ورقي محاكى',
+  banner: '<b>تداول ورقي محاكى. ليست نصيحة مالية.</b> هذه الروبوتات لا تتداول بأموال حقيقية ولا تملك أي مفاتيح. هي تسجّل ما كان سيحدث لو اشترينا بـ 20$ لكل إشارة بالسعر الذي رصدناه، مع 2% رسوم/انزلاق في كل اتجاه. يبدأ كل روبوت برصيد افتراضي قدره 1,000$. النتائج المحاكاة ليست أرباحًا حقيقية ولا تتنبأ بالمستقبل.',
+  loading: 'جارٍ تحميل الروبوتات…', none: 'بيانات الروبوتات غير متاحة بعد. عد لاحقًا.',
+  updated: (a) => `آخر تحديث ${a}`, tick: (a) => `آخر فحص للأسعار ${a}`,
+  paused: (a) => `بيانات الروبوتات متوقفة مؤقتًا. لم ترسل المحاكاة تحديثًا منذ فترة (آخر لقطة ${a}). الأرقام أدناه من تلك اللقطة.`,
+  sorted: 'مرتبة حسب إجمالي الربح/الخسارة. اضغط على روبوت لرؤية صفقاته.',
+  equity: 'الرصيد', fromBank: (b) => `من ${b}$`, pnl: 'إجمالي الربح/الخسارة', win: 'نسبة الربح', counts: 'مفتوحة / مغلقة',
+  rejectedN: (n) => `${n} مرفوضة`, sparkT: 'الرصيد عبر الزمن (الصفقات المغلقة)',
+  show: 'عرض الصفقات', hide: 'إخفاء الصفقات',
+  openH: 'الصفقات المفتوحة', closedH: 'الصفقات المغلقة', closedLast: (n, t) => n < t ? `آخر ${n} من ${t}` : `${t}`, rejH: 'رفضها الفلتر، وكيف كان أداؤها بعد ذلك',
+  noOpen: 'لا توجد صفقات مفتوحة حاليًا.', noClosed: 'لا توجد صفقات مغلقة بعد.', noRej: 'لم تُرفض أي عملة بعد.', filterOff: 'الفلتر معطّل: هذا الروبوت يشتري دون فحص MemeCheck، لذا لا يرفض شيئًا.',
+  bought: 'شراء', sold: 'بيع', rejected: 'رُفضت', held: 'مدة الاحتفاظ', entry: 'الدخول', now: 'الآن', value: 'القيمة', cost: 'التكلفة', mcap: 'القيمة السوقية', price: 'السعر', left: (p) => `ما زال ${p}% محتفظًا به`,
+  exit: 'الخروج', partials: 'بيع جزئي', wallets: 'المحافظ المحفِّزة', weight: 'الوزن',
+  after: 'بعد الرفض (مقارنة بسعر لحظة الرفض)', xNow: 'الآن', xMax: 'الأعلى', xMin: 'الأدنى', x1h: 'ساعة', x6h: '6 س', x24h: '24 س',
+  mcLv: { low: 'مخاطرة منخفضة', medium: 'مخاطرة متوسطة', high: 'مخاطرة مرتفعة', extreme: 'مخاطرة شديدة', unknown: 'لم تُفحص' }, pts: 'نقطة',
+  scan: 'فحص كامل', score: 'نقاط الإشارة', chase: 'السعر مقارنة بأول شراء لمحفظة',
+  title(c) {
+    if (c.kind === 'wq') return 'إجماع مرجّح بالجودة' + ({ strict: '، فلتر صارم', basic: '، فلتر أساسي', none: '، بلا فلتر' }[c.gate] || '') + (c.accel ? ' + زخم' : '');
+    if (c.kind === 'instant') return `نسخ فوري (أفضل ${c.top})` + (c.size ? '، فلتر صارم + حجم' : '، فلتر أساسي');
+    return `إجماع ${c.n} محافظ` + (c.filter ? '، فلتر MemeCheck مفعّل' : '، بلا فلتر');
+  },
+  rule(c) {
+    const gate = { strict: 'فلتر MemeCheck صارم (مخاطرة منخفضة فقط، مع فحص المطوّر والحاملين والقنّاصين)', basic: 'فلتر MemeCheck مفعّل (يتجنب المرتفعة/الشديدة)', none: 'فلتر MemeCheck معطّل' };
+    if (c.kind === 'wq') return `يشتري عندما تشتري ${c.min_n}+ من أفضل المحافظ المرجّحة بالجودة (بنقاط إجمالية ${c.score}+) خلال ${c.window_min} دقيقة، إذا لم يرتفع السعر أكثر من ${Math.round(c.chase * 100)}% وكانت القيمة السوقية بين 15K$ و500K$؛ ${gate[c.gate] || ''}` + (c.accel ? '؛ فقط عندما يتسارع الشراء' : '') + '.';
+    if (c.kind === 'instant') return `ينسخ شراء أي محفظة من أفضل ${c.top} محافظ بالجودة (إذا رُصد خلال ${c.fresh_min} دقائق من الشراء)` + (c.chase ? `، إذا لم يرتفع السعر أكثر من ${Math.round(c.chase * 100)}% وكانت القيمة السوقية بين 15K$ و500K$` : '') + `؛ ${gate[c.gate] || ''}.`;
+    return `يشتري عندما تشتري ${c.n}+ من أفضل المحافظ خلال ${c.window_min} دقيقة، فلتر MemeCheck ${c.filter ? 'مفعّل (يتجنب المخاطرة المرتفعة/الشديدة)' : 'معطّل'}.`;
+  },
+  exits(c) {
+    if (c.exits === 'smart') return 'البيع: النصف عند +50%، ثم وقف متحرك أدنى القمة بـ 25%؛ وقف −30% قبل ذلك؛ يتبع المحافظ عند بيعها؛ 12 ساعة كحد أقصى.';
+    if (c.exits === 'instant') return 'البيع: عندما تبيع المحفظة المنسوخة؛ وقف −40%؛ 12 ساعة كحد أقصى.';
+    return 'البيع: النصف عند 2x، والربع عند 4x؛ وقف −40% (عند سعر الدخول بعد أول جني ربح)؛ يتبع المحافظ عند بيعها؛ 12 ساعة كحد أقصى.';
+  },
+  why(r) {
+    let m;
+    if ((m = /^stop_-(\d+)%$/.exec(r))) return `وقف خسارة: هبط السعر ${m[1]}% تحت سعر الدخول`;
+    if (r === 'stop_breakeven') return 'خروج عند سعر الدخول بعد جني جزء من الربح';
+    if ((m = /^trail_stop_-(\d+)%_from_peak$/.exec(r))) return `وقف متحرك: هبط ${m[1]}% من القمة`;
+    if ((m = /^follow_sell_([\d.]+)\/([\d.]+)_weight$/.exec(r))) return `تبع المحافظ في البيع: باعت محافظ وزنها ${m[1]} من ${m[2]}`;
+    if ((m = /^follow_sell_(\d+)\/(\d+)$/.exec(r))) return `تبع المحافظ في البيع: باعت ${m[1]} من ${m[2]} محافظ محفِّزة`;
+    if (r === 'follow_sell_wallet') return 'تبع المحفظة المنسوخة: باعت';
+    if ((m = /^time_stop_(\d+)h$/.exec(r))) return `حد زمني: أُغلقت بعد ${m[1]} ساعة`;
+    if (r === 'dead_no_price') return 'لا سعر لمدة 45 دقيقة: اعتُبرت ميتة (0$)';
+    if ((m = /^tp\d_\+(\d+)%$/.exec(r))) return `جني ربح عند +${m[1]}%`;
+    return r || '—';
+  },
+  rej(r) {
+    let m;
+    if ((m = /^memecheck_(\w+)$/.exec(r))) return `صنّفها MemeCheck: ${(this.mcLv[m[1]] || m[1])}`;
+    if (!/^strict:/.test(r)) return r || '—';
+    const one = (x) => {
+      let k;
+      if ((k = /^level_(\w+)$/.exec(x))) return `MemeCheck: ${this.mcLv[k[1]] || k[1]} (الصارم يتطلب منخفضة)`;
+      if ((k = /^serial_launcher_(\d+)$/.exec(x))) return `المنشئ أطلق ${(+k[1]).toLocaleString('en')} عملة`;
+      if ((k = /^dev_history_(\w+)$/.exec(x))) return k[1] === 'fail' ? 'معظم عملات المنشئ السابقة ماتت أو سُحبت' : 'كثير من عملات المنشئ السابقة ماتت';
+      if ((k = /^dev_holds_([\d.]+)%$/.exec(x))) return `المطوّر يملك ${k[1]}%`;
+      if ((k = /^top1_([\d.]+)%$/.exec(x))) return `أكبر حامل يملك ${k[1]}%`;
+      if ((k = /^top10_([\d.]+)%$/.exec(x))) return `أكبر 10 حاملين يملكون ${k[1]}%`;
+      if (x === 'holders_unknown') return 'بيانات الحاملين غير متاحة';
+      if ((k = /^snipers_\w+_([\d.]+)%$/.exec(x))) return `القنّاصون يملكون ${k[1]}%`;
+      return 'علامة خطر: ' + x.replace(/_/g, ' ');
+    };
+    return 'الفلتر الصارم: ' + r.slice(7).split(',').filter(Boolean).map(one).join('؛ ');
+  },
+  x: (v) => v == null ? '—' : `×${v >= 10 ? v.toFixed(0) : v.toFixed(2)} (${pctS((v - 1) * 100)})`,
+  dur: (s) => s < 3600 ? `${Math.max(1, Math.round(s / 60))} د` : s < 86400 ? `${(s / 3600).toFixed(1)} س` : `${(s / 86400).toFixed(1)} يوم`,
+  ago: (s) => s < 60 ? 'الآن' : s < 3600 ? `منذ ${Math.floor(s / 60)} د` : s < 86400 ? `منذ ${Math.floor(s / 3600)} س` : `منذ ${Math.floor(s / 86400)} يوم`,
+  locale: 'ar-EG-u-nu-latn',
+  foot: 'تداول ورقي محاكى لأغراض البحث. ليست نصيحة مالية. أسماء المحافظ تسميات عامة وقد تكون خاطئة.',
  }
 };
