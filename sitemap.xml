@@ -21,6 +21,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://memecheck.pages.dev/chat</loc>
+    <changefreq>always</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://memecheck.pages.dev/how</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>

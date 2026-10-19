@@ -1,0 +1,21 @@
+# memecheck-chat: separate Worker that only hosts the ChatRoom Durable Object for MemeCheck /chat.
+# The Pages project (cf-dist/wrangler.toml) binds to it with script_name = "memecheck-chat"; browsers never reach this Worker directly.
+name = "memecheck-chat"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+workers_dev = false          # no public URL: the only way in is the Pages Function binding (/api/chat), which sets the client IP header
+preview_urls = false
+
+# One SQLite-backed Durable Object (Workers Free plan) - chat state never touches KV.
+[[durable_objects.bindings]]
+name = "CHAT"
+class_name = "ChatRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["ChatRoom"]
+
+# Secret (not in this file): ADMIN_TOKEN  ->  wrangler secret put ADMIN_TOKEN
+
+[observability]
+enabled = true

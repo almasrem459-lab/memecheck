@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Community chat — MemeCheck</title>
+<meta name="description" content="Live meme-coin chat on MemeCheck. Paste a contract address and everyone gets a one-tap rug check. No account needed. Not financial advice.">
+<link rel="canonical" href="https://memecheck.pages.dev/chat">
+<meta property="og:title" content="MemeCheck community chat">
+<meta property="og:description" content="Talk about coins in real time. Every contract address becomes a one-tap MemeCheck scan.">
+<meta property="og:image" content="https://memecheck.pages.dev/og-image.png">
+<meta property="og:url" content="https://memecheck.pages.dev/chat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0b0f17">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="style.css?v=1792700000">
+<style>
+.hdr-end{margin-inline-start:auto}
+main.chat{max-width:860px;width:100%;margin:0 auto;padding:12px 16px 0;display:flex;flex-direction:column;flex:1;min-height:0}
+main.chat h1{font-size:22px;margin:4px 0 2px}
+main.chat .sub{color:#9aa4b8;font-size:14px;margin:0 0 10px;line-height:1.45}
+.pin{display:flex;gap:10px;align-items:flex-start;background:#17140a;border:1px solid #4a3f12;border-radius:12px;padding:10px 12px;color:#ffd447;font-size:14px;line-height:1.45;font-weight:600}
+.pin .ic{flex:none}
+.cbar{display:flex;align-items:center;gap:8px;justify-content:space-between;color:#7d879c;font-size:12px;margin:10px 2px 6px}
+.cbar .on{display:inline-flex;align-items:center;gap:6px}.dot{width:8px;height:8px;border-radius:50%;background:#7d879c}.dot.live{background:#22c55e;box-shadow:0 0 0 3px #22c55e33}.dot.poll{background:#eab308}
+.log{flex:1;min-height:300px;height:56vh;overflow-y:auto;background:#0e1320;border:1px solid #1c2333;border-radius:14px;padding:8px 6px;overscroll-behavior:contain;position:relative}
+.msg{display:flex;flex-direction:column;gap:2px;padding:7px 10px;border-radius:10px}
+.msg:hover{background:#121826}.msg.me{background:#101a30}.msg.team{background:#0f1f1a;border:1px solid #1d4d3a}
+.mh{display:flex;align-items:baseline;gap:6px;font-size:12px;color:#7d879c;min-width:0}
+.mh b{font-size:13px;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mh .tg{font-family:ui-monospace,Menlo,monospace;font-size:11px;opacity:.75}
+.mh .badge{font-size:10px;font-weight:700;padding:1px 6px;border-radius:6px;background:#14532d;color:#86efac}
+.mh .rep{margin-inline-start:auto;background:none;border:0;color:#5b6478;cursor:pointer;font-size:12px;padding:2px 6px;border-radius:6px;min-height:24px}
+.mh .rep:hover{color:#f87171;background:#1f1416}.mh .rep[disabled]{color:#f87171;cursor:default;background:none}
+.mt{font-size:15px;line-height:1.45;color:#e6e9ef;overflow-wrap:anywhere;white-space:pre-wrap;unicode-bidi:plaintext}
+.ca{display:inline-flex;align-items:center;gap:5px;vertical-align:middle;margin:1px 2px;padding:3px 9px;border-radius:999px;background:#1a2744;border:1px solid #2f4a8a;color:#9db7ff;font:600 12px/1.4 ui-monospace,Menlo,monospace;text-decoration:none;white-space:nowrap;direction:ltr;unicode-bidi:isolate}
+.ca:hover{background:#22356a;color:#fff;border-color:#4f7cff}.ca .k{font-family:system-ui,sans-serif;font-size:11px;color:#c7d6ff;background:#2563eb;padding:0 6px;border-radius:999px}
+.mt a.own{color:#7fa2ff}
+.empty{padding:40px 10px;text-align:center;color:#7d879c;font-size:14px}
+.newpill{position:sticky;bottom:6px;margin:0 auto;display:block;background:#2563eb;color:#fff;border:0;border-radius:999px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer}
+form.comp{flex-wrap:nowrap;width:100%;position:sticky;bottom:0;background:#0b0f17;padding:10px 0 calc(10px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:6px}
+.crow{display:flex;gap:8px;align-items:stretch;min-width:0}
+.nickb{flex:none;max-width:34%;background:#121826;border:1px solid #273046;color:#c7d0e0;border-radius:12px;padding:0 10px;font-size:13px;font-weight:600;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:46px}
+.nickb:hover{border-color:#4f7cff}
+#msg{flex:1;min-width:0;width:100%;font-family:inherit;min-height:46px;background:#0e1320;border:1px solid #273046;border-radius:12px;color:#e6e9ef;font-size:16px;padding:10px 12px;unicode-bidi:plaintext}
+#msg:focus,#nick:focus{outline:none;border-color:#4f7cff}
+.send{flex:none;min-height:46px;padding:0 18px;background:#2563eb;border:0;border-radius:12px;color:#fff;font-weight:700;font-size:15px;cursor:pointer}
+.send:hover{background:#1d4ed8}.send[disabled]{opacity:.55;cursor:default}
+.cmeta{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#7d879c;min-height:16px}
+.cerr{color:#f87171}.cerr.ok{color:#86efac}
+.nickrow{display:flex;gap:8px;align-items:center}.nickrow[hidden]{display:none}
+#nick{flex:1;min-width:0;font-family:inherit;min-height:42px;background:#0e1320;border:1px solid #273046;border-radius:10px;color:#e6e9ef;font-size:16px;padding:8px 10px}
+.nickrow button{flex:none;font-size:14px;min-height:42px;border-radius:10px;padding:0 14px;font-weight:600;cursor:pointer;border:1px solid #273046;background:#121826;color:#e6e9ef}
+.nickrow .save{background:#2563eb;border-color:#2563eb;color:#fff}
+.rules{font-size:12px;color:#7d879c;line-height:1.5;margin:4px 2px 12px}
+@media(max-width:560px){main.chat{padding:8px 10px 0}main.chat h1{font-size:19px}main.chat .sub{font-size:13px}.log{height:auto;min-height:52vh}.pin{font-size:13px}.send{padding:0 14px}.nickb{max-width:30%}}
+</style>
+</head>
+<body>
+<header><button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span><span></span><span></span></button><div class="brand"><img src="/icon-192.png" width="26" height="26" alt="MemeCheck"> <b>MemeCheck</b></div><div class="hdr-end"><button id="lang" class="ghost" type="button">العربية</button></div></header>
+<nav class="site-nav" id="site-nav" hidden>
+<a href="/" data-t="navChecker">Checker</a>
+<a href="/smart.html" data-t="navSmart">Smart money</a>
+<a href="/whales.html" data-t="navWhales">Whale buys</a>
+<a href="/chat" data-t="navChat">Community chat</a>
+<a href="/rugs" data-t="navRugs">Rugs we caught</a>
+<a href="/how" data-t="navHow">How the score works</a>
+<a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a>
+</nav>
+<main class="chat">
+  <h1 data-c="title">Community chat</h1>
+  <p class="sub" data-c="sub">Talk coins in real time. Paste a contract address and it becomes a one-tap MemeCheck scan for everyone.</p>
+  <div class="pin" role="note"><span class="ic" aria-hidden="true">📌</span><span data-c="pin">Never share your seed phrase. Admins will never DM you. Not financial advice.</span></div>
+  <div class="cbar"><span class="on"><span class="dot" id="dot"></span><span id="conn" data-c="connecting">Connecting…</span></span><span id="online"></span></div>
+  <div class="log" id="log" role="log" aria-live="polite" aria-relevant="additions"><div class="empty" id="empty"><span class="spin"></span></div></div>
+  <form class="comp" id="comp" autocomplete="off">
+    <div class="nickrow" id="nickrow" hidden><input id="nick" maxlength="24" aria-label="Nickname"><button type="button" class="save" id="nicksave" data-c="save">Save</button><button type="button" id="nickcancel" data-c="cancel">Cancel</button></div>
+    <div class="crow"><button type="button" class="nickb" id="nickb" title="Change nickname"></button><input id="msg" maxlength="300" enterkeyhint="send" placeholder="Say something or paste a CA…" aria-label="Message"><button class="send" id="send" type="submit" data-c="send">Send</button></div>
+    <div class="cmeta"><span class="cerr" id="cerr" role="status"></span><span id="cnt">0/300</span></div>
+  </form>
+  <p class="rules" data-c="rules">Rules: no links (except memecheck.pages.dev), no DMs/airdrop/seed-phrase talk, 1 message per 5 s. Use ⚑ to report: 3 reports hide a message.</p>
+</main>
+<footer><span data-t="disclaimer">Not financial advice. Automated checks can miss scams or flag legit tokens. Always DYOR.</span> · <a href="/">MemeCheck</a> · <a href="/rugs" data-t="navRugs">Rugs we caught</a> · <a href="/how" data-t="navHow">How the score works</a> · <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a></footer>
+<script src="chat-ui.js?v=chat1" defer></script>
+<script src="nav.js?v=1792700000" defer></script>
+</body>
+</html>

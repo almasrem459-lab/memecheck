@@ -8,3 +8,10 @@ id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"  # wrangler kv namespace create MEMECHE
 
 [ai]
 binding = "AI"  # Workers AI (free daily allowance) for /api/ai
+
+# Community chat (/chat, /api/chat*): ChatRoom Durable Object hosted by the separate `memecheck-chat` Worker (chat-worker/).
+# Deploy chat-worker first (cd chat-worker && wrangler deploy && wrangler secret put ADMIN_TOKEN).
+[[durable_objects.bindings]]
+name = "CHAT"
+class_name = "ChatRoom"
+script_name = "memecheck-chat"

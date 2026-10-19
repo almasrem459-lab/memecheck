@@ -3,6 +3,17 @@
   const nav = document.getElementById('site-nav');
   if (!btn || !nav) return;
 
+  // Community chat link: injected here once so every page's menu + footer get it without editing each page's HTML.
+  if (!nav.querySelector('a[href="/chat"]')) {
+    const mk = () => { const a = document.createElement('a'); a.href = '/chat'; a.className = 'nav-chat'; return a; };
+    const links = [mk()], lbl = () => { const ar = document.documentElement.lang === 'ar'; links.forEach((a) => { a.textContent = ar ? 'غرفة النقاش' : 'Community chat'; }); };
+    nav.insertBefore(links[0], nav.querySelector('a[href="/rugs"]') || nav.querySelector('a[href^="http"]'));
+    const ft = document.querySelector('footer');
+    if (ft && !ft.querySelector('a[href="/chat"]')) { const a = mk(); links.push(a); const gh = ft.querySelector('a[href^="https://github.com"]'); const sep = document.createTextNode(' · ');
+      if (gh) { ft.insertBefore(a, gh); ft.insertBefore(document.createTextNode(' · '), gh); } else { ft.append(sep, a); } }
+    lbl(); new MutationObserver(lbl).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+  }
+
   const setOpen = (open) => {
     nav.hidden = !open;
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -29,6 +40,7 @@
       navChecker: 'الفاحص',
       navWhales: 'حيتان',
       navSmart: 'الأموال الذكية',
+      navChat: 'غرفة النقاش',
       navRugs: 'عمليات السحب التي رصدناها',
       navHow: 'كيف يعمل التقييم',
       navOpenSrc: 'مفتوح المصدر',
