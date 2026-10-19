@@ -1,0 +1,27 @@
+# memecheck-smart: separate Worker (DO alarm scheduler) for MemeCheck /smart.html (does not change the production Pages project).
+name = "memecheck-smart"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+preview_urls = false
+
+[triggers]  # no cron: free plan allows 5 per account and memecheck-warmer uses all 5 -> DO alarm loop instead
+crons = []
+
+# State in one SQLite-backed Durable Object (free plan) - no KV writes.
+[[durable_objects.bindings]]
+name = "SMART"
+class_name = "SmartDO"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["SmartDO"]
+
+# Reads cached MemeCheck core scans (core:solana:*); writes ONE key, smart:v1, every ~10 min (~144 writes/day).
+[[kv_namespaces]]
+binding = "MEMECHECK_CACHE"
+id = "b5362a97a846452d9a41db24111b939c"
+
+[observability]
+enabled = true

@@ -1,6 +1,6 @@
 // Result extras for every chain: live sell-proof (DexScreener txns) + true-cost round-trip calculator.
 // Also mounts a standalone cost calculator on the Meme tab. Does not touch scoring.
-import { dexTokens, sanePairs } from './core.js?v=1792540000';
+import { dexTokens, sanePairs } from './core.js?v=1792600000';
 const $ = (s) => document.querySelector(s);
 const fn = (txt) => txt ? `<details class="fn"><summary title="info">ⓘ</summary><div>${txt}</div></details>` : '';
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));

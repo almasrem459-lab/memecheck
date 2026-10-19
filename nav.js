@@ -28,6 +28,7 @@
       navMenu: 'القائمة',
       navChecker: 'الفاحص',
       navWhales: 'حيتان',
+      navSmart: 'الأموال الذكية',
       navRugs: 'عمليات السحب التي رصدناها',
       navHow: 'كيف يعمل التقييم',
       navOpenSrc: 'مفتوح المصدر',
@@ -37,7 +38,7 @@
       document.documentElement.lang = 'ar';
       document.documentElement.dir = 'rtl';
       btn.setAttribute('aria-label', AR.navMenu);
-      nav.querySelectorAll('[data-t]').forEach((e) => {
+      document.querySelectorAll('[data-t]').forEach((e) => {
         if (AR[e.dataset.t]) e.textContent = AR[e.dataset.t];
       });
     }
