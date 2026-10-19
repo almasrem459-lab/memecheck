@@ -1,6 +1,6 @@
 // POST /api/chat-admin  (Authorization: Bearer <ADMIN_TOKEN>)  -> moderation actions on the chat Durable Object.
 // The token is checked inside the DO against the `memecheck-chat` Worker secret ADMIN_TOKEN (constant-time compare);
-// this function only forwards. Body: {action:'list'|'delete'|'delete_user'|'ban'|'bans'|'unban'|'unhide'|'clear'|'post'|'stats', ...}
+// this function only forwards. Body: {action:'list'|'delete'|'delete_user'|'ban'|'bans'|'unban'|'unhide'|'clear'|'post'|'stats'|'feedback_list'|'feedback_delete', ...}
 const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
 export async function onRequestPost({ request, env }) {
   if (!env.CHAT) return json(503, { err: 'chat_unavailable' });

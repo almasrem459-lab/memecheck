@@ -16,7 +16,8 @@ const RL_GAP = 5e3, RL_WIN = 10 * MIN, RL_MAX = 20;          // 1 msg / 5 s and 
 const REPORT_HIDE = 3, REPORT_MAX = 10;                       // 3 distinct reporters hide a message; 10 reports / 10 min per IP
 const STRIKES = 3, STRIKE_BAN_MS = 60 * MIN;                  // 3 blocked scam/link/slur attempts in 10 min -> 1 h auto-mute
 const MAX_SOCKETS = 500;
-const VER = '2026-10-19a';
+const VER = '2026-10-19b';
+const FB_MAX = 1000, FB_CONTACT = 80, FB_RL = 3, FB_WIN = 60 * MIN, FB_KEEP = 2000;   // feedback: 3 per IP-hash per hour
 
 const hex = (b) => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
 const sha = async (s) => hex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)));
@@ -33,6 +34,8 @@ export class ChatRoom extends DurableObject {
       this.sql.exec(`CREATE TABLE IF NOT EXISTS bans (k TEXT PRIMARY KEY, until INTEGER, why TEXT, ts INTEGER)`);
       this.sql.exec(`CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT)`);
       this.sql.exec(`CREATE TABLE IF NOT EXISTS strikes (iph TEXT, ts INTEGER)`);
+      this.sql.exec(`CREATE TABLE IF NOT EXISTS feedback (id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER, msg TEXT, contact TEXT, cat TEXT, lang TEXT, path TEXT, iph TEXT)`);
+      this.sql.exec(`CREATE TABLE IF NOT EXISTS fb_rl (iph TEXT, ts INTEGER)`);
       let salt = this.sql.exec(`SELECT v FROM meta WHERE k='salt'`).toArray()[0]?.v;
       if (!salt) { salt = hex(crypto.getRandomValues(new Uint8Array(32))); this.sql.exec(`INSERT INTO meta (k, v) VALUES ('salt', ?)`, salt); }
       this.salt = salt;
@@ -131,9 +134,27 @@ export class ChatRoom extends DurableObject {
         const mm = { id: row.id, ts: Date.now(), nick, tag: 'team', uid: '', iph: 'admin', text, norm: '', hidden: 0, reports: 0, admin: 1 };
         this.msgs.push(mm); this.prune(); this.broadcast({ t: 'msg', m: pub(mm) }); return { ok: true, id: mm.id };
       }
+      case 'feedback_list': { const lim = Math.min(200, Math.max(1, +body.limit || 50)); return { ok: true, total: this.sql.exec(`SELECT COUNT(*) AS n FROM feedback`).one().n, items: this.sql.exec(`SELECT id, ts, msg, contact, cat, lang, path, substr(iph, 1, 8) AS who FROM feedback ORDER BY id DESC LIMIT ?`, lim).toArray() }; }
+      case 'feedback_delete': { const fid = +body.id || 0; if (!fid) return { err: 'id' }; const n = this.sql.exec(`DELETE FROM feedback WHERE id = ?`, fid).rowsWritten; return n ? { ok: true, deleted: fid } : { err: 'not_found' }; }
       case 'stats': return { ok: true, ver: VER, online: this.online(), stored: this.msgs.length, hidden: this.msgs.filter(x => x.hidden).length, bans: this.bans.size };
-      default: return { err: 'unknown_action', actions: ['list', 'delete', 'delete_user', 'ban', 'bans', 'unban', 'unhide', 'clear', 'post', 'stats'] };
+      default: return { err: 'unknown_action', actions: ['list', 'delete', 'delete_user', 'ban', 'bans', 'unban', 'unhide', 'clear', 'post', 'stats', 'feedback_list', 'feedback_delete'] };
     }
+  }
+
+  feedback(iph, b) {   // suggestion box: stores message + meta; only the salted IP hash (for the rate limit), never the IP
+    const str = (v) => (typeof v === 'string' ? v : '');
+    if (str(b.hp)) return { ok: true };                                   // honeypot filled -> pretend success, store nothing
+    const msg = str(b.msg).replace(/\r\n?/g, '\n').trim(), contact = str(b.contact).trim();
+    if (!msg) return { err: 'empty' };
+    if (msg.length > FB_MAX || contact.length > FB_CONTACT) return { err: 'too_long' };
+    const now = Date.now();
+    if (this.sql.exec(`SELECT COUNT(*) AS n FROM fb_rl WHERE iph = ? AND ts > ?`, iph, now - FB_WIN).one().n >= FB_RL) return { err: 'rate' };
+    this.sql.exec(`DELETE FROM fb_rl WHERE ts < ?`, now - FB_WIN); this.sql.exec(`INSERT INTO fb_rl (iph, ts) VALUES (?, ?)`, iph, now);   // separate log so admin deletes don't reset the limit
+    const cat = ['idea', 'bug', 'other'].includes(b.cat) ? b.cat : '', lang = b.lang === 'ar' ? 'ar' : 'en';
+    const path = str(b.path).slice(0, 200).replace(/[^\x21-\x7e]/g, '') || '/';
+    const row = this.sql.exec(`INSERT INTO feedback (ts, msg, contact, cat, lang, path, iph) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id`, now, msg, contact, cat, lang, path, iph.slice(0, 16)).one();
+    this.sql.exec(`DELETE FROM feedback WHERE id <= ?`, row.id - FB_KEEP);
+    return { ok: true, id: row.id };
   }
 
   async fetch(req) {
@@ -153,6 +174,7 @@ export class ChatRoom extends DurableObject {
     if (req.method !== 'POST') return J(405, { err: 'method' });
     let body = {}; try { body = await req.json(); } catch { return J(400, { err: 'json' }); }
     if (u.pathname === '/post') { const uid = uidOk(body.uid) || ('ip' + iph.slice(0, 20)); const r = await this.post({ iph, uid, nick: body.nick, text: body.text }); return J(r.err ? 400 : 200, r); }
+    if (u.pathname === '/feedback') { const r = this.feedback(iph, body); return J(r.err === 'rate' ? 429 : r.err ? 400 : 200, r); }
     if (u.pathname === '/report') { const r = await this.report({ iph, id: body.id }); return J(r.err ? 400 : 200, r); }
     if (u.pathname === '/admin') {
       const tok = this.env.ADMIN_TOKEN || '', got = (req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
