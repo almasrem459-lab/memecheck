@@ -1,5 +1,16 @@
-import { analyze, detectChain, score } from './core.js?v=1792800001';
-import { T, usd } from './i18n.js?v=1792800001';
+import { T, usd } from './i18n.js?v=1792900001';
+// Homepage speed: only app.js + i18n.js + nav.js load up front. core.js (the scanner), the result-section modules and the
+// new-tokens list are imported on demand: the scanner + result modules when a scan starts (or a valid CA is pasted),
+// the new-tokens list when it scrolls near the viewport. Result modules only listen for mc:render / mc:final events, so
+// render() waits for them to finish importing before it dispatches (see fireRender).
+const V = '1792900001';
+// same rules as core.js detectChain (kept inline so the homepage does not need core.js before a scan)
+function detectChain(addr) { addr = (addr || '').trim(); if (/^0x[0-9a-fA-F]{40}$/.test(addr)) return 'evm'; if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr)) return 'solana'; return null; }
+let core = null, coreP = null, modsP = null, proof = null; // proof: 'Rugs we caught' card data (see loadProof)
+const loadCore = () => coreP ||= import(`./core.js?v=${V}`).then(m => (core = m));
+const RESULT_MODS = ['devbundle-ui', 'devhist-ui', 'ai-ui', 'extras', 'bubble-ui', 'flows-ui', 'snipers-ui', 'bp-ui', 'swap']; // same order as the old <script> tags
+const loadResultMods = () => modsP ||= Promise.allSettled(RESULT_MODS.map(n => import(`./${n}.js?v=${V}`))).then(() => {});
+const warmScan = () => { loadCore().catch(() => { coreP = null; }); loadResultMods(); };
 const $ = (s) => document.querySelector(s);
 const params = new URLSearchParams(location.search);
 let lang = params.get('lang') || localStorage.getItem('mc_lang') || 'en'; if (!T[lang]) lang = 'en'; let last = null, runId = 0;
@@ -38,15 +49,17 @@ $('#chips').addEventListener('click', (e) => {
 });
 function applyLang() {
   const t = T[lang]; document.documentElement.lang = lang; document.documentElement.dir = t.dir;
-  document.querySelectorAll('[data-t]').forEach(e => e.textContent = t[e.dataset.t]);
+  document.querySelectorAll('[data-t]').forEach(e => { const v = t[e.dataset.t]; if (typeof v === 'string' && e.textContent !== v) e.textContent = v; });
   const nt = document.getElementById('nav-toggle'); if (nt) nt.setAttribute('aria-label', t.navMenu);
-  $('#addr').placeholder = t.placeholder; $('#lang').textContent = t.lang; $('#chain option[value=auto]').textContent = t.auto;
-  onInput(); chips(); pfToggle(); syncBack(); if (last) render(last, true);
+  if ($('#addr').placeholder !== t.placeholder) $('#addr').placeholder = t.placeholder; $('#addr').setAttribute('aria-label', t.placeholder); $('#lang').textContent = t.lang; $('#chain option[value=auto]').textContent = t.auto;
+  onInput(); chips(); pfToggle(); syncBack(); proofPaint(); if (last) render(last, true);
 }
 function onInput() {
   const k = detectChain($('#addr').value); const t = T[lang];
   $('#chain').style.display = 'none'; // EVM chain is auto-detected; the result card's chain chips switch it
-  $('#det').textContent = k ? `${t.detected}: ${k === 'solana' ? t.solana : t.evm}` : '';
+  const d = $('#det'), txt = k ? `${t.detected}: ${k === 'solana' ? t.solana : t.evm}` : t.chainsHint;
+  if (d.textContent !== txt) d.textContent = txt; d.classList.toggle('on', !!k);
+  if (k) warmScan(); // a valid address is in the box: fetch the scanner + result modules now so Scan starts instantly
 }
 const pc = (v) => v === null || v === undefined ? '—' : `<span dir="ltr" class="${v >= 0 ? 'up' : 'dn'}">${v > 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
 const SLOTS = ['ai-box', 'dh-box', 'db-box', 'ex-box', 'bm-box', 'bp-box', 'lf-box', 'sn-box'];
@@ -71,13 +84,19 @@ function withDev(r) {
   const d = r.chain === 'solana' && window.__mcDevHist?.get(r.addr);
   if (!d?.ok || !DEVW[d.flag] || r.findings.some(f => f.id === 'devHistory')) return r;
   const f = { id: 'devHistory', status: d.flag, weight: DEVW[d.flag], params: { total: d.total, bad: d.bad, checked: d.checked, live: d.live, old: d.checked - (d.new || 0) }, critical: false };
-  const findings = [...r.findings, f], v = score(findings);
+  const findings = [...r.findings, f], v = core.score(findings);
   if (r.verdict.level === 'unknown' && v.level === 'low') v.level = 'unknown';
   return { ...r, findings, verdict: v };
 }
 // AI summary (ai-ui.js): the finished, dev-history-adjusted result only; null while a scan is still streaming
 window.__mcLast = () => (window.__done && last && !last.partial ? withDev(last) : null);
 document.addEventListener('mc:devhist', (e) => { if (last && last.addr === e.detail.addr && $('#out').dataset.addr === last.addr) render(last); });
+// Result modules are imported lazily: wait for them (settled, so a failed module never blocks the others), then announce.
+// Promise callbacks run in order, so partial/final renders still reach the modules in the order they happened.
+function fireRender(r) {
+  const lg = lang; skelWatch();
+  loadResultMods().then(() => { if ($('#out').dataset.addr !== r.addr) return; document.dispatchEvent(new CustomEvent('mc:render', { detail: { r, lang: lg } })); skelWatch(); });
+}
 function render(r0, fire) {
   const r = withDev(r0);
   const t = T[lang], m = r.meta, v = r.verdict; const st = { pass: t.pass, warn: t.warn, fail: t.failS, na: t.na };
@@ -121,7 +140,7 @@ function render(r0, fire) {
   $('#a-ca').onclick = (e) => copy(r.addr, e.currentTarget); $('#a-link').onclick = (e) => { warm(); copy(shareUrl(r), e.currentTarget); };
   $('#a-img').onclick = () => { warm(); openShare(r); };
   document.body.classList.add('has-result'); pfToggle(); syncBack();
-  if (fire) { document.dispatchEvent(new CustomEvent('mc:render', { detail: { r, lang } })); skelWatch(); } // extra analyses (devbundle-ui.js, extras.js, bubble-ui.js, flows-ui.js, snipers-ui.js)
+  if (fire) fireRender(r); // extra analyses (devbundle-ui.js, extras.js, bubble-ui.js, flows-ui.js, snipers-ui.js)
 }
 // ---- shareable result card: PNG drawn client-side (canvas 1200x675), in the current language (RTL aware) ----
 const LV = { low: ['#0f3d2a', '#3ee08f'], medium: ['#3d3510', '#ffd447'], high: ['#40220f', '#ff8f3e'], extreme: ['#4a0f17', '#ff4d6a'], unknown: ['#222833', '#aab2c0'] };
@@ -279,6 +298,8 @@ async function run(e, src) {
   ga('scan_start', { chain: gch, ca: a, source });
   if (!k0) { ga('scan_error', { chain: gch, ca: a, source, error: 'invalid_address' }); $('#out').innerHTML = `<div class="card">${t.invalid}</div>`; return; }
   $('#out').dataset.addr = ''; $('#out').innerHTML = `<div class="card"><span class="spin"></span> ${t.checking}</div>`; $('#go').disabled = true;
+  warmScan(); try { await loadCore(); } catch { coreP = null; if (my === runId) { $('#out').innerHTML = `<div class="card">${esc(t.fail)} — <button type="button" class="ghost act" onclick="location.reload()">↻</button></div>`; $('#go').disabled = false; } return; }
+  if (my !== runId) return;
   document.body.classList.add('has-result'); $('#pf-tg') && ($('#pf-tg').dataset.init = ''); pfToggle(); syncBack();
   let fired = false;
   // Prewarmed server snapshot of the main check (read-only peek): shows instantly, then the live check replaces it.
@@ -287,10 +308,10 @@ async function run(e, src) {
   Promise.any(chs.map(c => fetch(`/api/cache?kind=core&chain=${c}&ca=${encodeURIComponent(a)}`).then(r => r.ok ? r.json() : Promise.reject()).then(j => j?.data && j.lv >= 4 ? j : Promise.reject()))).then(j => { // lv: core-logic version (older snapshots used the stale pump.fun curve price)
     if (my !== runId || fired || !j?.data?.verdict) return; const p = { ...j.data, cachedAt: j.at }; last = p; render(p, true); fired = true; }).catch(() => {});
   try {
-    const r = await analyze(a, detectChain(a) === 'evm' ? $('#chain').value : 'solana', (p) => { if (my !== runId) return; last = p; render(p, !fired); fired = true; });
+    const r = await core.analyze(a, detectChain(a) === 'evm' ? $('#chain').value : 'solana', (p) => { if (my !== runId) return; last = p; render(p, !fired); fired = true; });
     if (my !== runId) return;
     last = r; render(r, true); window.__done = true; remember(r);
-    document.dispatchEvent(new CustomEvent('mc:final', { detail: { addr: r.addr, chain: r.chain } })); // ai-ui.js starts here, after the main result
+    loadResultMods().then(() => { if (my === runId) document.dispatchEvent(new CustomEvent('mc:final', { detail: { addr: r.addr, chain: r.chain } })); }); // ai-ui.js starts here, after the main result
     ga('scan_result', { chain: r.chain, risk_level: r.verdict?.level, score: r.verdict?.points, symbol: r.meta?.symbol || undefined, ca: r.addr, source });
     const q = new URLSearchParams(location.search); q.delete('a'); q.set('ca', r.addr); q.set('chain', r.chain);
     history.replaceState(null, '', '?' + q + location.hash);
@@ -312,4 +333,40 @@ const ca = params.get('ca') || params.get('a'), pch = params.get('chain');
 if (pch && $(`#chain option[value="${pch}"]`)) $('#chain').value = pch;
 if (ca) $('#addr').value = ca;
 applyLang(); if (ca) run(null, 'url');
+// ---- new / trending tokens list (pump.js): imported when the card comes near the viewport, or when its toggle is used ----
+let pumpP = null; const loadPump = () => pumpP ||= import(`./pump.js?v=${V}`).catch(() => { pumpP = null; });
+const lazyOn = (el, fn, margin = '300px') => { if (!el) return; if (!('IntersectionObserver' in window)) return void fn();
+  const io = new IntersectionObserver((es) => { if (es.some(x => x.isIntersecting)) { io.disconnect(); fn(); } }, { rootMargin: margin }); io.observe(el); };
+const afterLoad = (fn) => { const go = () => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 2000 }) : setTimeout(fn, 200)); if (document.readyState === 'complete') go(); else addEventListener('load', go, { once: true }); };
+afterLoad(() => lazyOn($('#pf'), loadPump, '150px')); document.addEventListener('click', (e) => { if (e.target.closest?.('#pf-tg')) loadPump(); });
+// ---- 'Rugs we caught' proof: count + 2-3 examples parsed from the static /rugs page (same origin, edge-cached), so it can
+// never drift from the full page. Loaded when it nears the viewport, 6 s timeout; on failure only the link stays. ----
+// proof state is declared at the top (applyLang -> proofPaint runs before this point)
+//  null = not loaded, false = failed, else { study, legacy, ex: [{ s, ca, lvl, pts, drop }] }
+async function loadProof() {
+  try {
+    const r = await fetch('/rugs', { signal: AbortSignal.timeout ? AbortSignal.timeout(6000) : undefined }); if (!r.ok) throw 0;
+    const doc = new DOMParser().parseFromString(await r.text(), 'text/html');
+    const h3 = [...doc.querySelectorAll('h3')].find(h => /^Caught:/.test(h.textContent));
+    const rows = h3 ? [...(h3.nextElementSibling?.querySelectorAll('tbody tr') || [])] : [];
+    const ex = rows.map(tr => { const td = tr.querySelectorAll('td'); const m = /(-?\d+(?:\.\d+)?)%/.exec(td[5]?.textContent || ''), b = /(\d+)/.exec(td[2]?.textContent || '');
+      return { s: td[0]?.querySelector('b')?.textContent || '', ca: td[0]?.querySelector('[title]')?.getAttribute('title') || '', lvl: (td[2]?.querySelector('.badge')?.className || '').replace('badge', '').trim() || 'high', pts: b ? +b[1] : null, drop: m ? +m[1] : null }; });
+    const kv = (lbl) => { const k = [...doc.querySelectorAll('.kv')].find(x => x.querySelector('span')?.textContent.trim() === lbl); return k ? +k.querySelector('b').textContent || 0 : 0; };
+    for (const a of doc.querySelectorAll('h2, article.coin')) { if (ex.length >= 3) break; // legacy records flagged BEFORE collapse that did rug after the flag
+      if (a.tagName === 'H2') { if (/excluded/i.test(a.textContent)) break; continue; }
+      const tags = [...a.querySelectorAll('.verdict .badge')].map(b => b.textContent); if (!tags.some(x => /rugged/i.test(x))) continue;
+      const lv = /(\d+)/.exec(tags[0] || ''), link = a.querySelector('a[href*="?ca="]'); let ca2 = ''; try { ca2 = new URL(link.href).searchParams.get('ca') || ''; } catch {}
+      ex.push({ s: a.querySelector('.tok b')?.textContent || '', ca: ca2, lvl: 'high', pts: lv ? +lv[1] : null, drop: null }); }
+    proof = { study: kv('Caught (High → rugged)') || rows.length, legacy: kv('Rugged after flag'), ex: ex.filter(x => x.s).slice(0, 3) };
+  } catch { proof = false; }
+  proofPaint();
+}
+function proofPaint() {
+  const t = T[lang], n = $('#proof-n'), l = $('#proof-list'); if (!n || !l || proof === null) return;
+  if (!proof || !proof.ex.length) { n.textContent = t.rugsSub; l.innerHTML = ''; $('#proof').classList.add('done'); return; }
+  n.innerHTML = `<b dir="ltr">${proof.study + proof.legacy}</b> ${esc(t.proofN(proof.study + proof.legacy).replace(/^\d+\s*/, ''))}<small>${esc(t.proofSub(proof.study, proof.legacy))}</small>`;
+  l.innerHTML = proof.ex.map(x => `<a class="prx" href="/?ca=${encodeURIComponent(x.ca)}" data-ca="${esc(x.ca)}"><b dir="ltr">${esc(x.s.startsWith('$') ? x.s : '$' + x.s)}</b><span class="badge ${esc(x.lvl)}">${esc(t.proofHigh)}${x.pts != null ? ` <span dir="ltr">${x.pts}</span>` : ''}</span><span class="dn" dir="ltr">${x.drop != null ? x.drop + '%' : esc(t.proofRug)}</span></a>`).join('');
+}
+$('#proof-list')?.addEventListener('click', (e) => { const a = e.target.closest('a[data-ca]'); if (!a || !a.dataset.ca || e.metaKey || e.ctrlKey) return; e.preventDefault(); $('#addr').value = a.dataset.ca; $('#chain').value = 'auto'; onInput(); run(null, 'rugs_home'); window.scrollTo(0, 0); });
+lazyOn($('#proof'), loadProof, '200px');
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('/sw.js').catch(() => {});

@@ -1,6 +1,6 @@
 // Result extras for every chain: live sell-proof (DexScreener txns) + true-cost round-trip calculator.
 // Also mounts a standalone cost calculator on the Meme tab. Does not touch scoring.
-import { dexTokens, sanePairs } from './core.js?v=1792800001';
+import { dexTokens, sanePairs } from './core.js?v=1792900001';
 const $ = (s) => document.querySelector(s);
 const fn = (txt) => txt ? `<details class="fn"><summary title="info">ⓘ</summary><div>${txt}</div></details>` : '';
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -112,6 +112,7 @@ document.addEventListener('mc:render', async (e) => {
     } catch {}
     if (my !== seq) return;
   }
+  if (!box.isConnected) return; // result was cleared (New check / back) while the sell-proof was loading
   const tax = r.findings.find(f => f.id === 'tax' && f.status !== 'na');
   const o = { chain: r.chain, liq, bt: tax ? +tax.params.b.toFixed(2) : 0, st: tax ? +tax.params.s.toFixed(2) : 0,
     taxNote: (r.chain === 'solana' ? t.taxSol : tax ? t.taxSrc('GoPlus') : '') + (liqNote ? ' ' + liqNote : liq == null ? ' ' + t.liqNA : '') };
