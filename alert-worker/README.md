@@ -27,7 +27,15 @@ curl "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook" \
   -d "url=https://memecheck-alert.<account>.workers.dev/telegram"
 ```
 
-4. In Telegram: `/start` → `/watch <CA>`.
+4. Keep watches fresh with an **external cron** (Workers Free already uses 5 cron triggers on this account):
+
+```bash
+# every 5 min — GitHub Action, CF cron elsewhere, or curl from a box
+curl -X POST https://memecheck-alert.memecheck.workers.dev/cron
+# if ALERT_CRON_SECRET set: -H "x-alert-cron: $ALERT_CRON_SECRET"
+```
+
+5. In Telegram: `/start` → `/watch <CA>`.
 
 ## Commands
 

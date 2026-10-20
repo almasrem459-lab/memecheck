@@ -11,9 +11,10 @@ class_name = "WatchBook"
 tag = "v1"
 new_sqlite_classes = ["WatchBook"]
 
-# Cron: poll watches every 5 minutes (needs TELEGRAM_BOT_TOKEN secret)
-[triggers]
-crons = ["*/5 * * * *"]
+# No Workers cron here: this account is on Free (max 5 cron triggers already used).
+# Poll via external cron → POST https://memecheck-alert.memecheck.workers.dev/cron
+# (optional header x-alert-cron: <ALERT_CRON_SECRET>) every 5 minutes.
+# Or upgrade to Workers Paid and re-enable [triggers] crons = ["*/5 * * * *"].
 
 # Secrets (not in git):
 #   wrangler secret put TELEGRAM_BOT_TOKEN
