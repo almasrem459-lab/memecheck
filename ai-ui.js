@@ -1,16 +1,16 @@
 // AI summary + "Ask AI" card (POST /api/ai, Cloudflare Workers AI). Loads only after the main scan has finished
 // (app.js exposes the final, dev-history-adjusted result via window.__mcLast) and never blocks or breaks the scan:
 // any error shows a calm "unavailable" line. Answers are grounded in the compact scan below; nothing else is sent.
-import { T, usd } from './i18n.js?v=1792900500';
+import { T, usd } from './i18n.js?v=1792901200';
 const L = {
   en: { title: 'AI summary', beta: 'beta', reading: 'Reading the scan…', na: 'AI summary unavailable right now.', busy: 'AI is busy right now. Try again in a few minutes.', retry: 'Retry',
     bl: 'Bottom line', nfa: 'Not financial advice. AI can make mistakes; check the findings below.', ask: 'Ask AI about this token', ph: 'Ask about this token…', send: 'Ask',
-    sugg: ['Can I sell?', 'Who holds the most?', 'If I hold 1% what is it worth?'], left: (n) => n === 1 ? '1 question left for this token' : `${n} questions left for this token`, none: 'Question limit reached for this token in this session.',
-    thinking: 'Thinking…', err: 'AI could not answer right now. Your question was not counted.', you: 'You', ai: 'AI', grounded: 'Answers use only this scan’s data. No price predictions or buy/sell advice.' },
+    sugg: ['Can I sell?', 'What do the flags mean?', 'If I hold 1% what is it worth?'], left: (n) => n === 1 ? '1 question left for this token' : `${n} questions left for this token`, none: 'Question limit reached for this token in this session.',
+    thinking: 'Thinking…', err: 'AI could not answer right now. Your question was not counted.', you: 'You', ai: 'AI', grounded: 'Answers use only this scan’s data. Asks about risk, holders, liquidity, taxes, mint/freeze, socials, flags, and bag math. Never asks for keys or money.' },
   ar: { title: 'ملخص الذكاء الاصطناعي', beta: 'تجريبي', reading: 'جارٍ قراءة الفحص…', na: 'ملخص الذكاء الاصطناعي غير متاح حاليًا.', busy: 'الذكاء الاصطناعي مشغول حاليًا. حاول بعد دقائق.', retry: 'إعادة المحاولة',
     bl: 'الخلاصة', nfa: 'ليست نصيحة مالية. قد يخطئ الذكاء الاصطناعي؛ راجع النتائج أدناه.', ask: 'اسأل الذكاء الاصطناعي عن هذه العملة', ph: 'اسأل عن هذه العملة…', send: 'اسأل',
-    sugg: ['هل أستطيع البيع؟', 'من يملك أكبر حصة؟', 'إذا ملكت 1٪ كم تساوي؟'], left: (n) => n === 1 ? 'بقي سؤال واحد لهذه العملة' : n === 2 ? 'بقي سؤالان لهذه العملة' : `بقي ${n} أسئلة لهذه العملة`, none: 'وصلت إلى حد الأسئلة لهذه العملة في هذه الجلسة.',
-    thinking: 'جارٍ التفكير…', err: 'تعذّر على الذكاء الاصطناعي الإجابة الآن. لم يُحتسب سؤالك.', you: 'أنت', ai: 'AI', grounded: 'الإجابات من بيانات هذا الفحص فقط. لا توقعات للسعر ولا نصائح شراء/بيع.' }
+    sugg: ['هل أستطيع البيع؟', 'ماذا تعني الأعلام؟', 'إذا ملكت 1٪ كم تساوي؟'], left: (n) => n === 1 ? 'بقي سؤال واحد لهذه العملة' : n === 2 ? 'بقي سؤالان لهذه العملة' : `بقي ${n} أسئلة لهذه العملة`, none: 'وصلت إلى حد الأسئلة لهذه العملة في هذه الجلسة.',
+    thinking: 'جارٍ التفكير…', err: 'تعذّر على الذكاء الاصطناعي الإجابة الآن. لم يُحتسب سؤالك.', you: 'أنت', ai: 'AI', grounded: 'الإجابات من بيانات هذا الفحص فقط (المخاطر، الحاملين، السيولة، الضرائب، السك/التجميد، الروابط، الأعلام، وحساب الحقيبة). لا يطلب مفاتيح أو أموالاً.' }
 };
 const MAXQ = 10, MAXLEN = 200;
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -31,10 +31,31 @@ function compact(r) {
       launch: m.launch?.four ? (m.launch.curve ? `Four.meme bonding curve, ${Math.round(m.launch.progress || 0)}% to graduation` : 'graduated from Four.meme') : '' },
     findings: (r.findings || []).map(f => ({ s: f.status, t: say(f).replace(/\$0\.0{6,}(?!\d*[1-9])\d*/g, '$0') })),
     holders: (r.extra?.holders || []).slice(0, 5).map(h => ({ w: String(h.owner || '').length > 12 ? h.owner.slice(0, 4) + '…' + h.owner.slice(-4) : h.owner, p: (+h.pct).toFixed(2) + '%' })),
-    flags: (r.flags || []).slice(0, 8).map(x => `${x.name}${x.level ? ` (${x.level})` : ''}`) };
+    flags: (r.flags || []).slice(0, 8).map(x => {
+      const head = `${x.name || ''}${x.level ? ` (${x.level})` : ''}`;
+      const desc = String(x.desc || '').replace(/\s+/g, ' ').trim().slice(0, 160);
+      return desc ? `${head}: ${desc}` : head;
+    }),
+    socials: (m.socials || []).slice(0, 6).map(s => ({ t: String(s.t || 'social').slice(0, 24), u: String(s.u || '').slice(0, 140) })).filter(s => /^https?:\/\//i.test(s.u)) };
   if (m.priceUsd != null && isFinite(+m.priceUsd) && +m.priceUsd > 0) out.priceUsd = +m.priceUsd;
   if (m.mcap != null && isFinite(+m.mcap) && +m.mcap > 0) out.mcapUsd = +m.mcap;
+  if (m.liquidity > 0 && isFinite(+m.liquidity)) out.liqUsd = +m.liquidity;
   return out;
+}
+
+
+// Hard refuse: seed phrases / private keys / "send money" scam prompts (never forward to the model).
+function localRefuse(q) {
+  const ql = String(q || '').toLowerCase(), ar = lang() === 'ar';
+  if (/\b(seed\s*phrase|recovery\s*phrase|mnemonic|private\s*key|secret\s*key|مفتاح\s*خاص|عبارة\s*الاسترداد)\b/i.test(ql)
+    || /\b(send|transfer|wire)\s+(me\s+)?(your\s+)?(sol|eth|bnb|btc|usdt|usdc|crypto|money|funds|coins?)\b/i.test(ql)
+    || /\b(أرسل|حول|حوّل).{0,20}(أموالك|محفظتك|عملات|USDT|SOL)\b/i.test(ql)
+    || /\b(how to (scam|phish|drain)|rug (them|holders)|steal (wallets?|keys?))\b/i.test(ql)) {
+    return ar
+      ? 'لن أطلب أبدًا عبارة الاسترداد أو المفاتيح الخاصة أو تحويل أموال. لا تشاركها مع أحد. أشرح فقط بيانات هذا الفحص.'
+      : 'I never ask for seed phrases, private keys, or for anyone to send money. Do not share those with anyone. I only explain this scan\'s data.';
+  }
+  return null;
 }
 
 // Client-side valuation for clear holdings/price questions (fraction of supply × mcap, or tokens × price).
@@ -117,6 +138,13 @@ async function ask(q0) {
   const item = { q, a: '', pending: true }; chat.push(item); st.busy = true;
   const inp = document.querySelector('#ai-card input'); if (inp) inp.value = '';
   paint(); ga('ai_ask', { ca: scan.ca, chain: scan.chain, lang: lang() });
+  const refused = localRefuse(q);
+  if (refused) {
+    item.pending = false; item.a = refused; st.busy = false; bump(tok);
+    if (st.tok === tok) paint();
+    document.querySelector('#ai-card .ai-msgs')?.lastElementChild?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    return;
+  }
   const local = localWorth(q, scan);
   if (local) {
     item.pending = false; item.a = local; st.busy = false; bump(tok);

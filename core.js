@@ -76,6 +76,11 @@ function marketFindings(ds, chainKey, addr) {
     ch: { m5: num(p.priceChange?.m5), h1: num(p.priceChange?.h1), h6: num(p.priceChange?.h6), h24: num(p.priceChange?.h24) },
     created: p.pairCreatedAt, dex: p.dexId, labels: p.labels || null, url: p.url, image: p.info?.imageUrl, pairs: good.length, pairAddr: p.pairAddress,
   });
+  // DexScreener socials/websites (for Ask AI + future UI); URLs only, capped
+  const socials = [];
+  for (const w of (p.info?.websites || [])) { const u = String(w?.url || '').trim(); if (/^https?:\/\//i.test(u)) socials.push({ t: 'website', u: u.slice(0, 140) }); }
+  for (const s of (p.info?.socials || [])) { const u = String(s?.url || '').trim(); if (/^https?:\/\//i.test(u)) socials.push({ t: String(s.type || 'social').slice(0, 24), u: u.slice(0, 140) }); }
+  if (socials.length) m.socials = socials.slice(0, 6);
   if (chainKey === 'bsc' && isCurve(p)) out.push(F('liquidity', 'warn', 15, { v: liq, curve: 1 })); // Four.meme bonding curve: no DEX pool yet (Solana curves keep their existing rule)
   else out.push(liq < 5000 ? F('liquidity', 'fail', 20, { v: liq }) : liq < 20000 ? F('liquidity', 'warn', 15, { v: liq }) : F('liquidity', 'pass', 15, { v: liq }));
   if (m.created) {
