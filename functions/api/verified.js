@@ -1,12 +1,14 @@
-// GET  /api/verified  → { verified[], sponsored[], cfg }
+// GET  /api/verified  → { verified[], sponsored[], banners[], cfg }
 // POST /api/verified  → claim (on-chain USDC verify) | approve (Bearer REVENUE_ADMIN_TOKEN)
-// Payment / Verified badge NEVER changes risk score — UI only.
+// kinds: verified | sponsored | banner — Payment NEVER changes risk score — UI only.
 const PAY_TO = 'F29KLNySMghCZbpMqhNaR8k3jMUZHd485CHxX7x9Z9u5';
 const USDC = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 const VERIFY_USDC = 75;
 const AD_USDC = 50;
+const BANNER_USDC = 150;
 const VERIFY_DAYS = 30;
 const AD_DAYS = 7;
+const BANNER_DAYS = 7;
 const KV_KEY = 'revenue:v1';
 const CA_SOL = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 const CA_EVM = /^0x[0-9a-fA-F]{40}$/;
@@ -23,14 +25,36 @@ const json = (status, body) => new Response(JSON.stringify(body), {
 });
 const cfg = () => ({
   payTo: PAY_TO, usdcMint: USDC, verifyPriceUsdc: VERIFY_USDC, adPriceUsdcWeek: AD_USDC,
-  verifyDays: VERIFY_DAYS, adDaysDefault: AD_DAYS,
-  note: 'Sponsored / Verified is a paid listing badge only — it does not change the risk score.',
+  bannerPriceUsdcWeek: BANNER_USDC,
+  verifyDays: VERIFY_DAYS, adDaysDefault: AD_DAYS, bannerDaysDefault: BANNER_DAYS,
+  note: 'Sponsored / Verified / Banner are paid placements only — they do not change the risk score.',
 });
+
+function normalizeKind(k) {
+  const s = String(k || '').toLowerCase();
+  if (s === 'banner' || s === 'sponsored') return s;
+  return 'verified';
+}
+function priceFor(kind) {
+  if (kind === 'banner') return BANNER_USDC;
+  if (kind === 'sponsored') return AD_USDC;
+  return VERIFY_USDC;
+}
+function daysFor(kind) {
+  if (kind === 'banner') return BANNER_DAYS;
+  if (kind === 'sponsored') return AD_DAYS;
+  return VERIFY_DAYS;
+}
+function arrFor(store, kind) {
+  if (kind === 'banner') return store.banners;
+  if (kind === 'sponsored') return store.sponsored;
+  return store.verified;
+}
 
 function prune(list, now = Date.now()) {
   return (Array.isArray(list) ? list : []).filter((x) => x && x.mint && (!x.until || x.until > now));
 }
-function emptyStore() { return { verified: [], sponsored: [], updatedAt: 0 }; }
+function emptyStore() { return { verified: [], sponsored: [], banners: [], updatedAt: 0 }; }
 
 async function loadStore(env) {
   const base = emptyStore();
@@ -40,6 +64,7 @@ async function loadStore(env) {
       if (raw && typeof raw === 'object') {
         base.verified = prune(raw.verified);
         base.sponsored = prune(raw.sponsored);
+        base.banners = prune(raw.banners);
         base.updatedAt = +raw.updatedAt || 0;
       }
     }
@@ -52,6 +77,7 @@ async function saveStore(env, store) {
   store.updatedAt = Date.now();
   store.verified = prune(store.verified);
   store.sponsored = prune(store.sponsored);
+  store.banners = prune(store.banners);
   await env.MEMECHECK_CACHE.put(KV_KEY, JSON.stringify(store));
   return store;
 }
@@ -158,16 +184,18 @@ export async function onRequestPost({ request, env }) {
     const auth = request.headers.get('authorization') || '';
     const got = (auth.match(/^Bearer\s+(\S+)$/i) || [])[1] || '';
     if (!tok || got.length < 20 || got !== tok) return json(401, { err: 'unauthorized' });
-    const mint = s(b.mint), kind = s(b.kind) === 'sponsored' ? 'sponsored' : 'verified';
+    const mint = s(b.mint), kind = normalizeKind(b.kind);
     if (!validMint(mint)) return json(400, { err: 'bad_mint' });
-    const days = Math.min(365, Math.max(1, +b.days || (kind === 'sponsored' ? AD_DAYS : VERIFY_DAYS)));
+    const days = Math.min(365, Math.max(1, +b.days || daysFor(kind)));
     const entry = {
       mint, name: s(b.name).slice(0, 64), url: s(b.url).slice(0, 200),
+      image: s(b.image || b.imageUrl).slice(0, 400) || null,
       until: Date.now() + days * 864e5, paid: true, tx: s(b.tx).slice(0, 128) || null,
-      at: Date.now(), by: 'admin', note: 'Sponsored listing — risk score unchanged',
+      at: Date.now(), by: 'admin', kind,
+      note: 'Paid placement — risk score unchanged',
     };
     const store = await loadStore(env);
-    const arr = kind === 'sponsored' ? store.sponsored : store.verified;
+    const arr = arrFor(store, kind);
     const i = arr.findIndex((x) => x.mint.toLowerCase() === mint.toLowerCase());
     if (i >= 0) arr[i] = { ...arr[i], ...entry }; else arr.push(entry);
     await saveStore(env, store);
@@ -175,24 +203,25 @@ export async function onRequestPost({ request, env }) {
   }
 
   // claim: on-chain verify then auto-list
-  const mint = s(b.mint), tx = s(b.tx), kind = s(b.kind) === 'sponsored' ? 'sponsored' : 'verified';
+  const mint = s(b.mint), tx = s(b.tx), kind = normalizeKind(b.kind);
   if (!validMint(mint)) return json(400, { err: 'bad_mint' });
   if (!SIG_RE.test(tx)) return json(400, { err: 'bad_tx' });
-  const need = kind === 'sponsored' ? AD_USDC : VERIFY_USDC;
+  const need = priceFor(kind);
   let pay; try { pay = await verifyPayment(tx, need); } catch (e) { return json(502, { err: 'rpc', detail: String(e.message || e).slice(0, 120) }); }
   if (!pay.ok) return json(400, { err: pay.err, received: pay.received, need: pay.need, tip: 'Send ≥' + need + ' USDC to ' + PAY_TO + ' then paste the signature. Jojo can also admin-approve later.' });
 
-  const days = kind === 'sponsored' ? AD_DAYS : VERIFY_DAYS;
+  const days = daysFor(kind);
   const entry = {
     mint, name: s(b.name).slice(0, 64), url: s(b.url).slice(0, 200),
+    image: s(b.image || b.imageUrl).slice(0, 400) || null,
     until: Date.now() + days * 864e5, paid: true, tx, receivedUsdc: pay.received,
-    at: Date.now(), by: 'onchain', memo: (pay.memo || '').slice(0, 200),
-    note: 'Sponsored / Verified listing — does not change risk score',
+    at: Date.now(), by: 'onchain', memo: (pay.memo || '').slice(0, 200), kind,
+    note: 'Paid placement — does not change risk score',
   };
   try {
     const store = await loadStore(env);
     // idempotent on same tx
-    const arr = kind === 'sponsored' ? store.sponsored : store.verified;
+    const arr = arrFor(store, kind);
     if (arr.some((x) => x.tx === tx)) return json(200, { ok: true, entry: arr.find((x) => x.tx === tx), kind, dup: true, cfg: cfg() });
     const i = arr.findIndex((x) => x.mint.toLowerCase() === mint.toLowerCase());
     if (i >= 0) arr[i] = { ...arr[i], ...entry }; else arr.push(entry);

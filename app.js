@@ -1,9 +1,9 @@
-import { T, usd } from './i18n.js?v=1792912000';
+import { T, usd } from './i18n.js?v=1792914600';
 // Homepage speed: only app.js + i18n.js + nav.js load up front. core.js (the scanner), the result-section modules and the
 // new-tokens list are imported on demand: the scanner + result modules when a scan starts (or a valid CA is pasted),
 // the new-tokens list when it scrolls near the viewport. Result modules only listen for mc:render / mc:final events, so
 // render() waits for them to finish importing before it dispatches (see fireRender).
-const V = '1792912000';
+const V = '1792914600';
 // same rules as core.js detectChain (kept inline so the homepage does not need core.js before a scan)
 function detectChain(addr) { addr = (addr || '').trim(); if (/^0x[0-9a-fA-F]{40}$/.test(addr)) return 'evm'; if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr)) return 'solana'; return null; }
 let core = null, coreP = null, modsP = null, proof = null; // proof: 'Rugs we caught' card data (see loadProof)
@@ -366,7 +366,9 @@ let pumpP = null; const loadPump = () => pumpP ||= import(`./pump.js?v=${V}`).ca
 const lazyOn = (el, fn, margin = '300px') => { if (!el) return; if (!('IntersectionObserver' in window)) return void fn();
   const io = new IntersectionObserver((es) => { if (es.some(x => x.isIntersecting)) { io.disconnect(); fn(); } }, { rootMargin: margin }); io.observe(el); };
 const afterLoad = (fn) => { const go = () => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 2000 }) : setTimeout(fn, 200)); if (document.readyState === 'complete') go(); else addEventListener('load', go, { once: true }); };
-afterLoad(() => lazyOn($('#pf'), loadPump, '150px')); document.addEventListener('click', (e) => { if (e.target.closest?.('#pf-tg')) loadPump(); });
+afterLoad(() => lazyOn($('#pf'), loadPump, '150px'));
+// Homepage revenue surfaces (Hero Banner + Sponsored strip) — idle-load so empty CTA is visible without a scan
+afterLoad(() => { import(`./revenue-ui.js?v=${V}`).catch(() => {}); }); document.addEventListener('click', (e) => { if (e.target.closest?.('#pf-tg')) loadPump(); });
 // ---- 'Rugs we caught' proof: count + 2-3 examples parsed from the static /rugs page (same origin, edge-cached), so it can
 // never drift from the full page. Loaded when it nears the viewport, 6 s timeout; on failure only the link stays. ----
 // proof state is declared at the top (applyLang -> proofPaint runs before this point)

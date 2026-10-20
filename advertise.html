@@ -1,11 +1,11 @@
 <!doctype html><html lang="en" dir="ltr"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Advertise · MemeCheckShield</title>
-<meta name="description" content="Sponsored listings on MemeCheckShield — clearly labeled, never changes risk scores.">
+<meta name="description" content="Sponsored Hero Banner, strip &amp; Verified listings on MemeCheckShield — clearly labeled, never changes risk scores.">
 <link rel="canonical" href="https://memecheck.pages.dev/advertise">
 <meta name="theme-color" content="#0b0f17">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-<link rel="stylesheet" href="style.css?v=1792912000">
+<link rel="stylesheet" href="style.css?v=1792914600">
 </head><body>
 <header><button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span><span></span><span></span></button><div class="brand"><img src="/icon-64.png" width="26" height="26" alt="MemeCheckShield"> <b>MemeCheckShield</b></div></header>
 <nav class="site-nav" id="site-nav" hidden>
@@ -22,7 +22,13 @@
 <h1 data-s="h1">Advertise with us</h1>
 <p class="tag" data-s="sub">Clearly labeled <b>Sponsored</b> placements — separate from organic scan results. Paying never changes a risk score.</p>
 
-<section class="card" style="margin-top:16px">
+<section class="card" style="margin-top:16px;border-color:#ffd44755">
+<h2 data-s="hBan">Hero Banner <span class="mc-spon-tag" style="vertical-align:middle">Sponsored</span></h2>
+<p data-s="pBan">Premium homepage slot (under the checker, above organic content): <b dir="ltr">150 USDC / week</b>. Large banner with optional image, token title, and link to scan (<code dir="ltr">/?ca=</code>). Clearly labeled Sponsored — never looks like a scan result.</p>
+<p class="muted" data-s="pBanHow">After paying: send mint + tx to Jojo for admin approve with <code dir="ltr">kind: "banner"</code>, or claim via the API the same way as the strip.</p>
+</section>
+
+<section class="card" style="margin-top:12px">
 <h2 data-s="hHome">Homepage strip</h2>
 <p data-s="pHome">Suggested price: <b dir="ltr">50 USDC / week</b>. Shows on the homepage Sponsored strip with your token name + link to scan.</p>
 </section>
@@ -39,22 +45,24 @@
 <p><code dir="ltr" id="pay">F29KLNySMghCZbpMqhNaR8k3jMUZHd485CHxX7x9Z9u5</code>
 <button type="button" class="ghost act" id="copy" style="margin-inline-start:8px">Copy</button></p>
 <p class="muted" data-s="pUsdc">USDC mint: <code dir="ltr">EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v</code></p>
-<p class="muted" data-s="pAfter">After payment: use Get Verified on a Low-risk result, or email/Telegram Jojo with mint + tx signature for manual approve.</p>
+<p class="muted" data-s="pAfter">After payment: use Get Verified on a Low-risk result, or email/Telegram Jojo with mint + tx signature for manual approve (<code dir="ltr">kind: "banner"</code> | <code dir="ltr">"sponsored"</code> | <code dir="ltr">"verified"</code>).</p>
 </section>
 
 <p style="margin-top:16px"><a href="/pro" data-s="pro">Pro · Telegram rug alerts (waitlist)</a> · <a href="/">← Checker</a></p>
 </main>
 <footer><span>Not financial advice. Sponsored labels are paid placements only.</span></footer>
-<script src="nav.js?v=1792912000" defer></script>
+<script src="nav.js?v=1792914600" defer></script>
 <script>
 const PAY = 'F29KLNySMghCZbpMqhNaR8k3jMUZHd485CHxX7x9Z9u5';
 document.getElementById('copy').onclick = () => navigator.clipboard?.writeText(PAY).then(() => { const b = document.getElementById('copy'); const o = b.textContent; b.textContent = 'Copied!'; setTimeout(() => b.textContent = o, 1200); });
 const AR = {
   home:'الرئيسية', crumb:'أعلن معنا', h1:'أعلن معنا', sub:'مساحات <b>مموَّلة</b> بوضوح — منفصلة عن نتائج الفحص. الدفع لا يغيّر درجة الخطورة.',
+  hBan:'بانر رئيسي', pBan:'مساحة مميزة في أعلى الصفحة الرئيسية (تحت الفاحص): <b dir="ltr">150 USDC / أسبوع</b>. بانر كبير مع صورة اختيارية واسم العملة ورابط الفحص. موسوم بوضوح كمموَّل — لا يبدو كنتيجة فحص.',
+  pBanHow:'بعد الدفع: أرسل العنوان وتوقيع المعاملة لـ Jojo للموافقة بـ <code dir="ltr">kind: "banner"</code>، أو اطلب عبر الـ API مثل الشريط.',
   hHome:'شريط الصفحة الرئيسية', pHome:'السعر المقترح: <b dir="ltr">50 USDC / أسبوع</b>. يظهر في شريط المموَّل مع اسم العملة ورابط الفحص.',
   hVer:'إدراج موثّق', pVer:'للعملات ذات الخطورة <b>المنخفضة</b> حاليًا: <b dir="ltr">75 USDC</b> لمدة 30 يومًا. الشارة تقول إدراج موثّق/مموَّل — الدرجة كما هي.',
   pFlow:'افحص عنوانك → إن كانت الخطورة منخفضة اضغط <b>احصل على التوثيق</b> → ادفع USDC → الصق التوقيع للتحقق على السلسلة.',
-  hPay:'الدفع', pPay:'أرسل USDC (Solana SPL) إلى محفظة Jojo (Phantom):', pUsdc:'عملة USDC:', pAfter:'بعد الدفع: استخدم «احصل على التوثيق» أو راسل Jojo بعنوان العملة وتوقيع المعاملة للموافقة اليدوية.',
+  hPay:'الدفع', pPay:'أرسل USDC (Solana SPL) إلى محفظة Jojo (Phantom):', pUsdc:'عملة USDC:', pAfter:'بعد الدفع: استخدم «احصل على التوثيق» أو راسل Jojo بعنوان العملة وتوقيع المعاملة للموافقة اليدوية (<code dir="ltr">kind: "banner"</code> | <code dir="ltr">"sponsored"</code> | <code dir="ltr">"verified"</code>).',
   pro:'Pro · تنبيهات تيليجرام (قائمة انتظار)'
 };
 function apply() {

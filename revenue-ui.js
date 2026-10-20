@@ -1,6 +1,9 @@
-// Revenue UI: Get Verified modal, Sponsored/Verified badges, homepage ads strip.
+// Revenue UI: Get Verified modal, Sponsored/Verified badges, Hero Banner + homepage ads strip.
 // Payment NEVER changes risk score — badges are labeled Sponsored / Verified listing only.
-import { PAY_TO, USDC_MINT, VERIFY_PRICE_USDC, AD_PRICE_USDC_WEEK, VERIFY_DAYS, AD_DAYS_DEFAULT, TERMINAL_REFS, FEE_NOTE_WHEN_OFF } from './revenue-cfg.js';
+import {
+  PAY_TO, USDC_MINT, VERIFY_PRICE_USDC, AD_PRICE_USDC_WEEK, BANNER_PRICE_USDC_WEEK,
+  VERIFY_DAYS, AD_DAYS_DEFAULT, BANNER_DAYS_DEFAULT, TERMINAL_REFS, FEE_NOTE_WHEN_OFF,
+} from './revenue-cfg.js';
 
 const L = {
   en: {
@@ -32,6 +35,12 @@ const L = {
     howPay: 'Prefer Solana Pay / Phantom: send exactly the amount in USDC (SPL) to the address below. Optional memo: your mint.',
     copied: 'Copied!',
     proLink: 'Pro · Telegram alerts',
+    bannerTitle: 'Hero Banner',
+    bannerTag: 'Sponsored',
+    bannerEmpty: (n) => `Advertise here — from ${n} USDC/week`,
+    bannerCta: 'Book the Hero Banner',
+    bannerBlurb: 'Large homepage banner — clearly labeled Sponsored. Never changes risk scores.',
+    bannerModalTitle: 'Hero Banner placement',
   },
   ar: {
     verified: 'إدراج موثّق',
@@ -62,12 +71,24 @@ const L = {
     howPay: 'يفضّل Solana Pay / Phantom: أرسل المبلغ بـ USDC إلى العنوان أدناه. مذكرة اختيارية: عنوان عملتك.',
     copied: 'تم النسخ!',
     proLink: 'Pro · تنبيهات تيليجرام',
+    bannerTitle: 'بانر رئيسي',
+    bannerTag: 'مموَّل',
+    bannerEmpty: (n) => `أعلن هنا — من ${n} USDC/أسبوع`,
+    bannerCta: 'احجز البانر الرئيسي',
+    bannerBlurb: 'بانر كبير في الصفحة الرئيسية — موسوم بوضوح كمموَّل. لا يغيّر درجات الخطورة.',
+    bannerModalTitle: 'مساحة البانر الرئيسي',
   },
 };
 
 let cache = null, cacheAt = 0;
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const langOf = (lang) => L[lang] || L.en;
+const safeImg = (u) => {
+  if (!u || typeof u !== 'string') return '';
+  const t = u.trim();
+  if (!/^https:\/\//i.test(t)) return '';
+  return t.slice(0, 400);
+};
 
 async function load(force) {
   if (!force && cache && Date.now() - cacheAt < 60_000) return cache;
@@ -78,10 +99,10 @@ async function load(force) {
     try {
       const r = await fetch('/revenue-inventory.json');
       if (r.ok) cache = await r.json();
-    } catch { cache = { verified: [], sponsored: [] }; }
+    } catch { cache = { verified: [], sponsored: [], banners: [] }; }
   }
   cacheAt = Date.now();
-  return cache || { verified: [], sponsored: [] };
+  return cache || { verified: [], sponsored: [], banners: [] };
 }
 
 function findVerified(mint, data) {
@@ -89,7 +110,8 @@ function findVerified(mint, data) {
   const m = mint.toLowerCase();
   const now = Date.now();
   return (data.verified || []).find((x) => x.mint && x.mint.toLowerCase() === m && (!x.until || x.until > now))
-    || (data.sponsored || []).find((x) => x.mint && x.mint.toLowerCase() === m && (!x.until || x.until > now));
+    || (data.sponsored || []).find((x) => x.mint && x.mint.toLowerCase() === m && (!x.until || x.until > now))
+    || (data.banners || []).find((x) => x.mint && x.mint.toLowerCase() === m && (!x.until || x.until > now));
 }
 
 function solanaPayUrl(amount, memo) {
@@ -101,9 +123,16 @@ function solanaPayUrl(amount, memo) {
   return u.toString();
 }
 
-function phantomDeepLink(amount) {
-  // Universal link: user still confirms in Phantom; amount is USDC hint via memo instructions page
-  return `https://phantom.app/ul/browse/${encodeURIComponent(location.origin + '/advertise')}?ref=memecheck`;
+function priceDays(kind) {
+  if (kind === 'banner') return { price: BANNER_PRICE_USDC_WEEK, days: BANNER_DAYS_DEFAULT };
+  if (kind === 'sponsored') return { price: AD_PRICE_USDC_WEEK, days: AD_DAYS_DEFAULT };
+  return { price: VERIFY_PRICE_USDC, days: VERIFY_DAYS };
+}
+
+function modalTitle(t, kind) {
+  if (kind === 'banner') return t.bannerModalTitle;
+  if (kind === 'sponsored') return t.adTitle;
+  return t.title;
 }
 
 function mountBadge(r, lang) {
@@ -118,7 +147,8 @@ function mountBadge(r, lang) {
     el.id = 'mc-verified-badge';
     el.className = 'mc-rev-badge';
     el.title = t.verifiedTip;
-    el.innerHTML = `<b>${esc(hit.url || hit.name ? t.sponsored : t.verified)}</b> <small>${esc(t.verifiedTip)}</small>`;
+    const paidLabel = (hit.kind === 'banner' || hit.kind === 'sponsored' || hit.url || hit.name) ? t.sponsored : t.verified;
+    el.innerHTML = `<b>${esc(paidLabel)}</b> <small>${esc(t.verifiedTip)}</small>`;
     host.after(el);
   });
 }
@@ -146,8 +176,7 @@ function mountGetVerifiedBtn(r, lang) {
 
 function openVerifyModal(r, lang, kind) {
   const t = langOf(lang);
-  const price = kind === 'sponsored' ? AD_PRICE_USDC_WEEK : VERIFY_PRICE_USDC;
-  const days = kind === 'sponsored' ? AD_DAYS_DEFAULT : VERIFY_DAYS;
+  const { price, days } = priceDays(kind);
   document.getElementById('mc-rev-modal')?.remove();
   const d = document.createElement('div');
   d.id = 'mc-rev-modal';
@@ -156,7 +185,7 @@ function openVerifyModal(r, lang, kind) {
   d.setAttribute('aria-modal', 'true');
   const payLink = solanaPayUrl(price, r.addr);
   d.innerHTML = `<div class="mc-mbox mc-rev-box">
-    <h3>${esc(kind === 'sponsored' ? t.adTitle : t.title)}</h3>
+    <h3>${esc(modalTitle(t, kind))}</h3>
     <p class="muted">${esc(t.verifiedTip)}</p>
     <div class="mc-rev-kv"><span>${esc(t.mint)}</span><code dir="ltr">${esc(r.addr)}</code></div>
     <div class="mc-rev-kv"><span>${esc(t.price(price))}</span><b dir="ltr">${esc(t.days(days))}</b></div>
@@ -183,10 +212,6 @@ function openVerifyModal(r, lang, kind) {
       const b = d.querySelector('#mc-rev-copy'); const o = b.textContent; b.textContent = t.copied; setTimeout(() => b.textContent = o, 1200);
     });
   };
-  // Prefer copying address if solana: scheme unsupported
-  d.querySelector('#mc-rev-paylink').addEventListener('click', (e) => {
-    // keep deeplink; also ensure user has address
-  });
   d.querySelector('#mc-rev-go').onclick = async () => {
     const tx = d.querySelector('#mc-rev-tx').value.trim();
     const msg = d.querySelector('#mc-rev-msg');
@@ -204,6 +229,8 @@ function openVerifyModal(r, lang, kind) {
       msg.textContent = t.ok;
       cache = null;
       mountBadge(r, lang);
+      if (kind === 'banner') mountHeroBanner(lang);
+      if (kind === 'sponsored') mountHomeStrip(lang, true);
       setTimeout(close, 1600);
     } catch (e) {
       msg.textContent = t.fail + ': ' + String(e.message || e).slice(0, 80);
@@ -213,9 +240,62 @@ function openVerifyModal(r, lang, kind) {
   d.querySelector('#mc-rev-tx').focus();
 }
 
-function mountHomeStrip(lang) {
+function mountHeroBanner(lang) {
+  const main = document.getElementById('sec-meme');
+  const hero = main?.querySelector('.hero');
+  if (!main || !hero) return;
+  const t = langOf(lang);
+  let sec = document.getElementById('mc-hero-banner');
+  if (!sec) {
+    sec = document.createElement('aside');
+    sec.id = 'mc-hero-banner';
+    sec.className = 'mc-hero-banner';
+    sec.setAttribute('aria-label', t.bannerTitle);
+    // Under hero (tagline + checker form) — prominent, above organic "what we check"
+    hero.after(sec);
+  }
+  sec.setAttribute('aria-label', t.bannerTitle);
+  sec.innerHTML = `<div class="mc-hero-inner" id="mc-hero-inner"><span class="muted">…</span></div>`;
+
+  load().then((data) => {
+    const inner = document.getElementById('mc-hero-inner');
+    if (!inner) return;
+    const now = Date.now();
+    const ads = (data.banners || []).filter((x) => x && x.mint && (!x.until || x.until > now));
+    if (!ads.length) {
+      inner.innerHTML = `<a class="mc-hero-empty" href="/advertise">
+        <span class="mc-spon-tag">${esc(t.bannerTag)}</span>
+        <span class="mc-hero-empty-t">${esc(t.bannerEmpty(BANNER_PRICE_USDC_WEEK))}</span>
+        <span class="mc-hero-empty-cta">${esc(t.bannerCta)} <span class="arr" aria-hidden="true">→</span></span>
+      </a>
+      <p class="muted mc-hero-note">${esc(t.bannerBlurb)}</p>`;
+      return;
+    }
+    // Show the first active banner (highest visibility slot — one at a time)
+    const x = ads[0];
+    const href = `/?ca=${encodeURIComponent(x.mint)}`;
+    const label = x.name || (x.mint.slice(0, 4) + '…' + x.mint.slice(-4));
+    const img = safeImg(x.image || x.imageUrl);
+    const imgHtml = img
+      ? `<img class="mc-hero-img" src="${esc(img)}" alt="" width="72" height="72" loading="lazy" referrerpolicy="no-referrer">`
+      : `<span class="mc-hero-img mc-hero-img-ph" aria-hidden="true">◎</span>`;
+    inner.innerHTML = `<a class="mc-hero-paid" href="${esc(href)}">
+      ${imgHtml}
+      <span class="mc-hero-body">
+        <span class="mc-spon-tag">${esc(t.bannerTag)}</span>
+        <b class="mc-hero-name" dir="ltr">${esc(label)}</b>
+        <span class="mc-hero-sub muted" dir="ltr">${esc(x.mint.slice(0, 6) + '…' + x.mint.slice(-4))} · Scan →</span>
+      </span>
+    </a>
+    <p class="muted mc-hero-note">${esc(t.bannerBlurb)} · <a href="/advertise">${esc(t.advertise)}</a></p>`;
+  });
+}
+
+function mountHomeStrip(lang, forceRemount) {
   const home = document.getElementById('home');
-  if (!home || document.getElementById('mc-sponsored-strip')) return;
+  if (!home) return;
+  if (forceRemount) document.getElementById('mc-sponsored-strip')?.remove();
+  if (document.getElementById('mc-sponsored-strip')) return;
   const t = langOf(lang);
   const sec = document.createElement('section');
   sec.id = 'mc-sponsored-strip';
@@ -266,17 +346,25 @@ document.addEventListener('mc:render', (e) => {
   mountTerminalRefs(lang);
 });
 
-// Homepage strip (no scan yet)
+// Homepage: hero banner + strip (no scan yet)
 const bootLang = () => (document.documentElement.lang === 'ar' ? 'ar' : 'en');
-if (document.getElementById('home')) {
-  mountHomeStrip(bootLang());
+if (document.getElementById('home') || document.querySelector('#sec-meme .hero')) {
+  mountHeroBanner(bootLang());
+  if (document.getElementById('home')) mountHomeStrip(bootLang());
   new MutationObserver(() => {
+    const lang = bootLang();
+    const t = langOf(lang);
     const strip = document.getElementById('mc-sponsored-strip');
-    if (!strip) return;
-    const t = langOf(bootLang());
-    const tag = strip.querySelector('.mc-spon-tag');
-    if (tag && !tag.closest('.mc-spon-item')) tag.textContent = t.stripTitle;
+    if (strip) {
+      const tag = strip.querySelector('.mc-spon-tag');
+      if (tag && !tag.closest('.mc-spon-item')) tag.textContent = t.stripTitle;
+    }
+    const hero = document.getElementById('mc-hero-banner');
+    if (hero) {
+      // Refresh copy on lang flip
+      mountHeroBanner(lang);
+    }
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
 }
 
-export { openVerifyModal, load as loadRevenue, PAY_TO, VERIFY_PRICE_USDC };
+export { openVerifyModal, load as loadRevenue, PAY_TO, VERIFY_PRICE_USDC, BANNER_PRICE_USDC_WEEK };
