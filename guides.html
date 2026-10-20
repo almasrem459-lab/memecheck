@@ -84,7 +84,7 @@ main.pg table.acc th{color:#9aa4b8;font-weight:600}
 <li>Message <code>@BotFather</code> → <code>/newbot</code> → copy the token.</li>
 <li>Give the token to Jojo / deploy: <code>cd alert-worker && wrangler secret put TELEGRAM_BOT_TOKEN</code></li>
 <li>Also set <code>MEMECHECK_ORIGIN=https://memecheck.pages.dev</code> (default).</li>
-<li>Deploy: <code>wrangler deploy</code>. Cron polls watched CAs every few minutes.</li>
+<li>Deploy: <code>wrangler deploy</code>. Poll watches with external cron → <code>POST /cron</code> every ~5 min (Workers Free cron slots already full on this account).</li>
 <li>In Telegram: <code>/start</code> then <code>/watch &lt;CA&gt;</code>. Commands: <code>/unwatch</code>, <code>/list</code>, <code>/help</code>.</li>
 </ol>
 <p class="banner"><b>Token missing on this deploy.</b> Worker + docs ship now; parent should request <code>TELEGRAM_BOT_TOKEN</code> from Jojo before going live. Do not invent a token.</p>
