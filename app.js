@@ -1,13 +1,17 @@
-import { T, usd } from './i18n.js?v=1792466000';
+import { T, usd } from './i18n.js?v=1792467000';
 // Homepage speed: only app.js + i18n.js + nav.js load up front. core.js (the scanner), the result-section modules and the
 // new-tokens list are imported on demand: the scanner + result modules when a scan starts (or a valid CA is pasted),
 // the new-tokens list when it scrolls near the viewport. Result modules only listen for mc:render / mc:final events, so
 // render() waits for them to finish importing before it dispatches (see fireRender).
-const V = '1792466000';
+const V = '1792467000';
 // same rules as core.js detectChain (kept inline so the homepage does not need core.js before a scan)
 function detectChain(addr) { addr = (addr || '').trim(); if (/^0x[0-9a-fA-F]{40}$/.test(addr)) return 'evm'; if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr)) return 'solana'; return null; }
 let core = null, coreP = null, modsP = null, proof = null; // proof: 'Rugs we caught' card data (see loadProof)
-const loadCore = () => coreP ||= import(`./core.js?v=${V}`).then(m => (core = m));
+let riskInsight = null;
+const loadCore = () => coreP ||= Promise.all([
+  import(`./core.js?v=${V}`),
+  import(`./risk-insight.js?v=${V}`),
+]).then(([m, ri]) => { core = m; riskInsight = ri; return m; });
 const RESULT_MODS = ['devbundle-ui', 'devhist-ui', 'ai-ui', 'extras', 'bubble-ui', 'flows-ui', 'snipers-ui', 'bp-ui', 'swap']; // same order as the old <script> tags
 const loadResultMods = () => modsP ||= Promise.allSettled(RESULT_MODS.map(n => import(`./${n}.js?v=${V}`))).then(() => {});
 const warmScan = () => { loadCore().catch(() => { coreP = null; }); loadResultMods(); };
@@ -97,6 +101,29 @@ function fireRender(r) {
   const lg = lang; skelWatch();
   loadResultMods().then(() => { if ($('#out').dataset.addr !== r.addr) return; document.dispatchEvent(new CustomEvent('mc:render', { detail: { r, lang: lg } })); skelWatch(); });
 }
+
+function insightHtml(r, t) {
+  if (!riskInsight || !r?.verdict || !r?.findings) return '';
+  try {
+    const reasonFn = (f) => {
+      const fn = t.r?.[f.id];
+      return typeof fn === 'function' ? String(fn(f.params, f.status)) : riskInsight.reasonText(f);
+    };
+    const ins = riskInsight.insightFromResult(r, { reasonFn, limit: 5 });
+    const rows = (ins.reasons || []).map((x) => {
+      const st = x.critical || x.status === 'fail' ? 'fail' : x.status === 'warn' ? 'warn' : 'pass';
+      return `<div class="row"><span class="st ${st}">${st === 'fail' ? t.failS : st === 'warn' ? t.warn : t.pass}</span><span>${esc(x.text)}</span></div>`;
+    }).join('');
+    return `<div class="card insight-card" id="insight-card"><div class="insight-head"><h3>${esc(t.insightT || 'Risk insight')}</h3>
+      <span class="badge ${esc(ins.level)}">${esc(t[ins.level] || ins.label)}</span></div>
+      <p class="muted insight-sub">${esc(t.insightSub || '')}</p>
+      ${rows || `<div class="row"><span class="st pass">${t.pass}</span><span>${esc(t.cardClean)}</span></div>`}
+      <div class="insight-links muted"><a href="/how">${esc(t.insightHow || 'How we score')}</a>
+        · <a href="https://github.com/almasrem459-lab/memecheck-snap" target="_blank" rel="noopener">${esc(t.insightSnap || 'MetaMask Snap')}</a>
+        · <span>${esc(t.insightFormClosed || '')}</span></div></div>`;
+  } catch { return ''; }
+}
+
 function render(r0, fire) {
   const r = withDev(r0);
   const t = T[lang], m = r.meta, v = r.verdict; const st = { pass: t.pass, warn: t.warn, fail: t.failS, na: t.na };
@@ -120,6 +147,7 @@ function render(r0, fire) {
     <a class="ghost act" id="a-x" target="_blank" rel="noopener" href="${esc(xIntent(r))}"><b>𝕏</b> ${t.shareX}</a>
     <button type="button" class="ghost act" id="a-ca">${t.copyCA}</button><button type="button" class="ghost act" id="a-link">${t.copyLink}</button>
     <button type="button" class="ghost act" id="a-img">📸 ${t.shareRes}</button></div></div>
+  ${insightHtml(r, t)}
   <div class="card"><h3>${t.market}</h3><div class="grid">
    ${[[t.price, usd(m.priceUsd)], [t.mcap, usd(m.mcap)], [t.fdv, usd(m.fdv)], [t.liq, m.launch?.curve && !(m.liquidity > 0) ? t.curveLiq : usd(m.liquidity)], [t.vol, usd(m.vol24)], [t.txns, m.buys24 != null ? `<span dir="ltr">${m.buys24} / ${m.sells24}</span>` : '—'],
       [`${t.change} <span dir="ltr">${t.ch1h24}</span>`, `<span dir="ltr">${pc(m.ch?.h1)} / ${pc(m.ch?.h24)}</span>`], [t.pairAge, ageH == null ? '—' : ageH < 48 ? ageH.toFixed(1) + (lang === 'ar' ? ' ساعة' : ' h') : (ageH / 24).toFixed(0) + (lang === 'ar' ? ' يوم' : ' d')], [t.holders, m.totalHolders ?? '—']]

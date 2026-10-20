@@ -7,6 +7,19 @@ Free, open-source (MIT) meme-coin safety checker for **Solana, BNB Chain, Ethere
 
 > Not financial advice. Low risk does not mean 100% safe. Automated checks can miss scams or flag legit tokens. Always DYOR.
 
+
+## MetaMask Snap (transaction insights)
+
+OSS Snap repo: **[memecheck-snap](https://github.com/almasrem459-lab/memecheck-snap)** (MIT) — local path `/workspace/memecheck-snap` on the build box.
+
+- Entry point: `onTransaction` → severity (Low/Med/High/Extreme) + plain-language reasons
+- API: [`/api/snap-insight`](https://memecheck.pages.dev/api/snap-insight) (shared formatter `risk-insight.js` — **same card on Solana scans**)
+- Install: MetaMask **Flask** + `yarn && yarn build:snap && yarn start` (see Snap README)
+- **Grants apply Typeform: still CLOSED** (not submitted). Audit planned later.
+
+Docs: [`docs/SNAP.md`](docs/SNAP.md)
+
+
 ## What makes it different
 
 - **Dev history**: the creator wallet's earlier pump.fun launches and how they ended (dead / rugged, checked on DexScreener). Serial launchers add risk points (up to +10).

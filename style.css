@@ -247,3 +247,10 @@ body.has-result .hero{padding:0}
 .dr-serial .dr-lab{background:#3d3510;color:#ffd447}.dr-serial .dr-bar i{background:linear-gradient(90deg,#c9a227,#ffd447)}
 .dr-risk .dr-lab{background:#3d1520;color:#ff6b81}.dr-risk .dr-bar i{background:linear-gradient(90deg,#c0392b,#ff6b81)}
 .dr-score.dr-risk .dr-num{color:#ff6b81}.dr-score.dr-builder .dr-num{color:#3ee08f}
+
+/* MetaMask Snap parity — shared risk insight summary (Solana + EVM) */
+.insight-card .insight-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.insight-card .insight-head h3{margin:0;flex:1}
+.insight-card .insight-sub{margin:0 0 10px;font-size:.9rem;line-height:1.35}
+.insight-card .insight-links{margin-top:10px;font-size:.85rem;line-height:1.4}
+.insight-card .insight-links a{color:var(--accent,#7fa2ff)}
