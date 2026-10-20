@@ -5,10 +5,12 @@
 | | |
 |---|---|
 | Prod | https://memecheck.pages.dev |
-| Preview | https://revenue-preview.memecheck.pages.dev *(set after deploy)* |
+| Preview | https://revenue-preview.memecheck.pages.dev  |
 | Pay-to Phantom | `F29KLNySMghCZbpMqhNaR8k3jMUZHd485CHxX7x9Z9u5` |
 | USDC mint | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` |
-| Source | `/workspace/cf-dist` → OSS `github.com/almasrem459-lab/memecheck` |
+| Source | `/workspace/cf-dist` → OSS `github.com/almasrem459-lab/memecheck` (`ae51686`) |
+| Preview deploy | `93269720` · alias revenue-preview |
+| Prod deploy | `85feb8ac` (Production / main) |
 
 ## Live now
 
