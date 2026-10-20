@@ -1,6 +1,6 @@
 // Smart money page: "Bots" section. Renders /api/bots (SIMULATED paper-trading snapshot published from the off-site bot).
 // Strings live in i18n.js (BOTS, EN + AR). Everything from the API is escaped; mints are validated before linking.
-import { BOTS } from './i18n.js?v=1792900001';
+import { BOTS } from './i18n.js?v=1792910000';
 
 const AR = document.documentElement.lang === 'ar';
 const L = BOTS[AR ? 'ar' : 'en'];
@@ -98,7 +98,8 @@ function card(b, i, bank) {
 let DATA = null;
 function render(d) {
   DATA = d;
-  const bots = (d.bots || []).filter((b) => b && b.id && b.stats && b.cfg).sort((a, b) => (b.stats.pnl || 0) - (a.stats.pnl || 0));
+  const KEEP = new Set(['c5_filter', 'c5_nofilter', 'solo_scalper']);
+  const bots = (d.bots || []).filter((b) => b && KEEP.has(b.id) && b.stats && b.cfg).sort((a, b) => (b.stats.pnl || 0) - (a.stats.pnl || 0));
   const bank = (d.config && d.config.bank) || 1000;
   const at = d.at || tms(d.generatedAt), tick = tms(d.bot && d.bot.lastPriceAt);
   const paused = at == null || Date.now() - at > PAUSE_MS || (tick != null && Date.now() - tick > PAUSE_MS);
