@@ -1,18 +1,18 @@
 // AI summary + "Ask AI" card (POST /api/ai, Cloudflare Workers AI). Loads only after the main scan has finished
 // (app.js exposes the final, dev-history-adjusted result via window.__mcLast) and never blocks or breaks the scan:
 // any error shows a calm "unavailable" line. Answers are grounded in the compact scan below; nothing else is sent.
-import { T, usd } from './i18n.js?v=1792900001';
+import { T, usd } from './i18n.js?v=1792900500';
 const L = {
   en: { title: 'AI summary', beta: 'beta', reading: 'Reading the scan…', na: 'AI summary unavailable right now.', busy: 'AI is busy right now. Try again in a few minutes.', retry: 'Retry',
     bl: 'Bottom line', nfa: 'Not financial advice. AI can make mistakes; check the findings below.', ask: 'Ask AI about this token', ph: 'Ask about this token…', send: 'Ask',
-    sugg: ['Can I sell?', 'Who holds the most?', 'Is the dev safe?'], left: (n) => n === 1 ? '1 question left for this token' : `${n} questions left for this token`, none: 'Question limit reached for this token in this session.',
+    sugg: ['Can I sell?', 'Who holds the most?', 'If I hold 1% what is it worth?'], left: (n) => n === 1 ? '1 question left for this token' : `${n} questions left for this token`, none: 'Question limit reached for this token in this session.',
     thinking: 'Thinking…', err: 'AI could not answer right now. Your question was not counted.', you: 'You', ai: 'AI', grounded: 'Answers use only this scan’s data. No price predictions or buy/sell advice.' },
   ar: { title: 'ملخص الذكاء الاصطناعي', beta: 'تجريبي', reading: 'جارٍ قراءة الفحص…', na: 'ملخص الذكاء الاصطناعي غير متاح حاليًا.', busy: 'الذكاء الاصطناعي مشغول حاليًا. حاول بعد دقائق.', retry: 'إعادة المحاولة',
     bl: 'الخلاصة', nfa: 'ليست نصيحة مالية. قد يخطئ الذكاء الاصطناعي؛ راجع النتائج أدناه.', ask: 'اسأل الذكاء الاصطناعي عن هذه العملة', ph: 'اسأل عن هذه العملة…', send: 'اسأل',
-    sugg: ['هل أستطيع البيع؟', 'من يملك أكبر حصة؟', 'هل المطوّر آمن؟'], left: (n) => n === 1 ? 'بقي سؤال واحد لهذه العملة' : n === 2 ? 'بقي سؤالان لهذه العملة' : `بقي ${n} أسئلة لهذه العملة`, none: 'وصلت إلى حد الأسئلة لهذه العملة في هذه الجلسة.',
+    sugg: ['هل أستطيع البيع؟', 'من يملك أكبر حصة؟', 'إذا ملكت 1٪ كم تساوي؟'], left: (n) => n === 1 ? 'بقي سؤال واحد لهذه العملة' : n === 2 ? 'بقي سؤالان لهذه العملة' : `بقي ${n} أسئلة لهذه العملة`, none: 'وصلت إلى حد الأسئلة لهذه العملة في هذه الجلسة.',
     thinking: 'جارٍ التفكير…', err: 'تعذّر على الذكاء الاصطناعي الإجابة الآن. لم يُحتسب سؤالك.', you: 'أنت', ai: 'AI', grounded: 'الإجابات من بيانات هذا الفحص فقط. لا توقعات للسعر ولا نصائح شراء/بيع.' }
 };
-const MAXQ = 5, MAXLEN = 200;
+const MAXQ = 10, MAXLEN = 200;
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 // keep $1.2K / ~35.6% / 20 / 3 left-to-right inside Arabic text (same idea as the share card)
 const NUM = /[~≈]?[-+]?[$]?\d[\d.,]*(?:\s?[%KMBk$])?(?:\s?\/\s?[$]?\d[\d.,]*%?)?/g;
@@ -24,7 +24,7 @@ const pct = (v) => v == null || !isFinite(v) ? '' : `${v > 0 ? '+' : ''}${(+v).t
 function compact(r) {
   const m = r.meta || {}, en = T.en, ageH = m.created ? (Date.now() - m.created) / 3.6e6 : null;
   const say = (f) => { try { return String(en.r[f.id] ? en.r[f.id](f.params || {}, f.status) : f.id); } catch { return f.id; } };
-  return { chain: r.chain, ca: r.addr, symbol: m.symbol || '', name: m.name || '', level: r.verdict?.level, score: r.verdict?.points, partial: !!r.partial,
+  const out = { chain: r.chain, ca: r.addr, symbol: m.symbol || '', name: m.name || '', level: r.verdict?.level, score: r.verdict?.points, partial: !!r.partial,
     market: { price: m.priceUsd != null ? usd(m.priceUsd) : '', mcap: m.mcap != null ? usd(m.mcap) : '', fdv: m.fdv != null ? usd(m.fdv) : '', liq: m.liquidity > 0 ? usd(m.liquidity) : m.launch?.curve ? 'bonding curve (no DEX pool yet)' : '',
       vol: m.vol24 != null ? usd(m.vol24) : '', txns: m.buys24 != null ? `${m.buys24} buys / ${m.sells24} sells` : '', ch1h: pct(m.ch?.h1), ch24: pct(m.ch?.h24),
       age: ageH == null ? '' : ageH < 48 ? `${ageH.toFixed(1)} hours` : `${(ageH / 24).toFixed(0)} days`, holders: m.totalHolders ?? '', drop: m.dropFromHigh >= 50 ? `about ${Math.round(m.dropFromHigh)}%` : '',
@@ -32,7 +32,49 @@ function compact(r) {
     findings: (r.findings || []).map(f => ({ s: f.status, t: say(f).replace(/\$0\.0{6,}(?!\d*[1-9])\d*/g, '$0') })),
     holders: (r.extra?.holders || []).slice(0, 5).map(h => ({ w: String(h.owner || '').length > 12 ? h.owner.slice(0, 4) + '…' + h.owner.slice(-4) : h.owner, p: (+h.pct).toFixed(2) + '%' })),
     flags: (r.flags || []).slice(0, 8).map(x => `${x.name}${x.level ? ` (${x.level})` : ''}`) };
+  if (m.priceUsd != null && isFinite(+m.priceUsd) && +m.priceUsd > 0) out.priceUsd = +m.priceUsd;
+  if (m.mcap != null && isFinite(+m.mcap) && +m.mcap > 0) out.mcapUsd = +m.mcap;
+  return out;
 }
+
+// Client-side valuation for clear holdings/price questions (fraction of supply × mcap, or tokens × price).
+// Keeps Ask AI on-topic when the model would otherwise refuse "math" as a prediction.
+function localWorth(q, scan) {
+  const price = +scan.priceUsd, mcap = +scan.mcapUsd, ar = lang() === 'ar';
+  const raw = String(q || ''), ql = raw.toLowerCase();
+  if (/\b(will|predict|prediction|target|moon|pump to|reach|tomorrow|next week|غدا|توقع|هدف)\b/i.test(ql)) return null;
+  const wantsWorth = /\b(worth|value|valuat|how much|bag|holding|holdings|priced?|if i (have|hold|own|buy)|كم|قيمة|يساوي|تساوي|سعر)\b/i.test(ql);
+  let pct = null, fracLabel = '';
+  const frac = raw.match(/(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/);
+  if (frac) { const a = +frac[1], b = +frac[2]; if (b > 0 && a >= 0 && a / b <= 1.0001) { pct = (a / b) * 100; fracLabel = `${frac[1]}/${frac[2]}`; } }
+  if (pct == null) { const pm = raw.match(/(\d+(?:\.\d+)?)\s*%/); if (pm) { pct = +pm[1]; fracLabel = `${pm[1]}%`; } }
+  let tokens = null;
+  const tm = raw.match(/(\d+(?:\.\d+)?)\s*(k|m|b)?\s*(tokens?|coins?|توكن|عملة)\b/i);
+  if (tm) { const mul = ({ k: 1e3, m: 1e6, b: 1e9 }[(tm[2] || '').toLowerCase()] || 1); tokens = +tm[1] * mul; }
+  const shortFrac = !!(frac && raw.length < 100);
+  if (pct != null && pct > 0 && pct <= 100 && (wantsWorth || shortFrac)) {
+    if (!(mcap > 0)) return ar
+      ? `هذا الفحص لا يعرض القيمة السوقية، فلا أستطيع تحويل ${fracLabel || (pct + '%')} من المعروض إلى دولار${price > 0 ? ` (السعر الحالي ${usd(price)})` : ''}.`
+      : `This scan has no market cap, so I can't convert ${fracLabel || (pct + '%')} of supply to USD${price > 0 ? ` (current price ${usd(price)})` : ''}.`;
+    const val = mcap * (pct / 100);
+    return ar
+      ? `إذا كانت حصتك ${fracLabel || (pct + '%')} من المعروض، فبحدود ${usd(val)} اليوم (≈ ${pct}% من القيمة السوقية ${usd(mcap)}). من أرقام هذا الفحص فقط — ليس توقعاً للسعر.`
+      : `If you hold ${fracLabel || (pct + '%')} of supply, that is about ${usd(val)} at today's market cap (${usd(mcap)} × ${pct}%). From this scan's current figures only — not a price prediction.`;
+  }
+  if (tokens != null && tokens > 0 && price > 0 && (wantsWorth || /\b(tokens?|coins?|توكن)\b/i.test(ql))) {
+    const val = tokens * price;
+    return ar
+      ? `${tokens} توكن ≈ ${usd(val)} بسعر ${usd(price)} من هذا الفحص (رقم حالي، ليس توقعاً).`
+      : `${tokens} tokens ≈ ${usd(val)} at this scan's price of ${usd(price)} (current figure only — not a prediction).`;
+  }
+  if (/^(what('?s| is)|how much is|current)?\s*(the\s+)?(token\s+)?price\b/i.test(ql.trim()) || /^(كم(?:\s+هو)?\s+السعر|ما(?:\s+هو)?\s+السعر)\b/i.test(ql.trim())) {
+    if (price > 0) return ar
+      ? `السعر الحالي في هذا الفحص: ${usd(price)}${mcap > 0 ? `، والقيمة السوقية ${usd(mcap)}.` : '.'}`
+      : `This scan's current price is ${usd(price)}${mcap > 0 ? `; market cap ${usd(mcap)}.` : '.'}`;
+  }
+  return null;
+}
+
 const st = { key: '', tok: '', sum: null, sumLang: '', loading: false, err: '', chats: new Map(), busy: false, req: 0 };
 const cnt = (tok) => { try { return +sessionStorage.getItem('mc_ai_q:' + tok) || 0; } catch { return 0; } };
 const bump = (tok) => { try { sessionStorage.setItem('mc_ai_q:' + tok, cnt(tok) + 1); } catch {} };
@@ -75,6 +117,13 @@ async function ask(q0) {
   const item = { q, a: '', pending: true }; chat.push(item); st.busy = true;
   const inp = document.querySelector('#ai-card input'); if (inp) inp.value = '';
   paint(); ga('ai_ask', { ca: scan.ca, chain: scan.chain, lang: lang() });
+  const local = localWorth(q, scan);
+  if (local) {
+    item.pending = false; item.a = local; st.busy = false; bump(tok);
+    if (st.tok === tok) paint();
+    document.querySelector('#ai-card .ai-msgs')?.lastElementChild?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    return;
+  }
   const hist = chat.filter(c => c !== item && !c.err && c.a).slice(-2).map(c => ({ q: c.q, a: c.a }));
   const j = await post({ mode: 'ask', lang: lang(), scan, question: q, history: hist });
   item.pending = false; st.busy = false;
