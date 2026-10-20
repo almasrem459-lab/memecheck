@@ -1,0 +1,107 @@
+<!doctype html><html lang="en" dir="ltr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pro · MemeCheckShield</title>
+<meta name="description" content="MemeCheckShield Pro — Telegram rug alerts, more Ask AI, API key. Waitlist open.">
+<link rel="canonical" href="https://memecheck.pages.dev/pro">
+<meta name="theme-color" content="#0b0f17">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="stylesheet" href="style.css?v=1792912000">
+</head><body>
+<header><button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span><span></span><span></span></button><div class="brand"><img src="/icon-64.png" width="26" height="26" alt="MemeCheckShield"> <b>MemeCheckShield</b></div></header>
+<nav class="site-nav" id="site-nav" hidden>
+<a href="/">Checker</a>
+<a href="/smart">Smart money</a>
+<a href="/advertise">Advertise</a>
+<a href="/pro" aria-current="page">Pro</a>
+<a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener">Open source</a>
+</nav>
+<main class="card" style="max-width:720px;margin:24px auto">
+<nav class="crumbs"><a href="/" data-s="home">Home</a><span>/</span><span data-s="crumb">Pro</span></nav>
+<h1 data-s="h1">MemeCheckShield Pro</h1>
+<p class="tag" data-s="sub"><span class="mc-spon-tag" data-s="soon">Coming soon</span> — join the waitlist. No live billing yet.</p>
+
+<div class="grid" style="margin-top:16px;gap:12px">
+<div class="card">
+<h2 data-s="hFree">Free</h2>
+<ul data-s="freeList">
+<li>Unlimited CA scans</li>
+<li>Ask AI (soft daily cap)</li>
+<li>Paper bots on Smart money</li>
+</ul>
+</div>
+<div class="card" style="border-color:#3ee08f55">
+<h2 data-s="hPro">Pro <small class="muted" data-s="soon2">waitlist</small></h2>
+<ul data-s="proList">
+<li>Telegram rug alerts (/watch CA)</li>
+<li>Higher Ask AI limits</li>
+<li>API key for integrations</li>
+</ul>
+</div>
+</div>
+
+<section class="card" style="margin-top:16px">
+<h2 data-s="hWait">Join the waitlist</h2>
+<form id="wl">
+<label class="mc-rev-lab" data-s="contact">Email or Telegram
+<input id="contact" class="mc-rev-inp" maxlength="80" required placeholder="you@email.com or @handle" autocomplete="email">
+</label>
+<label class="mc-rev-lab" data-s="note">Note (optional)
+<input id="msg" class="mc-rev-inp" maxlength="200" placeholder="What you want from Pro">
+</label>
+<input type="text" name="hp" id="hp" value="" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+<button type="submit" class="act" data-s="join">Join waitlist</button>
+<p id="out" class="muted" role="status"></p>
+</form>
+</section>
+
+<section class="card" style="margin-top:12px">
+<h2 data-s="hTg">Telegram alerts</h2>
+<p data-s="pTg">Worker code is ready (<code>alert-worker</code>). Live alerts need Jojo’s <code>TELEGRAM_BOT_TOKEN</code> from @BotFather — not set yet. Docs: <a href="/infra">/infra</a>.</p>
+</section>
+</main>
+<footer><span data-s="foot">Not financial advice. Pro billing is not live.</span></footer>
+<script src="nav.js?v=1792912000" defer></script>
+<script>
+const AR = {
+  home:'الرئيسية', crumb:'Pro', h1:'MemeCheckShield Pro', sub:'<span class="mc-spon-tag">قريبًا</span> — انضم لقائمة الانتظار. لا فوترة مباشرة بعد.',
+  soon:'قريبًا', soon2:'قائمة انتظار', hFree:'مجاني', hPro:'Pro',
+  freeList:'<li>فحوصات غير محدودة</li><li>اسأل AI (حد يومي مرن)</li><li>بوتات ورقية في الأموال الذكية</li>',
+  proList:'<li>تنبيهات سحب على تيليجرام</li><li>حدود أعلى لـ Ask AI</li><li>مفتاح API</li>',
+  hWait:'انضم للقائمة', contact:'البريد أو تيليجرام', note:'ملاحظة (اختياري)', join:'انضم',
+  hTg:'تنبيهات تيليجرام', pTg:'الكود جاهز. التنبيهات الحية تحتاج رمز البوت من Jojo عبر @BotFather — غير مضبوط بعد.',
+  foot:'ليست نصيحة مالية. فوترة Pro غير مفعّلة.',
+  ok:'تم — سنراسل عند الإطلاق.', err:'تعذّر الإرسال، حاول لاحقًا.'
+};
+function apply() {
+  const ar = (localStorage.getItem('mc_lang') || 'en') === 'ar';
+  document.documentElement.lang = ar ? 'ar' : 'en';
+  document.documentElement.dir = ar ? 'rtl' : 'ltr';
+  if (!ar) return;
+  document.querySelectorAll('[data-s]').forEach((e) => { const k = e.getAttribute('data-s'); if (AR[k]) e.innerHTML = AR[k]; });
+}
+apply();
+document.getElementById('wl').onsubmit = async (e) => {
+  e.preventDefault();
+  const ar = document.documentElement.lang === 'ar';
+  const out = document.getElementById('out');
+  out.textContent = '…';
+  const contact = document.getElementById('contact').value.trim();
+  const note = document.getElementById('msg').value.trim();
+  try {
+    const r = await fetch('/api/feedback', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        cat: 'idea', lang: ar ? 'ar' : 'en', path: '/pro',
+        contact, hp: document.getElementById('hp').value,
+        msg: '[pro_waitlist] ' + (note || 'Pro waitlist signup'),
+      }),
+    });
+    const j = await r.json().catch(() => ({}));
+    out.textContent = (r.ok && j.ok !== false) ? (ar ? AR.ok : 'You are on the list — we will ping when Pro ships.') : (ar ? AR.err : 'Could not submit, try later.');
+    if (r.ok) e.target.reset();
+  } catch {
+    out.textContent = ar ? AR.err : 'Could not submit, try later.';
+  }
+};
+</script>
+</body></html>

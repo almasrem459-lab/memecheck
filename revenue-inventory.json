@@ -1,0 +1,6 @@
+{
+  "updatedAt": 0,
+  "verified": [],
+  "sponsored": [],
+  "note": "Seed inventory. Live list is served by /api/verified (KV revenue:v1 when present). Payment never changes risk score."
+}

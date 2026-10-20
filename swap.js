@@ -3,17 +3,17 @@
 // FEE: set REFERRAL_ACCOUNT to the owner's Jupiter Ultra referral account (created at https://referral.jup.ag).
 // While empty, swaps work normally WITHOUT any fee and the fee note is hidden. If the referral token account for the
 // order's fee mint is missing, Jupiter still executes the swap, just without the fee (never fails the swap).
-export const REFERRAL_ACCOUNT = '';
-export const REFERRAL_FEE_BPS = 50; // 0.5%
+export const REFERRAL_ACCOUNT = ''; // paste Jupiter referral pubkey from https://referral.jup.ag (NOT Phantom pay wallet)
+export const REFERRAL_FEE_BPS = 50; // 0.5% — fee activates when referral account is set
 const SOL = 'So11111111111111111111111111111111111111112';
 const FEE_ON = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(REFERRAL_ACCOUNT);
 const L = {
-  en: { buy: 'Buy', sell: 'Sell', fee: 'Includes 0.5% MemeCheck fee', via: 'Swap via Jupiter · signed in your own wallet',
-    wT: '⚠️ High-risk token', wB: (lvl) => `MemeCheck rated this token ${lvl} risk. You could lose everything: rug pulls, frozen wallets or blocked sells are common with tokens like this.`,
+  en: { buy: 'Buy', sell: 'Sell', fee: 'Includes 0.5% MemeCheckShield fee', via: 'Swap via Jupiter · signed in your own wallet',
+    wT: '⚠️ High-risk token', wB: (lvl) => `MemeCheckShield rated this token ${lvl} risk. You could lose everything: rug pulls, frozen wallets or blocked sells are common with tokens like this.`,
     wC: 'I understand the risk, continue', wX: 'Cancel', load: 'Loading swap…', err: 'Swap widget failed to load. Try again later.',
     evia: (d) => `Opens ${d} in a new tab · trade in your own wallet`, curve: 'Still on the Four.meme bonding curve: trades happen on four.meme' },
-  ar: { buy: 'شراء', sell: 'بيع', fee: 'يشمل رسوم MemeCheck بنسبة 0.5%', via: 'التبادل عبر Jupiter · التوقيع في محفظتك الخاصة',
-    wT: '⚠️ عملة عالية الخطورة', wB: (lvl) => `صنّف MemeCheck هذه العملة بخطورة ${lvl}. قد تخسر كل شيء: سحب السيولة أو تجميد المحفظة أو منع البيع شائع في مثل هذه العملات.`,
+  ar: { buy: 'شراء', sell: 'بيع', fee: 'يشمل رسوم MemeCheckShield بنسبة 0.5%', via: 'التبادل عبر Jupiter · التوقيع في محفظتك الخاصة',
+    wT: '⚠️ عملة عالية الخطورة', wB: (lvl) => `صنّف MemeCheckShield هذه العملة بخطورة ${lvl}. قد تخسر كل شيء: سحب السيولة أو تجميد المحفظة أو منع البيع شائع في مثل هذه العملات.`,
     wC: 'أفهم المخاطرة، متابعة', wX: 'إلغاء', load: 'جارٍ تحميل التبادل…', err: 'تعذّر تحميل أداة التبادل. حاول لاحقًا.',
     evia: (d) => `يفتح ${d} في نافذة جديدة · التداول من محفظتك الخاصة`, curve: 'ما زالت على منحنى الترابط في Four.meme: التداول يتم على four.meme' } };
 const LVL = { en: { high: 'HIGH', extreme: 'EXTREME' }, ar: { high: 'عالية', extreme: 'شديدة' } };
@@ -34,7 +34,7 @@ async function open(r, side, t) {
   try { await loadPlugin(); } catch { alert(t.err); return; }
   const formProps = { initialInputMint: inp, initialOutputMint: out, fixedMint: r.addr, ...(side === 'buy' ? { initialAmount: '100000000' } : {}) };
   if (FEE_ON && await feeOk()) Object.assign(formProps, { referralAccount: REFERRAL_ACCOUNT, referralFee: REFERRAL_FEE_BPS });
-  window.Jupiter.init({ displayMode: 'modal', formProps, branding: { name: 'MemeCheck', logoUri: location.origin + '/icon-192.png' } });
+  window.Jupiter.init({ displayMode: 'modal', formProps, branding: { name: 'MemeCheckShield', logoUri: location.origin + '/icon-192.png' } });
 }
 function warn(r, t, lang, go) {
   const d = document.createElement('div'); d.className = 'mc-modal'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true');

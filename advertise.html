@@ -1,0 +1,69 @@
+<!doctype html><html lang="en" dir="ltr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Advertise · MemeCheckShield</title>
+<meta name="description" content="Sponsored listings on MemeCheckShield — clearly labeled, never changes risk scores.">
+<link rel="canonical" href="https://memecheck.pages.dev/advertise">
+<meta name="theme-color" content="#0b0f17">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="stylesheet" href="style.css?v=1792912000">
+</head><body>
+<header><button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span><span></span><span></span></button><div class="brand"><img src="/icon-64.png" width="26" height="26" alt="MemeCheckShield"> <b>MemeCheckShield</b></div></header>
+<nav class="site-nav" id="site-nav" hidden>
+<a href="/">Checker</a>
+<a href="/smart">Smart money</a>
+<a href="/whales">Whale buys</a>
+<a href="/rugs">Rugs we caught</a>
+<a href="/advertise" aria-current="page">Advertise</a>
+<a href="/pro">Pro</a>
+<a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener">Open source</a>
+</nav>
+<main class="card" style="max-width:720px;margin:24px auto">
+<nav class="crumbs"><a href="/" data-s="home">Home</a><span>/</span><span data-s="crumb">Advertise</span></nav>
+<h1 data-s="h1">Advertise with us</h1>
+<p class="tag" data-s="sub">Clearly labeled <b>Sponsored</b> placements — separate from organic scan results. Paying never changes a risk score.</p>
+
+<section class="card" style="margin-top:16px">
+<h2 data-s="hHome">Homepage strip</h2>
+<p data-s="pHome">Suggested price: <b dir="ltr">50 USDC / week</b>. Shows on the homepage Sponsored strip with your token name + link to scan.</p>
+</section>
+
+<section class="card" style="margin-top:12px">
+<h2 data-s="hVer">Get Verified listing</h2>
+<p data-s="pVer">For coins currently rated <b>Low</b> risk on a fresh scan: <b dir="ltr">75 USDC</b> for 30 days. Badge on the scan result says Verified / Sponsored listing — score stays the same.</p>
+<p data-s="pFlow">Scan your CA on the checker → if Low risk, tap <b>Get Verified</b> → pay USDC → paste the signature for on-chain verify.</p>
+</section>
+
+<section class="card" style="margin-top:12px">
+<h2 data-s="hPay">Payment</h2>
+<p data-s="pPay">Send USDC (Solana SPL) to Jojo’s Phantom:</p>
+<p><code dir="ltr" id="pay">F29KLNySMghCZbpMqhNaR8k3jMUZHd485CHxX7x9Z9u5</code>
+<button type="button" class="ghost act" id="copy" style="margin-inline-start:8px">Copy</button></p>
+<p class="muted" data-s="pUsdc">USDC mint: <code dir="ltr">EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v</code></p>
+<p class="muted" data-s="pAfter">After payment: use Get Verified on a Low-risk result, or email/Telegram Jojo with mint + tx signature for manual approve.</p>
+</section>
+
+<p style="margin-top:16px"><a href="/pro" data-s="pro">Pro · Telegram rug alerts (waitlist)</a> · <a href="/">← Checker</a></p>
+</main>
+<footer><span>Not financial advice. Sponsored labels are paid placements only.</span></footer>
+<script src="nav.js?v=1792912000" defer></script>
+<script>
+const PAY = 'F29KLNySMghCZbpMqhNaR8k3jMUZHd485CHxX7x9Z9u5';
+document.getElementById('copy').onclick = () => navigator.clipboard?.writeText(PAY).then(() => { const b = document.getElementById('copy'); const o = b.textContent; b.textContent = 'Copied!'; setTimeout(() => b.textContent = o, 1200); });
+const AR = {
+  home:'الرئيسية', crumb:'أعلن معنا', h1:'أعلن معنا', sub:'مساحات <b>مموَّلة</b> بوضوح — منفصلة عن نتائج الفحص. الدفع لا يغيّر درجة الخطورة.',
+  hHome:'شريط الصفحة الرئيسية', pHome:'السعر المقترح: <b dir="ltr">50 USDC / أسبوع</b>. يظهر في شريط المموَّل مع اسم العملة ورابط الفحص.',
+  hVer:'إدراج موثّق', pVer:'للعملات ذات الخطورة <b>المنخفضة</b> حاليًا: <b dir="ltr">75 USDC</b> لمدة 30 يومًا. الشارة تقول إدراج موثّق/مموَّل — الدرجة كما هي.',
+  pFlow:'افحص عنوانك → إن كانت الخطورة منخفضة اضغط <b>احصل على التوثيق</b> → ادفع USDC → الصق التوقيع للتحقق على السلسلة.',
+  hPay:'الدفع', pPay:'أرسل USDC (Solana SPL) إلى محفظة Jojo (Phantom):', pUsdc:'عملة USDC:', pAfter:'بعد الدفع: استخدم «احصل على التوثيق» أو راسل Jojo بعنوان العملة وتوقيع المعاملة للموافقة اليدوية.',
+  pro:'Pro · تنبيهات تيليجرام (قائمة انتظار)'
+};
+function apply() {
+  const ar = (localStorage.getItem('mc_lang') || 'en') === 'ar';
+  document.documentElement.lang = ar ? 'ar' : 'en';
+  document.documentElement.dir = ar ? 'rtl' : 'ltr';
+  if (!ar) return;
+  document.querySelectorAll('[data-s]').forEach((e) => { const k = e.getAttribute('data-s'); if (AR[k]) e.innerHTML = AR[k]; });
+}
+apply();
+</script>
+</body></html>

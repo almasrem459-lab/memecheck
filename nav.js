@@ -16,6 +16,19 @@
 
 
 
+  // Revenue: Advertise + Pro
+  if (!nav.querySelector('a[href="/advertise"]')) {
+    const add = (href, en, ar, cls) => {
+      const a = document.createElement('a'); a.href = href; a.className = cls || '';
+      const lbl = () => { a.textContent = document.documentElement.lang === 'ar' ? ar : en; };
+      lbl(); new MutationObserver(lbl).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+      const how = nav.querySelector('a[href="/how"]');
+      if (how) nav.insertBefore(a, how); else nav.appendChild(a);
+    };
+    add('/advertise', 'Advertise', 'أعلن معنا', 'nav-advertise');
+    add('/pro', 'Pro', 'Pro', 'nav-pro');
+  }
+
   // Guides + monthly report + infra (M2/M3)
   if (!nav.querySelector('a[href="/guides"]')) {
     const add = (href, en, ar, cls) => {
@@ -69,6 +82,8 @@
       navDev: 'درجة المطوّر',
       navHow: 'كيف يعمل التقييم',
       navGuides: 'أدلة',
+      navAdvertise: 'أعلن معنا',
+      navPro: 'Pro',
       navReport: 'التقرير',
       navOpenSrc: 'مفتوح المصدر',
     };

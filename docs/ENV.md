@@ -12,6 +12,7 @@
 | `ALERT_CRON_SECRET` | alert-worker secret | optional | Protects manual `POST /cron` |
 | `MEMECHECK_ORIGIN` | alert-worker var | optional | Default `https://memecheck.pages.dev` |
 | `REFERRAL_ACCOUNT` | constant in `swap.js` | optional | Jupiter referral; empty = no fee |
+| `REVENUE_ADMIN_TOKEN` | Pages secret | optional | Manual approve for `/api/verified` when on-chain claim needs help |
 | GA id | `index.html` | optional | Analytics |
 
 See also: [SELF_HOST.md](./SELF_HOST.md) · live notes: https://memecheck.pages.dev/infra

@@ -133,7 +133,13 @@ details.how{margin-top:12px;color:#9aa4b8;font-size:13px;line-height:1.6}details
 
   <div class="banner" role="note" data-s="banner" data-html><b>Research only. Not financial advice.</b> Wallets on this list lose money on many coins. Consensus is not a recommendation. Run a full MemeCheckShield scan and DYOR. The track record below is a <b>simulation</b>: no real trades.</div>
 
-  <section class="card" aria-labelledby="h-now">
+  <section class="card mc-sponsored" id="mc-smart-spon" aria-label="Sponsored">
+  <div class="prh"><h2><span class="mc-spon-tag" data-spon="tag">Sponsored</span></h2>
+    <a href="/advertise" class="prall" data-spon="adv">Advertise <span class="arr">→</span></a></div>
+  <div id="mc-smart-spon-list" class="mc-spon-list"><span class="muted" data-spon="empty">No sponsored listings right now.</span></div>
+  <p class="muted mc-spon-note" data-spon="note">Paid placement — never changes risk scores.</p>
+</section>
+<section class="card" aria-labelledby="h-now">
     <div class="sm-head"><h2 id="h-now" data-s="nowH">Bought by several tracked wallets</h2><span id="live" class="pill warm">…</span></div>
     <p class="sm-sub" id="status" data-s="loading">Loading…</p>
     <div id="list" aria-live="polite"><div class="empty"><span class="spin"></span></div></div>
@@ -341,5 +347,31 @@ details.how{margin-top:12px;color:#9aa4b8;font-size:13px;line-height:1.6}details
 </script>
 <script type="module" src="bots-ui.js?v=1792900500"></script>
 <script src="nav.js?v=1792900500" defer></script>
+
+<script type="module">
+const list = document.getElementById('mc-smart-spon-list');
+if (list) {
+  const ar = (localStorage.getItem('mc_lang')||'en')==='ar';
+  if (ar) {
+    document.querySelectorAll('[data-spon]').forEach(e=>{
+      const k=e.getAttribute('data-spon');
+      const M={tag:'مموَّل',adv:'أعلن معنا →',empty:'لا إعلانات مموَّلة حاليًا.',note:'مساحة مدفوعة — لا تغيّر درجات الخطورة.'};
+      if(M[k]) e.textContent=M[k].replace('→','').trim()+(k==='adv'?' →':'');
+    });
+  }
+  try {
+    const r = await fetch('/api/verified');
+    const j = await r.json();
+    const now = Date.now();
+    const ads = (j.sponsored||[]).filter(x=>x&&x.mint&&(!x.until||x.until>now));
+    if (ads.length) {
+      list.innerHTML = ads.slice(0,4).map(x=>{
+        const label = x.name || (x.mint.slice(0,4)+'…'+x.mint.slice(-4));
+        return `<a class="mc-spon-item" href="/?ca=${encodeURIComponent(x.mint)}"><span class="mc-spon-tag">${ar?'مموَّل':'Sponsored'}</span> <b dir="ltr">${label.replace(/[<>]/g,'')}</b></a>`;
+      }).join('');
+    }
+  } catch {}
+}
+</script>
 </body>
 </html>
