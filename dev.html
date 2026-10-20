@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dev Reputation Score (Solana) – MemeCheckShield</title>
+<meta name="description" content="Paste a Solana token-creator wallet and get a free Dev Reputation Score 0–100 with Builder / Neutral / Serial Launcher / High Risk labels. Open JSON API. English &amp; Arabic.">
+<link rel="canonical" href="https://memecheck.pages.dev/dev">
+<link rel="alternate" hreflang="en" href="https://memecheck.pages.dev/dev">
+<link rel="alternate" hreflang="ar" href="https://memecheck.pages.dev/dev?lang=ar">
+<link rel="alternate" hreflang="x-default" href="https://memecheck.pages.dev/dev">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MemeCheckShield">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="ar_AR">
+<meta property="og:url" content="https://memecheck.pages.dev/dev">
+<meta property="og:title" content="Dev Reputation Score (Solana) – MemeCheckShield">
+<meta property="og:description" content="Paste a Solana creator wallet → 0–100 reputation score with evidence. Free, open source, English &amp; Arabic.">
+<meta property="og:image" content="https://memecheck.pages.dev/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Dev Reputation Score (Solana) – MemeCheckShield">
+<meta name="twitter:description" content="Paste a Solana creator wallet → 0–100 reputation score with evidence. Free, open source.">
+<meta name="twitter:image" content="https://memecheck.pages.dev/og-image.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"MemeCheckShield","item":"https://memecheck.pages.dev/"},{"@type":"ListItem","position":2,"name":"Dev Reputation Score","item":"https://memecheck.pages.dev/dev"}]}</script>
+<meta name="theme-color" content="#0b0f17">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<script>(function(){try{if(localStorage.getItem('mc_lang')==='ar'||new URLSearchParams(location.search).get('lang')==='ar'){document.documentElement.lang='ar';document.documentElement.dir='rtl';}}catch(e){}})();</script>
+<link rel="stylesheet" href="style.css?v=1792466000">
+<style>
+nav.crumbs{display:flex;gap:8px;align-items:center;padding:0 20px;max-width:860px;margin:12px auto 0;font-size:14px}
+nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef}nav.crumbs span{color:#7d879c}
+.hdr-end{margin-inline-start:auto}
+main.dev{max-width:860px;margin:0 auto;padding:8px 20px 40px}
+.dev form{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.devform input{flex:1 1 240px;min-width:0;background:#0b0f17;color:#e6e9ef;border:1px solid #2a3348;border-radius:10px;padding:11px 12px;font:inherit;font-size:14px}
+.devform button{background:#2563eb;color:#fff;border:0;border-radius:10px;padding:11px 18px;font:inherit;font-weight:600;cursor:pointer}
+.devform button:disabled{opacity:.6;cursor:default}
+.ev{margin-top:8px}.ev .row{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid #1a2130;font-size:13px}
+.ev .row:first-child{border-top:0}.ev .k{color:#7d879c;min-width:110px}.ev .v{color:#c9d0dc;flex:1}
+.gapbox{background:#121826;border:1px solid #273046;border-radius:12px;padding:12px 14px;margin-top:12px;font-size:13px;color:#9aa4b8;line-height:1.5}
+.api{font-size:12px;color:#7d879c;margin-top:10px}.api code{background:#0e1320;border:1px solid #1c2333;border-radius:6px;padding:1px 6px;color:#cfe0ff}
+[data-l]{display:none}html[lang=en] [data-l=en],html[lang=ar] [data-l=ar]{display:block}html[lang=en] span[data-l=en],html[lang=ar] span[data-l=ar]{display:inline}
+</style>
+</head>
+<body>
+<header>
+  <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span><span></span><span></span></button>
+  <div class="brand"><img src="/icon-64.png" width="26" height="26" alt="MemeCheckShield"> <b>MemeCheckShield</b></div>
+  <div class="hdr-end"><button id="dev-lang" class="ghost" type="button">العربية</button></div>
+</header>
+<nav class="site-nav" id="site-nav" hidden>
+  <a href="/" data-t="navChecker">Checker</a>
+  <a href="/dev" data-t="navDev" aria-current="page">Dev score</a>
+  <a href="/smart" data-t="navSmart">Smart money</a>
+  <a href="/whales" data-t="navWhales">Whale buys</a>
+  <a href="/rugs" data-t="navRugs">Rugs we caught</a>
+  <a href="/how" data-t="navHow">How the score works</a>
+  <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a>
+</nav>
+<main class="dev">
+<nav class="crumbs" style="padding:0;margin:0 0 8px"><a href="/">Home</a><span>/</span><span data-l="en">Dev Reputation</span><span data-l="ar">سمعة المطوّر</span></nav>
+<h1 style="font-size:22px;margin:8px 0 4px"><span data-l="en">Dev Reputation Score</span><span data-l="ar">درجة سمعة المطوّر</span></h1>
+<p class="tag"><span data-l="en">Paste a Solana token-creator wallet (or a mint CA). Get a <b>0–100</b> score with label <b>Builder / Neutral / Serial Launcher / High Risk</b> and the evidence behind it. Free, open JSON API.</span><span data-l="ar">الصق محفظة منشئ عملة على سولانا (أو عنوان عقد). احصل على درجة من <b>0–100</b> مع التصنيف <b>بنّاء / محايد / مُطلق متسلسل / خطر مرتفع</b> والدليل خلفها. مجانًا، وواجهة JSON مفتوحة.</span></p>
+
+<form class="devform" id="f">
+  <input id="q" autocomplete="off" spellcheck="false" dir="ltr" placeholder="Wallet or mint CA…" aria-label="Wallet or mint CA">
+  <button type="submit" id="go"><span data-l="en">Lookup</span><span data-l="ar">بحث</span></button>
+</form>
+<p class="muted" id="hint" style="font-size:13px"></p>
+<div id="out"></div>
+
+<div class="card" style="margin-top:18px">
+  <h2 style="font-size:16px;margin:0 0 8px"><span data-l="en">Open API</span><span data-l="ar">واجهة برمجة مفتوحة</span></h2>
+  <p class="api" dir="ltr"><code>GET /api/devrep?wallet=&lt;pubkey&gt;</code><br><code>GET /api/devrep?ca=&lt;mint&gt;</code></p>
+  <p class="muted" style="font-size:13px;margin:8px 0 0"><span data-l="en">Returns JSON: score, label, components, evidence, gaps. Same dead/rugged rules as Developer history. Methodology: <a href="/how#devrep">/how#devrep</a>.</span><span data-l="ar">يعيد JSON: الدرجة، التصنيف، المكوّنات، الأدلة، والفجوات. نفس قواعد الميت/المسحوب في سجل المطوّر. المنهجية: <a href="/how#devrep">/how#devrep</a>.</span></p>
+</div>
+</main>
+<footer><span data-l="en">Not financial advice. Always DYOR.</span><span data-l="ar">ليست نصيحة مالية. ابحث بنفسك دائمًا.</span> · <a href="/" data-t="navChecker">Checker</a> · <a href="/how" data-t="navHow">How the score works</a> · <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a></footer>
+<script src="nav.js?v=1792466000" defer></script>
+<script type="module">
+import { summarize, dexMarkets } from './devhist-core.js?v=1792466000';
+import { repFromHist, launchCadenceHours } from './devrep-core.js?v=1792466000';
+
+const ADDR = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+const LAB = {
+  en: { Builder: 'Builder', Neutral: 'Neutral', 'Serial Launcher': 'Serial Launcher', 'High Risk': 'High Risk' },
+  ar: { Builder: 'بنّاء', Neutral: 'محايد', 'Serial Launcher': 'مُطلق متسلسل', 'High Risk': 'خطر مرتفع' },
+};
+const CLS = { Builder: 'dr-builder', Neutral: 'dr-neutral', 'Serial Launcher': 'dr-serial', 'High Risk': 'dr-risk' };
+const T = {
+  en: { looking: 'Looking up…', bad: 'Enter a valid Solana wallet or mint address.', err: 'Lookup failed. Try again in a moment.',
+    score: 'Score', wallet: 'Wallet', launches: 'Launches', live: 'Still live', badc: 'Dead / rugged', grad: 'Graduated', cadence: 'Median gap',
+    evidence: 'Evidence', gaps: 'Not scored yet (v1 gaps)', recent: 'Recent launches', scan: 'Scan token', api: 'Raw JSON',
+    h: (n) => n == null ? '—' : n < 1 ? '< 1 h' : n < 48 ? Math.round(n) + ' h' : Math.round(n / 24) + ' d',
+    gapNames: { funded_wallets: 'Launches by funded / linked wallets', dev_sell_speed: 'Dev sell speed (1h / 1d)', linked_wallet_supply: 'Linked-wallet supply distribution', lp_lock_history: 'Full LP lock/burn history on prior launches' },
+    evid: {
+      survival: (e) => `Survival: ${e.liveRate}% live, ${e.badRate}% dead/rugged of ${e.old} judged (${e.delta >= 0 ? '+' : ''}${e.delta})`,
+      survival_thin: (e) => `Thin survival sample: ${e.live}/${e.old} live (${e.delta >= 0 ? '+' : ''}${e.delta})`,
+      first_coin: () => 'First coin from this wallet (no earlier launches).',
+      too_new: (e) => `Earlier coins too new to judge (${e.new || 0} under 6 h).`,
+      launches: (e) => `Launch count: ${e.total} (${e.delta >= 0 ? '+' : ''}${e.delta})`,
+      cadence: (e) => e.medianHours == null ? 'Cadence: not enough dated launches.' : `Median time between launches: ${T.en.h(e.medianHours)} (${e.delta >= 0 ? '+' : ''}${e.delta})`,
+      graduated: (e) => `Graduated: ${e.graduated}/${e.total}, ${e.live} still live (${e.delta >= 0 ? '+' : ''}${e.delta})`,
+      lp_sample: (e) => e.note === 'not_scored_v1' ? 'LP lock sample: not available for this wallet yet.' : `LP lock sample (n=${e.n}): avg ${e.lockedPctAvg}% locked (${e.delta >= 0 ? '+' : ''}${e.delta})`,
+      thin_history: (e) => `Thin history pull toward Neutral (judged ${e.old}).`,
+    } },
+  ar: { looking: 'جارٍ البحث…', bad: 'أدخل عنوان محفظة أو عقد سولانا صالحًا.', err: 'فشل البحث. حاول بعد قليل.',
+    score: 'الدرجة', wallet: 'المحفظة', launches: 'الإطلاقات', live: 'ما زالت نشطة', badc: 'ميتة / مسحوبة', grad: 'تخرّجت', cadence: 'الفجوة الوسيطة',
+    evidence: 'الأدلة', gaps: 'لم تُحسب بعد (فجوات الإصدار 1)', recent: 'أحدث الإطلاقات', scan: 'افحص العملة', api: 'JSON خام',
+    h: (n) => n == null ? '—' : n < 1 ? '< ساعة' : n < 48 ? Math.round(n) + ' س' : Math.round(n / 24) + ' يوم',
+    gapNames: { funded_wallets: 'إطلاقات المحافظ المموَّلة / المرتبطة', dev_sell_speed: 'سرعة بيع المطوّر (ساعة / يوم)', linked_wallet_supply: 'توزيع المعروض على المحافظ المرتبطة', lp_lock_history: 'سجل قفل/حرق السيولة الكامل للإطلاقات السابقة' },
+    evid: {
+      survival: (e) => `البقاء: ${e.liveRate}% نشطة، ${e.badRate}% ميتة/مسحوبة من ${e.old} محكومة (${e.delta >= 0 ? '+' : ''}${e.delta})`,
+      survival_thin: (e) => `عينة بقاء صغيرة: ${e.live}/${e.old} نشطة (${e.delta >= 0 ? '+' : ''}${e.delta})`,
+      first_coin: () => 'أول عملة من هذه المحفظة (لا إطلاقات سابقة).',
+      too_new: (e) => `العملات السابقة أحدث من أن يُحكم عليها (${e.new || 0} أقل من 6 س).`,
+      launches: (e) => `عدد الإطلاقات: ${e.total} (${e.delta >= 0 ? '+' : ''}${e.delta})`,
+      cadence: (e) => e.medianHours == null ? 'الإيقاع: لا يكفي من الإطلاقات المؤرخة.' : `الوسيط بين الإطلاقات: ${T.ar.h(e.medianHours)} (${e.delta >= 0 ? '+' : ''}${e.delta})`,
+      graduated: (e) => `تخرّجت: ${e.graduated}/${e.total}، و${e.live} ما زالت نشطة (${e.delta >= 0 ? '+' : ''}${e.delta})`,
+      lp_sample: (e) => e.note === 'not_scored_v1' ? 'عينة قفل السيولة: غير متاحة لهذه المحفظة بعد.' : `عينة قفل السيولة (n=${e.n}): متوسط ${e.lockedPctAvg}% مقفلة (${e.delta >= 0 ? '+' : ''}${e.delta})`,
+      thin_history: (e) => `سحب نحو المحايد بسبب سجل رقيق (محكوم ${e.old}).`,
+    } },
+};
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const lang = () => document.documentElement.lang === 'ar' ? 'ar' : 'en';
+const $ = (id) => document.getElementById(id);
+
+(function langBtn() {
+  const b = $('dev-lang'); const ar = document.documentElement.lang === 'ar';
+  b.textContent = ar ? 'English' : 'العربية';
+  b.onclick = () => { localStorage.setItem('mc_lang', ar ? 'en' : 'ar'); location.reload(); };
+})();
+
+async function finishMarkets(d) {
+  if (!(d.ok && d.needMarket && Array.isArray(d.judged))) return d;
+  const getJ = async (u) => { const c = new AbortController(), t = setTimeout(() => c.abort(), 8000); try { const r = await fetch(u, { signal: c.signal, headers: { accept: 'application/json' } }); if (!r.ok) throw new Error(r.status); return await r.json(); } finally { clearTimeout(t); } };
+  const map = await dexMarkets(d.judged.map(c => c.mint), getJ).catch(() => null);
+  if (!map) return d;
+  const hist = { ok: true, total: d.history?.total ?? d.judged.length, graduated: d.history?.graduated || 0, ...summarize(d.judged, d.history?.total ?? d.judged.length, map), recent: d.judged };
+  hist.cadenceHours = launchCadenceHours(d.judged);
+  const rep = repFromHist(hist);
+  return {
+    ...d, needMarket: false, partial: false,
+    score: rep.score, label: rep.label, version: rep.version,
+    components: rep.components, evidence: rep.evidence, gaps: rep.gaps,
+    history: { ...d.history, ...summarize(d.judged, d.history?.total ?? d.judged.length, map), recent: (summarize(d.judged, d.history?.total ?? d.judged.length, map).recent || []).slice(0, 8), cadenceHours: hist.cadenceHours },
+    sources: { ...d.sources, dexscreener: 'browser' },
+  };
+}
+
+function paint(d) {
+  const t = T[lang()], out = $('out');
+  if (!d) { out.innerHTML = ''; return; }
+  if (d === 'loading') { out.innerHTML = `<div class="card"><span class="spin"></span> ${t.looking}</div>`; return; }
+  if (!d.ok) { out.innerHTML = `<div class="card"><span class="muted">${esc(d.error || d.reason || t.err)}</span></div>`; return; }
+  const lab = (LAB[lang()] || LAB.en)[d.label] || d.label;
+  const cls = CLS[d.label] || 'dr-neutral';
+  const c = d.components || {}, h = d.history || {};
+  const kv = (k, v) => `<div class="kv"><span>${k}</span><b dir="ltr">${v}</b></div>`;
+  const evRows = (d.evidence || []).map(e => {
+    const fn = t.evid[e.id]; const txt = fn ? fn(e) : `${e.id}: ${e.delta >= 0 ? '+' : ''}${e.delta}`;
+    return `<div class="row"><span class="k">${esc(e.id)}</span><span class="v">${esc(txt)}</span></div>`;
+  }).join('');
+  const gaps = (d.gaps || []).map(g => `<li>${esc(t.gapNames[g] || g)}</li>`).join('');
+  const now = Date.now();
+  const rows = (h.recent || []).slice(0, 8).map(x => {
+    const ago = x.created ? (lang() === 'ar' ? ( (now - x.created) / 36e5 < 48 ? `قبل ${Math.round((now - x.created) / 36e5)} س` : `قبل ${Math.round((now - x.created) / 864e5)} يوم`) : ( (now - x.created) / 36e5 < 48 ? `${Math.round((now - x.created) / 36e5)} h ago` : `${Math.round((now - x.created) / 864e5)} d ago`)) : '';
+    return `<div class="row"><span class="st ${x.status === 'live' ? 'pass' : x.status === 'new' || x.status === 'unknown' ? 'na' : 'fail'}">${esc((x.status || '?').toUpperCase())}</span><span><a href="/?ca=${encodeURIComponent(x.mint)}" dir="ltr">$${esc(x.symbol || '?')}</a> <span class="muted">${esc(ago)}</span></span></div>`;
+  }).join('');
+  const w = d.wallet || '';
+  out.innerHTML = `<div class="card">
+    <div class="dr-score ${cls}">
+      <div class="dr-top"><span class="dr-num" dir="ltr">${d.score}</span><span class="dr-of">/100</span><span class="dr-lab">${esc(lab)}</span></div>
+      <div class="dr-bar"><i style="width:${Math.max(2, Math.min(100, d.score))}%"></i></div>
+    </div>
+    <div class="grid" style="margin-top:14px">
+      ${kv(t.wallet, `<a class="mono" dir="ltr" href="https://solscan.io/account/${encodeURIComponent(w)}" target="_blank" rel="noopener">${esc(w.slice(0,4))}…${esc(w.slice(-4))}</a>`)}
+      ${kv(t.launches, c.total ?? h.total ?? '—')}
+      ${kv(t.live, c.live ?? h.live ?? '—')}
+      ${kv(t.badc, (c.bad ?? h.bad) != null ? `${c.bad ?? h.bad} / ${c.checked ?? h.checked ?? '—'}` : '—')}
+      ${kv(t.grad, c.graduated ?? h.graduated ?? '—')}
+      ${kv(t.cadence, t.h(c.cadenceHours ?? h.cadenceHours))}
+    </div>
+    ${evRows ? `<h3 style="font-size:14px;margin:16px 0 4px">${t.evidence}</h3><div class="ev">${evRows}</div>` : ''}
+    ${gaps ? `<div class="gapbox"><b>${t.gaps}</b><ul style="margin:6px 0 0;padding-inline-start:18px">${gaps}</ul></div>` : ''}
+    ${rows ? `<h3 style="font-size:14px;margin:16px 0 4px">${t.recent}</h3>${rows}` : ''}
+    <p class="api" style="margin-top:14px"><a href="/api/devrep?wallet=${encodeURIComponent(w)}" target="_blank" rel="noopener">${t.api} ↗</a>
+      · <a href="/how#devrep">/how#devrep</a></p>
+  </div>`;
+}
+
+async function run(q) {
+  const t = T[lang()];
+  q = (q || '').trim();
+  if (!ADDR.test(q)) { $('hint').textContent = t.bad; return; }
+  $('hint').textContent = '';
+  $('go').disabled = true; paint('loading');
+  const isLikelyMint = true; // treat as wallet first; API accepts both — prefer wallet=
+  // Heuristic: try wallet= first; if user pasted a mint, also support ca=
+  let url = `/api/devrep?wallet=${encodeURIComponent(q)}`;
+  // If ?ca= was in the page URL originally as mint mode, honor it
+  const mode = new URLSearchParams(location.search).get('ca') && !new URLSearchParams(location.search).get('wallet') ? 'ca' : 'auto';
+  try {
+    let r = await fetch(url);
+    let d = r.ok ? await r.json() : { ok: false, reason: 'http' };
+    // If wallet lookup returned empty / no_list and q might be a mint, retry as ca
+    const emptyHist = d?.ok && (d.history?.total === 0) && mode === 'auto';
+    const failed = d && d.ok === false && (d.reason === 'no_list' || d.reason === 'no_creator');
+    if (failed || emptyHist) {
+      const r2 = await fetch('/api/devrep?ca=' + encodeURIComponent(q));
+      const d2 = r2.ok ? await r2.json() : null;
+      if (d2?.ok && ((d2.history?.total || 0) > (d.history?.total || 0) || !d.ok)) d = d2;
+    }
+    if (d?.needMarket) d = await finishMarkets(d);
+    paint(d);
+    const w = d?.wallet || q;
+    history.replaceState(null, '', `/dev?wallet=${encodeURIComponent(w)}${lang() === 'ar' ? '&lang=ar' : ''}`);
+  } catch { paint({ ok: false, reason: t.err }); }
+  finally { $('go').disabled = false; }
+}
+
+$('f').addEventListener('submit', (e) => { e.preventDefault(); run($('q').value); });
+const sp = new URLSearchParams(location.search);
+const init = sp.get('wallet') || sp.get('ca') || '';
+if (init) { $('q').value = init; run(init); }
+</script>
+</body>
+</html>

@@ -3,12 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>How the score works — MemeCheck</title>
-<meta name="description" content="How MemeCheck turns RugCheck, DexScreener, GoPlus, Honeypot.is, Four.meme and on-chain data into a Low / Medium / High / Extreme meme-coin risk score for Solana, BNB Chain, Ethereum, Base and Arbitrum. Real weights and thresholds.">
+<title>How the MemeCheckShield Rug Risk Score Works</title>
+<meta name="description" content="How MemeCheckShield turns RugCheck, DexScreener, GoPlus, Honeypot.is, Four.meme and on-chain data into a Low / Medium / High / Extreme meme-coin risk score for Solana, BNB Chain, Ethereum, Base and Arbitrum. Real weights and thresholds.">
 <link rel="canonical" href="https://memecheck.pages.dev/how">
+<link rel="alternate" hreflang="en" href="https://memecheck.pages.dev/how">
+<link rel="alternate" hreflang="ar" href="https://memecheck.pages.dev/how?lang=ar">
+<link rel="alternate" hreflang="x-default" href="https://memecheck.pages.dev/how">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MemeCheckShield">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="ar_AR">
+<meta property="og:url" content="https://memecheck.pages.dev/how">
+<meta property="og:title" content="How the MemeCheckShield Rug Risk Score Works">
+<meta property="og:description" content="How MemeCheckShield turns RugCheck, DexScreener, GoPlus, Honeypot.is, Four.meme and on-chain data into a Low / Medium / High / Extreme meme-coin risk score for Solana, BNB Chain, Ethereum, Base and Arbitrum. Real weights and thresholds.">
+<meta property="og:image" content="https://memecheck.pages.dev/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How the MemeCheckShield Rug Risk Score Works">
+<meta name="twitter:description" content="How MemeCheckShield turns RugCheck, DexScreener, GoPlus, Honeypot.is, Four.meme and on-chain data into a Low / Medium / High / Extreme meme-coin risk score for Solana, BNB Chain, Ethereum, Base and Arbitrum. Real weights and thresholds.">
+<meta name="twitter:image" content="https://memecheck.pages.dev/og-image.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"MemeCheckShield","item":"https://memecheck.pages.dev/"},{"@type":"ListItem","position":2,"name":"How the score works","item":"https://memecheck.pages.dev/how"}]}</script>
 <meta name="theme-color" content="#0b0f17">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-<link rel="stylesheet" href="style.css?v=1792900001">
+<link rel="stylesheet" href="style.css?v=1792466000">
 <style>
 nav.crumbs{display:flex;gap:8px;align-items:center;padding:0 20px;max-width:860px;margin:12px auto 0;font-size:14px}
 nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef}nav.crumbs span{color:#7d879c}
@@ -19,18 +37,18 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 .hl{display:inline-flex;gap:6px;margin-inline-start:auto}
 [data-l]{display:none}html[lang=en] [data-l=en],html[lang=ar] [data-l=ar]{display:block}html[lang=en] span[data-l=en],html[lang=ar] span[data-l=ar]{display:inline}
 </style>
-<script>(function(){var l=localStorage.getItem('mc_lang')==='ar'?'ar':'en';document.documentElement.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr';})();</script>
+<script>(function(){var l=(new URLSearchParams(location.search).get('lang')||localStorage.getItem('mc_lang'))==='ar'?'ar':'en';document.documentElement.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr';})();</script>
 </head>
 <body>
 <header>
   <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span><span></span><span></span></button>
-  <div class="brand"><img src="/icon-192.png" width="26" height="26" alt="MemeCheck"> <b>MemeCheck</b></div>
+  <div class="brand"><img src="/icon-192.png" width="26" height="26" alt="MemeCheckShield"> <b>MemeCheckShield</b></div>
   <div class="hdr-end"><button id="how-lang" class="ghost" type="button">العربية</button></div>
 </header>
 <nav class="site-nav" id="site-nav" hidden>
   <a href="/" data-t="navChecker">Checker</a>
-  <a href="/smart.html" data-t="navSmart">Smart money</a>
-  <a href="/whales.html" data-t="navWhales">Whale buys</a>
+  <a href="/smart" data-t="navSmart">Smart money</a>
+  <a href="/whales" data-t="navWhales">Whale buys</a>
   <a href="/rugs" data-t="navRugs">Rugs we caught</a>
   <a href="/how" data-t="navHow">How the score works</a>
   <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a>
@@ -84,6 +102,21 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 <ul><li><b>FAIL, +10 points</b>: 3+ dead/rugged coins that are at least half of the judged ones, or a serial launcher (10+ coins) with under 10% still alive.</li>
 <li><b>WARN, +3 points</b>: 2+ dead/rugged coins.</li><li>Never critical on its own.</li></ul></div>
 
+<div class="card" id="devrep"><h2>4b. Dev Reputation Score (0–100) — M1 v1</h2>
+<p>A public reputation score for any Solana <b>token-creator wallet</b>. Shown on every Solana scan in the Developer history card, on the <a href="/dev">/dev lookup page</a>, and via <code>GET /api/devrep?wallet=…</code> or <code>?ca=…</code>.</p>
+<p><b>Labels:</b> <span class="badge low">Builder</span> (roughly 70+) · <span class="badge medium">Neutral</span> · <span class="badge high">Serial Launcher</span> (10+ launches with very low survival or rapid-fire cadence) · <span class="badge extreme">High Risk</span> (roughly under 40, or ≥70% dead/rugged of judged).</p>
+<table><thead><tr><th>Input (public data)</th><th>How it moves the score</th><th>v1 status</th></tr></thead><tbody>
+<tr><td>Dead / rugged ratio of prior launches</td><td>Largest weight. Same dead/rugged rules as Developer history above (aligned with the spirit of <a href="/rugs">/rugs</a> outcomes).</td><td>Live</td></tr>
+<tr><td>Number of launches</td><td>Few launches = mild bonus; 10+ / 25+ / 50+ = growing penalty (serial pattern).</td><td>Live</td></tr>
+<tr><td>Time between launches (median gap)</td><td>≥ 7 days helps; under 1 hour between launches is a strong penalty.</td><td>Live</td></tr>
+<tr><td>Graduation rate (pump.fun complete)</td><td>Mild bonus when some coins graduated <i>and</i> at least one is still live.</td><td>Live</td></tr>
+<tr><td>LP lock / burn on prior launches</td><td>Soft sample: up to 2 RugCheck reports on graduated priors when available.</td><td>Partial</td></tr>
+<tr><td>Dev sell speed (1h / 1d)</td><td>Needs tx tracing (paid RPC / indexing).</td><td>Gap (M2)</td></tr>
+<tr><td>Linked-wallet supply + funded-wallet launches</td><td>Needs holder/funder graphs.</td><td>Gap (M2)</td></tr>
+</tbody></table>
+<p>Thin history (fewer than 2 judged prior coins) pulls the score toward Neutral so a brand-new wallet is not crowned Builder. Score weights will be checked against the <a href="/rugs">/rugs</a> tracker; a formal backtest note is not published yet (honest gap).</p>
+<p class="muted">Code: <code>devrep-core.js</code> (MIT). Not financial advice — a high score is not a buy signal.</p></div>
+
 <div class="card" id="evm"><h2>5. BNB Chain, Ethereum, Base &amp; Arbitrum (EVM) checks</h2>
 <p>Paste a <code>0x…</code> address and we pick the chain automatically: the one (BNB Chain, Ethereum, Base or Arbitrum One) where the token's own DexScreener pairs have the most liquidity. If it trades on several, the result shows chips (<b>BNB</b> / <b>ETH</b> / <b>BASE</b> / <b>ARB</b>) to switch. Security data comes from <b>GoPlus</b> (contract scan) and <b>Honeypot.is</b> (a real buy + sell simulation), fetched through our server with a 5-minute cache. Honeypot.is does not support Arbitrum, so on Arbitrum the honeypot and tax checks rely on GoPlus only (shown as a note). All EVM contract rules live in one function, <code>evmFindings()</code> in <code>core.js</code>; liquidity, pair age, drop, pressure and volume use the shared market checks above.</p>
 <table><thead><tr><th>Check</th><th>Rule</th><th>Points</th></tr></thead><tbody>
@@ -132,7 +165,7 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 <li><b>GeckoTerminal</b>: trending and new-pool lists; price candles (OHLCV) for BNB Chain / Ethereum pools.</li>
 </ul></div>
 
-<div class="warnbox"><b>Important:</b> <b>Low risk does not mean 100% safe.</b> Automated checks can miss new scam techniques, and data sources can be wrong or delayed; a legit token can also be flagged. MemeCheck is a free research tool, <b>not financial advice</b>. Always do your own research and never invest more than you can afford to lose.</div>
+<div class="warnbox"><b>Important:</b> <b>Low risk does not mean 100% safe.</b> Automated checks can miss new scam techniques, and data sources can be wrong or delayed; a legit token can also be flagged. MemeCheckShield is a free research tool, <b>not financial advice</b>. Always do your own research and never invest more than you can afford to lose.</div>
 <p class="muted">See real examples: <a href="/rugs">Rugs we caught</a> · Code: <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener">GitHub</a></p>
 </div>
 
@@ -183,6 +216,21 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 <ul><li><b>فشل، +10 نقاط</b>: ‏3 عملات ميتة/مسحوبة فأكثر وتمثل نصف العملات المحكوم عليها على الأقل، أو مُطلق متسلسل (10 عملات فأكثر) أقل من 10% منها حية.</li>
 <li><b>تحذير، +3 نقاط</b>: عملتان ميتتان/مسحوبتان فأكثر.</li><li>لا يكون حرجًا وحده.</li></ul></div>
 
+<div class="card" id="devrep-ar"><h2>4ب. درجة سمعة المطوّر (0–100) — الإصدار 1</h2>
+<p>درجة سمعة عامة لأي <b>محفظة منشئ</b> على سولانا. تظهر في كل فحص سولانا داخل بطاقة سجل المطوّر، وفي <a href="/dev">صفحة البحث /dev</a>، وعبر <code>GET /api/devrep?wallet=…</code> أو <code>?ca=…</code>.</p>
+<p><b>التصنيفات:</b> بنّاء (حوالي 70+) · محايد · مُطلق متسلسل (10 إطلاقات فأكثر مع بقاء منخفض جدًا أو إيقاع سريع) · خطر مرتفع (حوالي أقل من 40، أو 70% فأكثر ميتة/مسحوبة).</p>
+<table><thead><tr><th>المُدخل (بيانات عامة)</th><th>تأثيره على الدرجة</th><th>حالة الإصدار 1</th></tr></thead><tbody>
+<tr><td>نسبة الميت/المسحوب من الإطلاقات السابقة</td><td>أكبر وزن. نفس قواعد سجل المطوّر أعلاه.</td><td>مباشر</td></tr>
+<tr><td>عدد الإطلاقات</td><td>إطلاقات قليلة = مكافأة خفيفة؛ 10+ / 25+ / 50+ = عقوبة متزايدة.</td><td>مباشر</td></tr>
+<tr><td>الزمن بين الإطلاقات (الوسيط)</td><td>‏7 أيام فأكثر تساعد؛ أقل من ساعة عقوبة قوية.</td><td>مباشر</td></tr>
+<tr><td>نسبة التخرّج</td><td>مكافأة خفيفة إذا تخرّجت بعض العملات وواحدة على الأقل ما زالت نشطة.</td><td>مباشر</td></tr>
+<tr><td>قفل/حرق السيولة السابق</td><td>عينة ناعمة: حتى تقريريْن من RugCheck عند التوفر.</td><td>جزئي</td></tr>
+<tr><td>سرعة بيع المطوّر</td><td>تحتاج تتبّع معاملات (RPC مدفوع / فهرسة).</td><td>فجوة (M2)</td></tr>
+<tr><td>المعروض المرتبط + إطلاقات المحافظ المموَّلة</td><td>تحتاج رسوم الحاملين/المموّلين.</td><td>فجوة (M2)</td></tr>
+</tbody></table>
+<p>السجل الرقيق (أقل من عملتين محكومتين) يسحب الدرجة نحو المحايد. لم ننشر بعد اختبارًا رجعيًا رسميًا مقابل <a href="/rugs">/rugs</a> (فجوة صريحة).</p>
+<p class="muted">الكود: <code>devrep-core.js</code> (MIT). ليست نصيحة مالية.</p></div>
+
 <div class="card" id="evm-ar"><h2>5. فحوص سلسلة BNB وإيثريوم وBase وأربيتروم (EVM)</h2>
 <p>الصق عنوانًا يبدأ بـ <code>0x…</code> ونختار الشبكة تلقائيًا: الشبكة (سلسلة BNB أو إيثريوم أو Base أو أربيتروم) التي تملك فيها أزواج العملة على DexScreener أعلى سيولة. إذا كانت العملة متداولة على أكثر من شبكة تظهر في النتيجة أزرار (<b>BNB</b> / <b>ETH</b> / <b>BASE</b> / <b>ARB</b>) للتبديل. بيانات الأمان من <b>GoPlus</b> (فحص العقد) و<b>Honeypot.is</b> (محاكاة شراء وبيع حقيقية)، عبر خادمنا مع تخزين مؤقت لمدة 5 دقائق. Honeypot.is لا يدعم أربيتروم، لذا يعتمد فحص المصيدة والضريبة على أربيتروم على GoPlus فقط (مع ملاحظة). كل قواعد عقود EVM موجودة في دالة واحدة: <code>evmFindings()</code> في <code>core.js</code>؛ أما السيولة وعمر الزوج والهبوط والضغط والحجم فتستخدم فحوص السوق المشتركة أعلاه.</p>
 <table><thead><tr><th>الفحص</th><th>القاعدة</th><th>النقاط</th></tr></thead><tbody>
@@ -231,7 +279,7 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 <li><b>GeckoTerminal</b>: قوائم الرائجة والمجمعات الجديدة؛ شموع الأسعار (OHLCV) لمجمعات سلسلة BNB / إيثريوم.</li>
 </ul></div>
 
-<div class="warnbox"><b>مهم:</b> <b>الخطر المنخفض لا يعني أمانًا بنسبة 100%.</b> الفحوص الآلية قد تفوّت أساليب احتيال جديدة، وقد تكون مصادر البيانات خاطئة أو متأخرة، وقد تُعلَّم عملة سليمة. MemeCheck أداة بحث مجانية و<b>ليست نصيحة مالية</b>. ابحث بنفسك دائمًا ولا تستثمر أكثر مما تستطيع خسارته.</div>
+<div class="warnbox"><b>مهم:</b> <b>الخطر المنخفض لا يعني أمانًا بنسبة 100%.</b> الفحوص الآلية قد تفوّت أساليب احتيال جديدة، وقد تكون مصادر البيانات خاطئة أو متأخرة، وقد تُعلَّم عملة سليمة. MemeCheckShield أداة بحث مجانية و<b>ليست نصيحة مالية</b>. ابحث بنفسك دائمًا ولا تستثمر أكثر مما تستطيع خسارته.</div>
 <p class="muted">أمثلة حقيقية: <a href="/rugs">عمليات السحب التي رصدناها</a> · الكود: <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener">GitHub</a></p>
 </div>
 </main>
@@ -240,6 +288,6 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 (function(){var b=document.getElementById('how-lang');var ar=document.documentElement.lang==='ar';b.textContent=ar?'English':'العربية';
 b.addEventListener('click',function(){localStorage.setItem('mc_lang',ar?'en':'ar');location.reload();});})();
 </script>
-<script src="nav.js?v=1792900001" defer></script>
+<script src="nav.js?v=1792466000" defer></script>
 </body>
 </html>

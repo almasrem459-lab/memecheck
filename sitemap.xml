@@ -1,33 +1,111 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://memecheck.pages.dev/</loc>
-    <changefreq>hourly</changefreq>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://memecheck.pages.dev/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://memecheck.pages.dev/?lang=ar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://memecheck.pages.dev/"/>
   </url>
   <url>
-    <loc>https://memecheck.pages.dev/rugs.html</loc>
+    <loc>https://memecheck.pages.dev/?lang=ar</loc>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://memecheck.pages.dev/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://memecheck.pages.dev/?lang=ar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://memecheck.pages.dev/"/>
+  </url>
+  <url>
+    <loc>https://memecheck.pages.dev/dev</loc>
+    <lastmod>2026-10-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://memecheck.pages.dev/dev"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://memecheck.pages.dev/dev?lang=ar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://memecheck.pages.dev/dev"/>
+  </url>
+  <url>
+    <loc>https://memecheck.pages.dev/dev?lang=ar</loc>
+    <lastmod>2026-10-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://memecheck.pages.dev/dev"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://memecheck.pages.dev/dev?lang=ar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://memecheck.pages.dev/dev"/>
+  </url>
+  <url>
+    <loc>https://memecheck.pages.dev/how</loc>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://memecheck.pages.dev/how"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://memecheck.pages.dev/how?lang=ar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://memecheck.pages.dev/how"/>
+  </url>
+  <url>
+    <loc>https://memecheck.pages.dev/how?lang=ar</loc>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://memecheck.pages.dev/how"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://memecheck.pages.dev/how?lang=ar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://memecheck.pages.dev/how"/>
+  </url>
+  <url>
+    <loc>https://memecheck.pages.dev/rugs</loc>
+    <lastmod>2026-10-19</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://memecheck.pages.dev/whales.html</loc>
+    <loc>https://memecheck.pages.dev/smart</loc>
+    <lastmod>2026-10-19</lastmod>
     <changefreq>hourly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://memecheck.pages.dev/smart"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://memecheck.pages.dev/smart?lang=ar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://memecheck.pages.dev/smart"/>
   </url>
   <url>
-    <loc>https://memecheck.pages.dev/smart.html</loc>
+    <loc>https://memecheck.pages.dev/smart?lang=ar</loc>
+    <lastmod>2026-10-19</lastmod>
     <changefreq>hourly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://memecheck.pages.dev/smart"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://memecheck.pages.dev/smart?lang=ar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://memecheck.pages.dev/smart"/>
+  </url>
+  <url>
+    <loc>https://memecheck.pages.dev/whales</loc>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://memecheck.pages.dev/chat</loc>
-    <changefreq>always</changefreq>
-    <priority>0.6</priority>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://memecheck.pages.dev/chat"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://memecheck.pages.dev/chat?lang=ar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://memecheck.pages.dev/chat"/>
   </url>
   <url>
-    <loc>https://memecheck.pages.dev/how</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
+    <loc>https://memecheck.pages.dev/chat?lang=ar</loc>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://memecheck.pages.dev/chat"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://memecheck.pages.dev/chat?lang=ar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://memecheck.pages.dev/chat"/>
+  </url>
+  <url>
+    <loc>https://memecheck.pages.dev/deck/</loc>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>

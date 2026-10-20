@@ -1,9 +1,9 @@
-import { T, usd } from './i18n.js?v=1792900001';
+import { T, usd } from './i18n.js?v=1792466000';
 // Homepage speed: only app.js + i18n.js + nav.js load up front. core.js (the scanner), the result-section modules and the
 // new-tokens list are imported on demand: the scanner + result modules when a scan starts (or a valid CA is pasted),
 // the new-tokens list when it scrolls near the viewport. Result modules only listen for mc:render / mc:final events, so
 // render() waits for them to finish importing before it dispatches (see fireRender).
-const V = '1792900001';
+const V = '1792466000';
 // same rules as core.js detectChain (kept inline so the homepage does not need core.js before a scan)
 function detectChain(addr) { addr = (addr || '').trim(); if (/^0x[0-9a-fA-F]{40}$/.test(addr)) return 'evm'; if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr)) return 'solana'; return null; }
 let core = null, coreP = null, modsP = null, proof = null; // proof: 'Rugs we caught' card data (see loadProof)
@@ -179,8 +179,8 @@ function cardCanvas(r, lg = lang, logo = null, icon = null) {
   g.fillStyle = b2; g.fillRect(0, 0, W, 10);
   // header: brand + date
   if (icon) { g.save(); rr(60, 34, 48, 48, 10); g.clip(); g.drawImage(icon, rtl ? W - 108 : 60, 34, 48, 48); g.restore(); }
-  text('MemeCheck', icon ? 122 : 60, 70, F(800, 34), '#e6e9ef', { ltr: true });
-  g.font = F(800, 34); const bw = g.measureText('MemeCheck').width;
+  text('MemeCheckShield', icon ? 122 : 60, 70, F(800, 34), '#e6e9ef', { ltr: true });
+  g.font = F(800, 34); const bw = g.measureText('MemeCheckShield').width;
   text(t.cardTag, (icon ? 122 : 60) + bw + 18, 70, F(500, 22), '#9aa4b8', { max: 360 });
   let date; try { date = new Date().toLocaleDateString(lg === 'ar' ? 'ar' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' }); } catch { date = new Date().toISOString().slice(0, 10); }
   text(date, W - 60, 70, F(500, 22), '#9aa4b8', { side: 'end' });

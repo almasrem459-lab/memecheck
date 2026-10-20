@@ -229,3 +229,21 @@ body.has-result .hero{padding:0}
 #proof .prn{min-height:46px}#proof-list{min-height:119px}#proof-list .skr{height:31px;margin:6px 0}
 [dir=rtl] #proof .prn{min-height:58px}[dir=rtl] #proof-list{min-height:143px}
 #proof.done .prn,#proof.done #proof-list{min-height:0}
+
+/* MemeCheckShield: longer brand name must fit next to the menu + language buttons on small phones */
+@media(max-width:420px){header{flex-wrap:nowrap;gap:8px;padding-inline:14px}.brand{font-size:17px;gap:6px;min-width:0}.brand b{white-space:nowrap}.hdr-end{gap:6px}}
+
+
+/* Dev Reputation Score (M1) */
+.dr-score{background:#0e1320;border:1px solid #1c2333;border-radius:12px;padding:12px 14px}
+.dr-top{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.dr-num{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1;color:#e6e9ef}
+.dr-of{font-size:13px;color:#7d879c;font-weight:600}
+.dr-lab{font-size:13px;font-weight:700;padding:3px 9px;border-radius:999px;margin-inline-start:4px}
+.dr-links{margin-inline-start:auto;font-size:12px}.dr-links a{color:#9aa4b8;text-decoration:none}.dr-links a:hover{color:#e6e9ef}
+.dr-bar{height:5px;border-radius:3px;background:#1a2130;margin-top:10px;overflow:hidden}.dr-bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#2563eb,#3ee08f)}
+.dr-builder .dr-lab{background:#0f3d2a;color:#3ee08f}.dr-builder .dr-bar i{background:linear-gradient(90deg,#159957,#3ee08f)}
+.dr-neutral .dr-lab{background:#1a2744;color:#7fa2ff}.dr-neutral .dr-bar i{background:linear-gradient(90deg,#2563eb,#7fa2ff)}
+.dr-serial .dr-lab{background:#3d3510;color:#ffd447}.dr-serial .dr-bar i{background:linear-gradient(90deg,#c9a227,#ffd447)}
+.dr-risk .dr-lab{background:#3d1520;color:#ff6b81}.dr-risk .dr-bar i{background:linear-gradient(90deg,#c0392b,#ff6b81)}
+.dr-score.dr-risk .dr-num{color:#ff6b81}.dr-score.dr-builder .dr-num{color:#3ee08f}

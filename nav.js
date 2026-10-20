@@ -14,6 +14,16 @@
     lbl(); new MutationObserver(lbl).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
   }
 
+
+  // Dev Reputation lookup link
+  if (!nav.querySelector('a[href="/dev"]')) {
+    const a = document.createElement('a'); a.href = '/dev'; a.className = 'nav-dev';
+    const lbl = () => { a.textContent = document.documentElement.lang === 'ar' ? 'درجة المطوّر' : 'Dev score'; a.setAttribute('data-t', 'navDev'); };
+    lbl(); new MutationObserver(lbl).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+    const how = nav.querySelector('a[href="/how"]');
+    if (how) nav.insertBefore(a, how); else nav.appendChild(a);
+  }
+
   const setOpen = (open) => {
     nav.hidden = !open;
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -42,6 +52,7 @@
       navSmart: 'الأموال الذكية',
       navChat: 'غرفة النقاش',
       navRugs: 'عمليات السحب التي رصدناها',
+      navDev: 'درجة المطوّر',
       navHow: 'كيف يعمل التقييم',
       navOpenSrc: 'مفتوح المصدر',
     };

@@ -1,6 +1,6 @@
 # MemeCheck
 
-**Live: https://memecheck.pages.dev** · [Rugs we caught](https://memecheck.pages.dev/rugs) · [How the score works](https://memecheck.pages.dev/how)
+**Live: https://memecheck.pages.dev** · [Rugs we caught](https://memecheck.pages.dev/rugs) · [How the score works](https://memecheck.pages.dev/how) · [Dev Reputation](https://memecheck.pages.dev/dev)
 
 Free, open-source (MIT) meme-coin safety checker for **Solana, BNB Chain, Ethereum, Base and Arbitrum**. Paste a contract address and get a **Low / Medium / High / Extreme** risk verdict with plain-language reasons in seconds. No signup, no paywall. English + Arabic UI.
 
@@ -103,6 +103,18 @@ wrangler pages dev . --kv MEMECHECK_CACHE
 ```
 
 Without `HELIUS_KEY` the app still works using public Solana RPCs (slower, rate-limited deep checks).
+
+
+## Dev Reputation Score (M1)
+
+Public **0–100** score for Solana token-creator wallets with labels **Builder / Neutral / Serial Launcher / High Risk**.
+
+- Lookup: https://memecheck.pages.dev/dev
+- API: `GET /api/devrep?wallet=<pubkey>` or `?ca=<mint>`
+- Methodology: https://memecheck.pages.dev/how#devrep
+- Code: `devrep-core.js` (also attached on `/api/dev` as `rep`)
+
+v1 uses pump.fun launch history + DexScreener survival/cadence/graduations (Helius DAS fallback when pump.fun is blocked). Gaps: funded-wallet launches, sell speed, linked supply, full LP history, formal /rugs backtest.
 
 ## Deploy (Cloudflare Pages)
 

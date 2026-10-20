@@ -3,11 +3,25 @@
 // no KV writes. The image is the dynamic PNG from /api/og (X needs PNG/JPG); the homepage keeps /og-image.png.
 import { ogInfo, CA_RE } from './_lib/oginfo.js';
 const BOT = /twitterbot|facebookexternalhit|facebot|discordbot|telegrambot|slackbot|whatsapp|linkedinbot|skypeuripreview|redditbot|embedly|pinterest|applebot|googlebot|bingbot|bot\b|crawler|spider|preview/i;
+const AR_PATHS = new Set(['/', '/how', '/smart', '/chat', '/dev']);
 const LV = { low: 'Low', medium: 'Medium', high: 'High', extreme: 'Extreme' };
 export const onRequest = async (ctx) => {
   const { request: req, next, env } = ctx; const url = new URL(req.url);
   // never serve deploy config / server sources as static files
   if (/^\/(wrangler\.toml|\.wrangler|functions|package(-lock)?\.json|node_modules|\.git|\.dev\.vars)(\/|$)/i.test(url.pathname)) return new Response('Not found', { status: 404, headers: { 'cache-control': 'no-store' } });
+  // SEO: ?lang=ar is the Arabic alternate of /, /how, /smart and /chat (hreflang). Make it self-canonical and set lang/dir in the
+  // served HTML so Google keeps it as its own Arabic URL. Pure HTMLRewriter on the static page: no KV reads or writes.
+  if (req.method === 'GET' && url.searchParams.get('lang') === 'ar' && !url.searchParams.get('ca') && !url.searchParams.get('a') && AR_PATHS.has(url.pathname)) {
+    const res = await next(); if (!(res.headers.get('content-type') || '').includes('text/html')) return res;
+    const self = `https://memecheck.pages.dev${url.pathname}?lang=ar`;
+    return new HTMLRewriter()
+      .on('html', { element(e) { e.setAttribute('lang', 'ar'); e.setAttribute('dir', 'rtl'); } })
+      .on('link[rel="canonical"]', { element(e) { e.setAttribute('href', self); } })
+      .on('meta[property="og:url"]', { element(e) { e.setAttribute('content', self); } })
+      .on('meta[property="og:locale"]', { element(e) { e.setAttribute('content', 'ar_AR'); } })
+      .on('meta[property="og:locale:alternate"]', { element(e) { e.setAttribute('content', 'en_US'); } })
+      .transform(res);
+  }
   const ca = url.searchParams.get('ca') || url.searchParams.get('a');
   if (req.method !== 'GET' || !(url.pathname === '/' || url.pathname === '/index.html') || !ca || !CA_RE.test(ca) || !BOT.test(req.headers.get('user-agent') || '')) return next();
   const res = await next(); if (!(res.headers.get('content-type') || '').includes('text/html')) return res;
@@ -16,9 +30,9 @@ export const onRequest = async (ctx) => {
   const share = `https://memecheck.pages.dev/?ca=${encodeURIComponent(ca)}${chain !== 'auto' ? '&chain=' + chain : ''}`;
   const img = `https://memecheck.pages.dev/api/og?ca=${encodeURIComponent(ca)}&chain=${chain}&v=${info?.level || 'n'}`;
   const nm = info?.name && info.name !== info.sym ? ` (${info.name})` : '';
-  const title = info?.sym && info.level ? `$${info.sym}: ${LV[info.level]} risk on MemeCheck` : info?.sym ? `$${info.sym} safety check on MemeCheck` : 'MemeCheck — token safety check';
-  const desc = info?.sym && info.level ? `I checked $${info.sym}${nm} on MemeCheck: ${LV[info.level]} risk, ${info.pts} risk points. Rug, honeypot, dev & bundle checks. Free.` : info?.sym ? `Is $${info.sym}${nm} safe? Check safety: rug, honeypot, dev & bundle checks on MemeCheck. Free.` : 'Check any meme coin before you ape in. Rug, honeypot, dev & bundle checks. Free.';
-  const alt = info?.sym ? `$${info.sym}${info.level ? ` — ${LV[info.level]} risk` : ' — check safety'} on MemeCheck` : 'MemeCheck token safety check';
+  const title = info?.sym && info.level ? `$${info.sym}: ${LV[info.level]} risk on MemeCheckShield` : info?.sym ? `$${info.sym} safety check on MemeCheckShield` : 'MemeCheckShield — token safety check';
+  const desc = info?.sym && info.level ? `I checked $${info.sym}${nm} on MemeCheckShield: ${LV[info.level]} risk, ${info.pts} risk points. Rug, honeypot, dev & bundle checks. Free.` : info?.sym ? `Is $${info.sym}${nm} safe? Check safety: rug, honeypot, dev & bundle checks on MemeCheckShield. Free.` : 'Check any meme coin before you ape in. Rug, honeypot, dev & bundle checks. Free.';
+  const alt = info?.sym ? `$${info.sym}${info.level ? ` — ${LV[info.level]} risk` : ' — check safety'} on MemeCheckShield` : 'MemeCheckShield token safety check';
   const set = (v) => ({ element(e) { e.setAttribute('content', v); } });
   const out = new HTMLRewriter()
     .on('title', { element(e) { e.setInnerContent(title); } })
