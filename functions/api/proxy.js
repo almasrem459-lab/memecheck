@@ -1,7 +1,7 @@
 // Allowlisted CORS proxy with light edge caching. Fresh copies are served from the Cloudflare Cache API for a per-host TTL;
 // on upstream error (e.g. ForexFactory 429) the last good copy is served stale (kept up to 24 h) instead of failing.
 const ALLOW = ['api.dexscreener.com', 'api.rugcheck.xyz', 'api.gopluslabs.io', 'api.honeypot.is', 'api.gold-api.com', 'nfs.faireconomy.media', 'frontend-api-v3.pump.fun', 'api.geckoterminal.com'];
-const TTL = { 'nfs.faireconomy.media': 2700, 'api.gold-api.com': 60, 'api.rugcheck.xyz': 120, 'api.gopluslabs.io': 120, 'api.honeypot.is': 120, 'api.dexscreener.com': 30, 'frontend-api-v3.pump.fun': 20, 'api.geckoterminal.com': 60 };
+const TTL = { 'nfs.faireconomy.media': 2700, 'api.gold-api.com': 60, 'api.rugcheck.xyz': 180, 'api.gopluslabs.io': 180, 'api.honeypot.is': 180, 'api.dexscreener.com': 45, 'frontend-api-v3.pump.fun': 60, 'api.geckoterminal.com': 90 }; // M2: longer edge cache to cut free-tier rate limits
 const STALE = 86400;
 const json = (status, body, extra = {}) => new Response(typeof body === 'string' ? body : JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*', ...extra } });
 const mem = new Map(); // per-isolate fallback when the Cache API is unavailable

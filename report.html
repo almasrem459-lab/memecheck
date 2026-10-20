@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Monthly accuracy report – MemeCheckShield</title>
+<meta name="description" content="MemeCheckShield monthly accuracy report from the public /rugs tracker. Automated tables, all outcomes published.">
+<link rel="canonical" href="https://memecheck.pages.dev/report">
+<link rel="alternate" hreflang="en" href="https://memecheck.pages.dev/report">
+<link rel="alternate" hreflang="ar" href="https://memecheck.pages.dev/report?lang=ar">
+<meta property="og:type" content="website"><meta property="og:site_name" content="MemeCheckShield">
+<meta property="og:url" content="https://memecheck.pages.dev/report">
+<meta property="og:title" content="Monthly accuracy report – MemeCheckShield">
+<meta property="og:description" content="MemeCheckShield monthly accuracy report from the public /rugs tracker. Automated tables, all outcomes published.">
+<meta property="og:image" content="https://memecheck.pages.dev/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0b0f17">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<script>(function(){try{if(localStorage.getItem('mc_lang')==='ar'||new URLSearchParams(location.search).get('lang')==='ar'){document.documentElement.lang='ar';document.documentElement.dir='rtl';}}catch(e){}})();</script>
+<link rel="stylesheet" href="style.css?v=1792467000">
+<style>
+nav.crumbs{display:flex;gap:8px;align-items:center;padding:0 20px;max-width:860px;margin:12px auto 0;font-size:14px}
+nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef}nav.crumbs span{color:#7d879c}
+.hdr-end{margin-inline-start:auto}
+main.pg{max-width:860px;margin:0 auto;padding:8px 20px 40px}
+main.pg h1{font-size:22px;margin:8px 0 4px}
+main.pg h2{font-size:17px;margin:22px 0 8px;color:#e6e9ef}
+main.pg h3{font-size:15px;margin:16px 0 6px}
+main.pg .card{margin-top:14px}
+main.pg ul,main.pg ol{margin:8px 0 8px 1.2em;color:#c5cddc;line-height:1.55;font-size:14px}
+main.pg p,.tag{color:#9aa4b8;font-size:14px;line-height:1.55}
+main.pg code{background:#121826;padding:1px 6px;border-radius:6px;font-size:13px}
+main.pg table.acc{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+main.pg table.acc th,main.pg table.acc td{border-bottom:1px solid #273046;padding:7px 8px;text-align:left;vertical-align:top}
+main.pg table.acc th{color:#9aa4b8;font-weight:600}
+.lang-only-ar{display:none}html[lang=ar] .lang-only-en{display:none}html[lang=ar] .lang-only-ar{display:block}
+.banner{background:#121826;border:1px solid #3d3510;border-radius:14px;padding:14px 16px;margin:16px 0;color:#ffd447;font-size:14px;line-height:1.45}
+</style>
+</head>
+<body>
+<header><button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span><span></span><span></span></button><div class="brand"><img src="/icon-64.png" width="26" height="26" alt="MemeCheckShield"> <b>MemeCheckShield</b></div><div class="hdr-end"><button id="pg-lang" class="ghost">العربية</button></div></header>
+<nav id="site-nav" class="site-nav" hidden>
+  <a href="/" data-t="navChecker">Checker</a>
+  <a href="/dev" data-t="navDev">Dev score</a>
+  <a href="/how" data-t="navHow">How the score works</a>
+  <a href="/rugs" data-t="navRugs">Rugs we caught</a>
+  <a href="/guides">Guides</a>
+  <a href="/report">Report</a>
+  <a href="/infra">Infra</a>
+  <a href="/smart" data-t="navSmart">Smart money</a>
+  <a href="/chat" data-t="navChat">Community chat</a>
+  <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a>
+</nav>
+<nav class="crumbs"><a href="/">Home</a><span>/</span><span>Monthly report</span></nav>
+<main class="pg">
+
+<h1>Monthly accuracy report</h1>
+<p class="tag lang-only-en">Grant M3 ($500 line). Regenerated from the same evidence DB as <a href="/rugs">/rugs</a>. Current month: <b>2026-10</b>.</p>
+<p class="tag lang-only-ar">تقرير الدقة الشهري (بند المنحة). يُولَّد من نفس قاعدة أدلة <a href="/rugs">/rugs</a>. الشهر الحالي: <b>2026-10</b>.</p>
+
+<div class="card lang-only-en">
+<h2>October 2026 (UTC) — study_v2</h2>
+<div style="overflow-x:auto"><table class="acc"><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>
+<tr><td>Scan days with intake</td><td>2</td></tr>
+<tr><td>Coins scanned</td><td>75</td></tr>
+<tr><td>24h rechecks done</td><td>57</td></tr>
+<tr><td>RUGGED</td><td>44 (77.2%)</td></tr>
+<tr><td>DOWN ≥70% (not rugged)</td><td>4</td></tr>
+<tr><td>ALIVE</td><td>9</td></tr>
+<tr><td>At-scan Low / Medium / High</td><td>33 / 40 / 2</td></tr>
+<tr><td>Caught (High → rugged)</td><td>2</td></tr>
+</tbody></table></div>
+<h3>By risk level (24h outcomes)</h3>
+<div style="overflow-x:auto"><table class="acc"><thead><tr><th>Level</th><th>n</th><th>Rugged</th><th>Rugged %</th><th>Down≥70%</th><th>Alive</th></tr></thead><tbody>
+<tr><td><span class="badge low">LOW</span></td><td>22</td><td>19</td><td>86.4%</td><td>0</td><td>3</td></tr>
+<tr><td><span class="badge medium">MEDIUM</span></td><td>33</td><td>23</td><td>69.7%</td><td>4</td><td>6</td></tr>
+<tr><td><span class="badge high">HIGH</span></td><td>2</td><td>2</td><td>100%</td><td>0</td><td>0</td></tr>
+</tbody></table></div>
+<h3>Daily breakdown</h3>
+<div style="overflow-x:auto"><table class="acc"><thead><tr><th>UTC day</th><th>Scanned</th><th>24h done</th><th>Pending</th><th>Rugged</th><th>Rugged %</th><th>Alive</th></tr></thead><tbody>
+<tr><td>2026-10-15</td><td>57</td><td>57</td><td>0</td><td>44</td><td>77.2%</td><td>9</td></tr>
+<tr><td>2026-10-18</td><td>18</td><td>0</td><td>18</td><td>0</td><td>—%</td><td>0</td></tr>
+</tbody></table></div>
+<p class="banner">Small sample — treat rates as preliminary. Full methodology and coin list: <a href="/rugs">/rugs</a>. JSON: <a href="/accuracy-monthly.json">/accuracy-monthly.json</a> · API: <a href="/api/accuracy?view=monthly">/api/accuracy?view=monthly</a>.</p>
+<p>Caught High→rugged this month: $NODF, $TikTok US.</p>
+</div>
+
+<div class="card lang-only-ar">
+<h2>تشرين الأول / أكتوبر 2026</h2>
+<ul>
+<li>أيام المسح: 2 · عملات: 75 · إعادات 24س: 57</li>
+<li>مسحوبة: 44 (77.2%) · حية: 9</li>
+<li>High عند المسح → سحب: 2</li>
+</ul>
+<p class="banner">عينة صغيرة — راجع <a href="/rugs">/rugs</a> للتفاصيل الكاملة.</p>
+</div>
+
+</main>
+<footer><span class="lang-only-en">Not financial advice. Always DYOR.</span><span class="lang-only-ar">ليست نصيحة مالية. ابحث بنفسك دائمًا.</span> · <a href="/">Checker</a> · <a href="/rugs">Rugs</a> · <a href="/guides">Guides</a> · <a href="/report">Report</a> · <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener">Open source</a></footer>
+<script>
+(function(){var b=document.getElementById('pg-lang');var ar=document.documentElement.lang==='ar';
+b.textContent=ar?'English':'العربية';
+b.addEventListener('click',function(){localStorage.setItem('mc_lang',ar?'en':'ar');location.reload();});})();
+</script>
+<script src="nav.js?v=1792467000" defer></script>
+</body>
+</html>

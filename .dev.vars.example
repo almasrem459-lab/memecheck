@@ -1,2 +1,4 @@
 # Copy to .dev.vars for local `wrangler pages dev` (never commit .dev.vars)
 HELIUS_KEY=your-helius-api-key
+# Telegram bot lives on alert-worker — set there, not here:
+# TELEGRAM_BOT_TOKEN=from-BotFather-ask-Jojo

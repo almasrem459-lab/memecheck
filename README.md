@@ -1,5 +1,6 @@
-# MemeCheck
+# MemeCheckShield
 
+**Brand:** MemeCheckShield · 
 **Live: https://memecheck.pages.dev** · [Rugs we caught](https://memecheck.pages.dev/rugs) · [How the score works](https://memecheck.pages.dev/how) · [Dev Reputation](https://memecheck.pages.dev/dev)
 
 Free, open-source (MIT) meme-coin safety checker for **Solana, BNB Chain, Ethereum, Base and Arbitrum**. Paste a contract address and get a **Low / Medium / High / Extreme** risk verdict with plain-language reasons in seconds. No signup, no paywall. English + Arabic UI.
@@ -135,6 +136,21 @@ wrangler pages deploy . --project-name memecheck
 | GA measurement id | `index.html` (`G-XXXXXXXXXX`) | optional | Google Analytics; remove the snippet to disable |
 
 **Never commit API keys.** Secrets live only in Cloudflare Pages secrets or a local, git-ignored `.dev.vars`.
+
+
+## Milestone 2 — Infra, accuracy & OSS docs
+
+- Infra notes (free vs paid unlocks): https://memecheck.pages.dev/infra · [docs/INFRA.md](docs/INFRA.md)
+- Automated **daily accuracy tables** on [/rugs](https://memecheck.pages.dev/rugs#daily) + [`/accuracy-daily.json`](https://memecheck.pages.dev/accuracy-daily.json) + [`/api/accuracy`](https://memecheck.pages.dev/api/accuracy)
+- Self-host: [docs/SELF_HOST.md](docs/SELF_HOST.md) · Env vars: [docs/ENV.md](docs/ENV.md)
+- Short backtest note: https://memecheck.pages.dev/backtest
+- DevRep LP sample strengthened (≤5 RugCheck priors). Sell-speed / funded-wallet indexing still needs paid RPC (documented, not faked).
+
+## Milestone 3 — Guides, monthly report, Telegram bot
+
+- EN/AR guides: https://memecheck.pages.dev/guides
+- Monthly accuracy report: https://memecheck.pages.dev/report
+- Telegram rug-alert worker: [`alert-worker/`](alert-worker/) — set `TELEGRAM_BOT_TOKEN` (ask Jojo; do not invent)
 
 ## License
 

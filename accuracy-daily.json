@@ -1,0 +1,252 @@
+{
+  "generated": "2026-10-20T03:11:16Z",
+  "brand": "MemeCheckShield",
+  "study_started": "2026-10-15T18:11:44Z",
+  "n24": 57,
+  "pending": 18,
+  "recorded": 75,
+  "caught": 2,
+  "overall_24h": {
+    "h": 24,
+    "n": 57,
+    "rows": [
+      {
+        "level": "low",
+        "n": 22,
+        "rugged": 19,
+        "down70": 0,
+        "alive": 3,
+        "rugged_pct": 86.4,
+        "down70_pct": 0,
+        "bad_pct": 86.4,
+        "rugged_ci95": [
+          66.7,
+          95.3
+        ]
+      },
+      {
+        "level": "medium",
+        "n": 33,
+        "rugged": 23,
+        "down70": 4,
+        "alive": 6,
+        "rugged_pct": 69.7,
+        "down70_pct": 12.1,
+        "bad_pct": 81.8,
+        "rugged_ci95": [
+          52.7,
+          82.6
+        ]
+      },
+      {
+        "level": "high",
+        "n": 2,
+        "rugged": 2,
+        "down70": 0,
+        "alive": 0,
+        "rugged_pct": 100,
+        "down70_pct": 0,
+        "bad_pct": 100,
+        "rugged_ci95": [
+          34.2,
+          100
+        ]
+      },
+      {
+        "level": "unknown",
+        "n": 0,
+        "rugged": 0,
+        "down70": 0,
+        "alive": 0,
+        "rugged_pct": null,
+        "down70_pct": null,
+        "bad_pct": null,
+        "rugged_ci95": null
+      }
+    ]
+  },
+  "overall_48h": {
+    "h": 48,
+    "n": 57,
+    "rows": [
+      {
+        "level": "low",
+        "n": 22,
+        "rugged": 19,
+        "down70": 0,
+        "alive": 3,
+        "rugged_pct": 86.4,
+        "down70_pct": 0,
+        "bad_pct": 86.4,
+        "rugged_ci95": [
+          66.7,
+          95.3
+        ]
+      },
+      {
+        "level": "medium",
+        "n": 33,
+        "rugged": 23,
+        "down70": 4,
+        "alive": 6,
+        "rugged_pct": 69.7,
+        "down70_pct": 12.1,
+        "bad_pct": 81.8,
+        "rugged_ci95": [
+          52.7,
+          82.6
+        ]
+      },
+      {
+        "level": "high",
+        "n": 2,
+        "rugged": 2,
+        "down70": 0,
+        "alive": 0,
+        "rugged_pct": 100,
+        "down70_pct": 0,
+        "bad_pct": 100,
+        "rugged_ci95": [
+          34.2,
+          100
+        ]
+      },
+      {
+        "level": "unknown",
+        "n": 0,
+        "rugged": 0,
+        "down70": 0,
+        "alive": 0,
+        "rugged_pct": null,
+        "down70_pct": null,
+        "bad_pct": null,
+        "rugged_ci95": null
+      }
+    ]
+  },
+  "daily": [
+    {
+      "day": "2026-10-15",
+      "scanned": 57,
+      "pending24": 0,
+      "done24": 57,
+      "byLevelAtScan": {
+        "low": 22,
+        "medium": 33,
+        "high": 2,
+        "unknown": 0
+      },
+      "rugged": 44,
+      "down70": 4,
+      "alive": 9,
+      "rugged_pct": 77.2,
+      "rows": [
+        {
+          "level": "low",
+          "n": 22,
+          "rugged": 19,
+          "down70": 0,
+          "alive": 3,
+          "rugged_pct": 86.4,
+          "down70_pct": 0,
+          "bad_pct": 86.4,
+          "rugged_ci95": [
+            66.7,
+            95.3
+          ]
+        },
+        {
+          "level": "medium",
+          "n": 33,
+          "rugged": 23,
+          "down70": 4,
+          "alive": 6,
+          "rugged_pct": 69.7,
+          "down70_pct": 12.1,
+          "bad_pct": 81.8,
+          "rugged_ci95": [
+            52.7,
+            82.6
+          ]
+        },
+        {
+          "level": "high",
+          "n": 2,
+          "rugged": 2,
+          "down70": 0,
+          "alive": 0,
+          "rugged_pct": 100,
+          "down70_pct": 0,
+          "bad_pct": 100,
+          "rugged_ci95": [
+            34.2,
+            100
+          ]
+        }
+      ]
+    },
+    {
+      "day": "2026-10-18",
+      "scanned": 18,
+      "pending24": 18,
+      "done24": 0,
+      "byLevelAtScan": {
+        "low": 11,
+        "medium": 7,
+        "high": 0,
+        "unknown": 0
+      },
+      "rugged": 0,
+      "down70": 0,
+      "alive": 0,
+      "rugged_pct": null,
+      "rows": [
+        {
+          "level": "low",
+          "n": 0,
+          "rugged": 0,
+          "down70": 0,
+          "alive": 0,
+          "rugged_pct": null,
+          "down70_pct": null,
+          "bad_pct": null,
+          "rugged_ci95": null
+        },
+        {
+          "level": "medium",
+          "n": 0,
+          "rugged": 0,
+          "down70": 0,
+          "alive": 0,
+          "rugged_pct": null,
+          "down70_pct": null,
+          "bad_pct": null,
+          "rugged_ci95": null
+        },
+        {
+          "level": "high",
+          "n": 0,
+          "rugged": 0,
+          "down70": 0,
+          "alive": 0,
+          "rugged_pct": null,
+          "down70_pct": null,
+          "bad_pct": null,
+          "rugged_ci95": null
+        }
+      ]
+    }
+  ],
+  "backtest": {
+    "as_of": "2026-10-20T03:11:16Z",
+    "n24": 57,
+    "high_catch_rate": 100,
+    "high_n": 2,
+    "high_rugged": 2,
+    "low_rugged_pct": 86.4,
+    "medium_rugged_pct": 69.7,
+    "note_en": "Risk-level backtest vs /rugs (same entry rules). High→RUGGED catch rate and Low/Medium baseline rug rates are published from stored rechecks only. Dev Reputation Score creators were not stored in the tracker for this cohort, so a formal DevRep-label backtest is not claimed yet; tracker will start recording creator wallets going forward.",
+    "note_ar": "اختبار رجعي لمستوى الخطر مقابل /rugs (نفس قواعد الدخول). ننشر معدل اصطياد High→RUGGED ومعدلات السحب لـ Low/Medium من إعادات الفحص المخزّنة فقط. محافظ منشئ Dev Reputation لم تُحفظ في هذه الدفعة، لذلك لا ندّعي اختبارًا رجعيًا رسميًا لتسمية DevRep بعد؛ سيبدأ المتعقّب بتسجيل محافظ المنشئ لاحقًا.",
+    "honest": "Most fresh meme coins in this sample died regardless of level — the score flags concrete contract/holder risks and is not yet a strong separator of will-rug vs will-not. Improving separation is why Dev Reputation is the flagship."
+  }
+}

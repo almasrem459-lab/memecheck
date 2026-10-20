@@ -108,4 +108,32 @@
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
+
+  <url>
+    <loc>https://memecheck.pages.dev/guides</loc>
+    <lastmod>2026-10-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://memecheck.pages.dev/guides"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://memecheck.pages.dev/guides?lang=ar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://memecheck.pages.dev/guides"/>
+  </url>
+  <url>
+    <loc>https://memecheck.pages.dev/report</loc>
+    <lastmod>2026-10-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://memecheck.pages.dev/backtest</loc>
+    <lastmod>2026-10-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://memecheck.pages.dev/infra</loc>
+    <lastmod>2026-10-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
 </urlset>

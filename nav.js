@@ -15,6 +15,20 @@
   }
 
 
+
+  // Guides + monthly report + infra (M2/M3)
+  if (!nav.querySelector('a[href="/guides"]')) {
+    const add = (href, en, ar, cls) => {
+      const a = document.createElement('a'); a.href = href; a.className = cls || '';
+      const lbl = () => { a.textContent = document.documentElement.lang === 'ar' ? ar : en; };
+      lbl(); new MutationObserver(lbl).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+      const rugs = nav.querySelector('a[href="/rugs"]');
+      if (rugs && rugs.nextSibling) nav.insertBefore(a, rugs.nextSibling); else nav.appendChild(a);
+    };
+    add('/guides', 'Guides', 'أدلة', 'nav-guides');
+    add('/report', 'Report', 'التقرير', 'nav-report');
+  }
+
   // Dev Reputation lookup link
   if (!nav.querySelector('a[href="/dev"]')) {
     const a = document.createElement('a'); a.href = '/dev'; a.className = 'nav-dev';
@@ -54,6 +68,8 @@
       navRugs: 'عمليات السحب التي رصدناها',
       navDev: 'درجة المطوّر',
       navHow: 'كيف يعمل التقييم',
+      navGuides: 'أدلة',
+      navReport: 'التقرير',
       navOpenSrc: 'مفتوح المصدر',
     };
     const lang = localStorage.getItem('mc_lang') || 'en';

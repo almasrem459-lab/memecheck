@@ -1,7 +1,7 @@
 // GET /api/devrep?wallet=<solana pubkey>  OR  /api/devrep?ca=<mint>
 // → Dev Reputation Score 0–100 + label + evidence (M1 v1).
 // Reuses pump.fun creator lists + DexScreener markets (same as /api/dev) and scoring in ../../devrep-core.js.
-// Optional soft LP sample: up to 2 RugCheck reports on graduated prior coins (skipped on timeout / fail).
+// Optional soft LP sample: up to 5 RugCheck reports on graduated prior coins (skipped on timeout / fail). M2 strengthen.
 // Cache API only (15 min full / 2 min incomplete). Never writes KV. No secrets in response.
 import { summarize, dexMarkets, MAX_DS } from '../../devhist-core.js';
 import { repFromHist, launchCadenceHours } from '../../devrep-core.js';
@@ -59,7 +59,7 @@ async function createdCoins(creator, src, waitUntil) {
 }
 
 async function lpSample(gradMints, src) {
-  const take = gradMints.slice(0, 2);
+  const take = gradMints.slice(0, 5);
   if (!take.length) { src.lpSample = 'skip'; return null; }
   const locks = [];
   await Promise.all(take.map(async (mint) => {
@@ -189,7 +189,7 @@ export const onRequest = async ({ request: req, waitUntil, env }) => {
   if (mint && !ADDR_RE.test(mint)) return json(400, { ok: false, error: 'bad mint' });
   if (!wallet && !mint) return json(400, { ok: false, error: 'wallet or ca required' });
 
-  const cacheKey = 'https://memecheck-cache.internal/devrep/v2/' + (wallet || ('ca:' + mint));
+  const cacheKey = 'https://memecheck-cache.internal/devrep/v3/' + (wallet || ('ca:' + mint));
   const key = new Request(cacheKey);
   const cache = typeof caches !== 'undefined' ? caches.default : null;
   try {

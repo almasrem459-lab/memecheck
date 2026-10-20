@@ -1,0 +1,26 @@
+name = "memecheck-alert"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+workers_dev = true
+
+[[durable_objects.bindings]]
+name = "WATCH"
+class_name = "WatchBook"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["WatchBook"]
+
+# Cron: poll watches every 5 minutes (needs TELEGRAM_BOT_TOKEN secret)
+[triggers]
+crons = ["*/5 * * * *"]
+
+# Secrets (not in git):
+#   wrangler secret put TELEGRAM_BOT_TOKEN
+# Optional: MEMECHECK_ORIGIN, ALERT_CRON_SECRET via wrangler secret / vars
+
+[vars]
+MEMECHECK_ORIGIN = "https://memecheck.pages.dev"
+
+[observability]
+enabled = true

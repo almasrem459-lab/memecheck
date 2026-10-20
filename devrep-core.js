@@ -5,8 +5,8 @@
  //   - funded-wallet launches (linked creators)
  //   - dev sell speed in first hour / first day (tx tracing)
  //   - linked-wallet supply distribution (holder cluster graph)
- //   - full LP lock/burn history (v1 may sample up to 2 RugCheck reports when present)
- // Backtest vs /rugs: not yet run; note published on /how.
+ //   - full LP lock/burn history (v1.1 samples up to 5 RugCheck reports when present)
+ // Backtest vs /rugs: short risk-level note published at /backtest + /rugs (DevRep-label backtest deferred until creators stored).
 
 export const LABELS = ['Builder', 'Neutral', 'Serial Launcher', 'High Risk'];
 export const VERSION = 1;
