@@ -7,6 +7,10 @@ const AR_PATHS = new Set(['/', '/how', '/smart', '/chat', '/dev']);
 const LV = { low: 'Low', medium: 'Medium', high: 'High', extreme: 'Extreme' };
 export const onRequest = async (ctx) => {
   const { request: req, next, env } = ctx; const url = new URL(req.url);
+  // /bots used to 404 — paper bots live on /smart#bots. Keep a stable bookmark.
+  if (req.method === 'GET' && (url.pathname === '/bots' || url.pathname === '/bots/')) {
+    return Response.redirect(new URL('/smart#bots', url.origin).toString(), 302);
+  }
   // never serve deploy config / server sources as static files
   if (/^\/(wrangler\.toml|\.wrangler|functions|package(-lock)?\.json|node_modules|\.git|\.dev\.vars)(\/|$)/i.test(url.pathname)) return new Response('Not found', { status: 404, headers: { 'cache-control': 'no-store' } });
   // SEO: ?lang=ar is the Arabic alternate of /, /how, /smart and /chat (hreflang). Make it self-canonical and set lang/dir in the

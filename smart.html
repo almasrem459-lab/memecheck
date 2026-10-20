@@ -27,7 +27,7 @@
 <meta name="theme-color" content="#0b0f17">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <script>(function(){try{if(localStorage.getItem('mc_lang')==='ar'||new URLSearchParams(location.search).get('lang')==='ar'){document.documentElement.lang='ar';document.documentElement.dir='rtl';}}catch(e){}})();</script>
-<link rel="stylesheet" href="style.css?v=1792466000">
+<link rel="stylesheet" href="style.css?v=1792502000">
 <style>
 nav.crumbs{display:flex;gap:8px;align-items:center;padding:0 20px;max-width:860px;margin:12px auto 0;font-size:14px}
 nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef}nav.crumbs span{color:#7d879c}
@@ -231,7 +231,19 @@ details.how{margin-top:12px;color:#9aa4b8;font-size:13px;line-height:1.6}details
   var usd = function (n) { if (n == null || !(n >= 0)) return '—'; if (n >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B'; if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M'; if (n >= 1e3) return '$' + (n / 1e3).toFixed(1) + 'K'; return '$' + n.toFixed(0); };
   var pct = function (p) { if (p == null || !isFinite(p)) return '<b>—</b>'; var c = p > 0.05 ? 'up' : p < -0.05 ? 'dn' : ''; return '<b class="' + c + '" dir="ltr">' + (p > 0 ? '+' : '') + (Math.abs(p) >= 100 ? p.toFixed(0) : p.toFixed(1)) + '%</b>'; };
   var okMint = function (m) { return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(m || ''); };
-  var safeImg = function (u) { return /^https:\/\//.test(u || '') ? u : null; };
+  // Same-origin relay: IPFS/CDN logos often lack CORS and get blocked (NotSameOrigin). /api/img allowlists hosts + edge-caches 1d.
+  var safeImg = function (u) {
+    if (!/^https:\/\//.test(u || '')) return null;
+    try {
+      var url = new URL(u);
+      // ipfs.io is flaky from CF Workers egress → 502; prefer cf-ipfs.com (same CID path).
+      if (url.hostname === 'ipfs.io') { url.hostname = 'cf-ipfs.com'; u = url.toString(); }
+      var h = url.hostname;
+      if (/^(ipfs\.io|cf-ipfs\.com|[a-z0-9-]+\.mypinata\.cloud|gateway\.pinata\.cloud|cdn\.dexscreener\.com|dd\.dexscreener\.com|coin-images\.coingecko\.com|assets\.coingecko\.com|arweave\.net|[a-z0-9-]+\.arweave\.net|pump\.mypinata\.cloud|metadata\.pumplify\.eu)$/i.test(h))
+        return '/api/img?url=' + encodeURIComponent(u);
+    } catch (e) {}
+    return u;
+  };
 
   // static strings
   document.querySelectorAll('[data-s]').forEach(function (e) { var v = L[e.dataset.s]; if (typeof v !== 'string') return; if (e.hasAttribute('data-html')) e.innerHTML = v; else e.textContent = v; });
@@ -306,7 +318,7 @@ details.how{margin-top:12px;color:#9aa4b8;font-size:13px;line-height:1.6}details
     if (!need.length) return;
     filling = true;
     try {
-      var mod = await import('./core.js?v=1792900002');
+      var mod = await import('./core.js?v=1792502000');
       var changed = false;
       for (var i = 0; i < need.length; i++) {
         try {
@@ -327,7 +339,7 @@ details.how{margin-top:12px;color:#9aa4b8;font-size:13px;line-height:1.6}details
   load(); setInterval(function () { if (!document.hidden) load(); }, 90e3);
 })();
 </script>
-<script type="module" src="bots-ui.js?v=1792910000"></script>
-<script src="nav.js?v=1792466000" defer></script>
+<script type="module" src="bots-ui.js?v=1792502000"></script>
+<script src="nav.js?v=1792502000" defer></script>
 </body>
 </html>

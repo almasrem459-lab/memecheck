@@ -39,7 +39,8 @@ let chain = OK[localStorage.getItem('mc_pf_chain')] || 'solana';
 async function fromDex() {
   const net = GTN[chain];
   const get = (u) => fetch(u, { headers: { accept: 'application/json' }, signal: TO(6000) }).then(r => r.ok ? r.json() : null).catch(() => null);
-  const pages = await Promise.all([1, 2].map(pg => get(`https://api.geckoterminal.com/api/v2/networks/${net}/trending_pools?include=base_token&duration=6h&page=${pg}`)));
+  // One page is enough for the homepage compact list (+ Show all up to ~20 after filters). Saves a second Gecko round-trip on every load/refresh.
+  const pages = await Promise.all([1].map(pg => get(`https://api.geckoterminal.com/api/v2/networks/${net}/trending_pools?include=base_token&duration=6h&page=${pg}`)));
   if (!pages[0]?.data) throw 0;
   const seen = new Set(), out = [];
   for (const d of pages) {

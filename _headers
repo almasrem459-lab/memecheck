@@ -21,3 +21,13 @@
 /sw.js
   ! Cache-Control
   Cache-Control: no-cache
+
+/proof.json
+  Content-Type: application/json; charset=utf-8
+  Cache-Control: public, max-age=300
+/accuracy-daily.json
+  Content-Type: application/json; charset=utf-8
+  Cache-Control: public, max-age=300
+/accuracy-monthly.json
+  Content-Type: application/json; charset=utf-8
+  Cache-Control: public, max-age=300

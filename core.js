@@ -321,7 +321,7 @@ export async function evmSecurity(addr, chain) {
     const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 12000);
     try { const r = await fetch(`/api/evm-security?chain=${chain}&ca=${addr.toLowerCase()}`, { signal: ctl.signal }); if (r.ok) { const x = await r.json(); if (x?.goplus && x.honeypot) j = x; } } catch {} finally { clearTimeout(tm); }
   }
-  const { getEvmSecurity } = await import('./evmsec.js?v=1792900001');
+  const { getEvmSecurity } = await import('./evmsec.js?v=1792502000');
   if (!j) return getEvmSecurity(addr, chain);
   const only = ['goplus', ...(HP_OK.has(chain) ? ['honeypot'] : []), ...(chain === 'bsc' ? ['four'] : [])].filter(k => !j[k] || j[k].s === 'fail');
   if (only.length) { const d = await getEvmSecurity(addr, chain, { only }).catch(() => null); only.forEach(k => { if (d?.[k] && d[k].s !== 'fail') j[k] = { ...d[k], via: 'browser' }; }); }

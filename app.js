@@ -1,9 +1,9 @@
-import { T, usd } from './i18n.js?v=1792467000';
+import { T, usd } from './i18n.js?v=1792502000';
 // Homepage speed: only app.js + i18n.js + nav.js load up front. core.js (the scanner), the result-section modules and the
 // new-tokens list are imported on demand: the scanner + result modules when a scan starts (or a valid CA is pasted),
 // the new-tokens list when it scrolls near the viewport. Result modules only listen for mc:render / mc:final events, so
 // render() waits for them to finish importing before it dispatches (see fireRender).
-const V = '1792467000';
+const V = '1792502000';
 // same rules as core.js detectChain (kept inline so the homepage does not need core.js before a scan)
 function detectChain(addr) { addr = (addr || '').trim(); if (/^0x[0-9a-fA-F]{40}$/.test(addr)) return 'evm'; if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr)) return 'solana'; return null; }
 let core = null, coreP = null, modsP = null, proof = null; // proof: 'Rugs we caught' card data (see loadProof)
@@ -372,6 +372,18 @@ afterLoad(() => lazyOn($('#pf'), loadPump, '150px')); document.addEventListener(
 // proof state is declared at the top (applyLang -> proofPaint runs before this point)
 //  null = not loaded, false = failed, else { study, legacy, ex: [{ s, ca, lvl, pts, drop }] }
 async function loadProof() {
+  // Prefer tiny static /proof.json (~0.5 KB) so the homepage never downloads the full /rugs HTML (~88 KB).
+  // Falls back to parsing /rugs only if the JSON is missing (keeps older previews working).
+  try {
+    const r = await fetch('/proof.json', { signal: AbortSignal.timeout ? AbortSignal.timeout(4000) : undefined });
+    if (r.ok) {
+      const j = await r.json();
+      if (j && Array.isArray(j.ex) && j.ex.length) {
+        proof = { study: +j.study || j.ex.length, legacy: +j.legacy || 0, ex: j.ex.filter(x => x && x.s).slice(0, 3) };
+        proofPaint(); return;
+      }
+    }
+  } catch {}
   try {
     const r = await fetch('/rugs', { signal: AbortSignal.timeout ? AbortSignal.timeout(6000) : undefined }); if (!r.ok) throw 0;
     const doc = new DOMParser().parseFromString(await r.text(), 'text/html');
@@ -380,7 +392,7 @@ async function loadProof() {
     const ex = rows.map(tr => { const td = tr.querySelectorAll('td'); const m = /(-?\d+(?:\.\d+)?)%/.exec(td[5]?.textContent || ''), b = /(\d+)/.exec(td[2]?.textContent || '');
       return { s: td[0]?.querySelector('b')?.textContent || '', ca: td[0]?.querySelector('[title]')?.getAttribute('title') || '', lvl: (td[2]?.querySelector('.badge')?.className || '').replace('badge', '').trim() || 'high', pts: b ? +b[1] : null, drop: m ? +m[1] : null }; });
     const kv = (lbl) => { const k = [...doc.querySelectorAll('.kv')].find(x => x.querySelector('span')?.textContent.trim() === lbl); return k ? +k.querySelector('b').textContent || 0 : 0; };
-    for (const a of doc.querySelectorAll('h2, article.coin')) { if (ex.length >= 3) break; // legacy records flagged BEFORE collapse that did rug after the flag
+    for (const a of doc.querySelectorAll('h2, article.coin')) { if (ex.length >= 3) break;
       if (a.tagName === 'H2') { if (/excluded/i.test(a.textContent)) break; continue; }
       const tags = [...a.querySelectorAll('.verdict .badge')].map(b => b.textContent); if (!tags.some(x => /rugged/i.test(x))) continue;
       const lv = /(\d+)/.exec(tags[0] || ''), link = a.querySelector('a[href*="?ca="]'); let ca2 = ''; try { ca2 = new URL(link.href).searchParams.get('ca') || ''; } catch {}
