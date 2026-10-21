@@ -1,9 +1,9 @@
-import { T, usd } from './i18n.js?v=1792914600';
+import { T, usd } from './i18n.js?v=1793000000';
 // Homepage speed: only app.js + i18n.js + nav.js load up front. core.js (the scanner), the result-section modules and the
 // new-tokens list are imported on demand: the scanner + result modules when a scan starts (or a valid CA is pasted),
 // the new-tokens list when it scrolls near the viewport. Result modules only listen for mc:render / mc:final events, so
 // render() waits for them to finish importing before it dispatches (see fireRender).
-const V = '1792914600';
+const V = '1793000000';
 // same rules as core.js detectChain (kept inline so the homepage does not need core.js before a scan)
 function detectChain(addr) { addr = (addr || '').trim(); if (/^0x[0-9a-fA-F]{40}$/.test(addr)) return 'evm'; if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr)) return 'solana'; return null; }
 let core = null, coreP = null, modsP = null, proof = null; // proof: 'Rugs we caught' card data (see loadProof)
@@ -84,13 +84,37 @@ function skelWatch() {
     b.querySelector('button').onclick = () => location.reload(); }), 20000);
 }
 const DEVW = { fail: 10, warn: 6, pass: 6 };
+// Signals that used to be display-only (sniper bots, bubble-map clusters, liquidity flows, dev sell speed) are folded into the
+// score once their module has data (window.__mcSig, event mc:signal). FAIL = full weight, WARN = half, like every other check.
+function sigFindings(r) {
+  const S = r.chain === 'solana' && window.__mcSig?.get(r.addr); if (!S) return [];
+  const out = [], F = (id, status, weight, params) => ({ id, status, weight, params, critical: false });
+  if (S.snipers) { const { pct, pro } = S.snipers; out.push(pct >= 25 || pro >= 12 ? F('sniperSig', 'fail', 12, S.snipers) : pct >= 12 || pro >= 6 ? F('sniperSig', 'warn', 12, S.snipers) : F('sniperSig', 'pass', 12, S.snipers)); }
+  if (S.bubble) { const { pct, n } = S.bubble; out.push(n >= 2 && pct >= 15 ? F('bubbleSig', 'fail', 10, S.bubble) : n >= 2 && pct >= 5 ? F('bubbleSig', 'warn', 10, S.bubble) : F('bubbleSig', 'pass', 10, S.bubble)); }
+  if (S.flows) out.push(F('flowSig', S.flows.level === 'wash' ? 'fail' : S.flows.level === 'suspicious' ? 'warn' : 'pass', 8, S.flows));
+  if (S.devSell) { const { sold, ageH } = S.devSell; out.push(sold >= 50 && ageH != null && ageH < 6 ? F('devSellSig', 'fail', 10, S.devSell) : sold >= 50 ? F('devSellSig', 'warn', 10, S.devSell) : F('devSellSig', 'pass', 10, S.devSell)); }
+  return out;
+}
 function withDev(r) {
   const d = r.chain === 'solana' && window.__mcDevHist?.get(r.addr);
-  if (!d?.ok || !DEVW[d.flag] || r.findings.some(f => f.id === 'devHistory')) return r;
-  const f = { id: 'devHistory', status: d.flag, weight: DEVW[d.flag], params: { total: d.total, bad: d.bad, checked: d.checked, live: d.live, old: d.checked - (d.new || 0) }, critical: false };
-  const findings = [...r.findings, f], v = core.score(findings);
+  const add = [];
+  if (d?.ok && DEVW[d.flag] && !r.findings.some(f => f.id === 'devHistory')) add.push({ id: 'devHistory', status: d.flag, weight: DEVW[d.flag], params: { total: d.total, bad: d.bad, checked: d.checked, live: d.live, old: d.checked - (d.new || 0) }, critical: false });
+  add.push(...sigFindings(r).filter(f => !r.findings.some(x => x.id === f.id)));
+  if (!add.length) return r;
+  const findings = [...r.findings, ...add], v = core.score(findings);
   if (r.verdict.level === 'unknown' && v.level === 'low') v.level = 'unknown';
   return { ...r, findings, verdict: v };
+}
+let sigT = 0;
+document.addEventListener('mc:signal', (e) => { if (last && last.addr === e.detail.addr && $('#out').dataset.addr === last.addr) { clearTimeout(sigT); sigT = setTimeout(() => render(last), 150); } });
+// Tracker-measured outcome rates per level (/api/study). Shown on every result; never invented: if the sample is too small we say so.
+let studyP = null; const studyGet = () => (studyP ||= fetch('/api/study?view=summary').then(r => r.ok ? r.json() : null).catch(() => null));
+function probHtml(r, t) {
+  const S = window.__mcStudy, lv = r.verdict.level === 'extreme' ? 'high' : r.verdict.level;
+  if (!S || !S.byLevel || !['low', 'medium', 'high'].includes(lv)) return '';
+  const x = S.byLevel[lv], base = S.base;
+  if (!x || x.n < 10) return `<div class="prob muted">${esc(t.probFew(x?.n || 0))}</div>`;
+  return `<div class="prob${lv === 'low' ? ' caveat' : ''}">${esc(t.probLine(t[lv] || lv, x.bad_pct, x.rug_pct, x.n, base?.bad_pct, S.from, S.to))} <a href="/accuracy">${esc(t.probMore)}</a></div>`;
 }
 // AI summary (ai-ui.js): the finished, dev-history-adjusted result only; null while a scan is still streaming
 window.__mcLast = () => (window.__done && last && !last.partial ? withDev(last) : null);
@@ -125,7 +149,8 @@ function insightHtml(r, t) {
 }
 
 function render(r0, fire) {
-  const r = withDev(r0);
+  const r = withDev(r0); window.__mcCurAddr = r.addr;
+  if (!window.__mcStudy) studyGet().then(j => { if (j && !window.__mcStudy) { window.__mcStudy = j; if (last && $('#out').dataset.addr === last.addr) render(last); } });
   const t = T[lang], m = r.meta, v = r.verdict; const st = { pass: t.pass, warn: t.warn, fail: t.failS, na: t.na };
   const order = { fail: 0, warn: 1, na: 2, pass: 3 };
   const fs = [...r.findings].sort((a, b) => order[a.status] - order[b.status]);
@@ -142,6 +167,7 @@ function render(r0, fire) {
    ${(r.chains || []).length > 1 ? `<div class="chsw"><span class="muted">${t.chainSw}</span> ${r.chains.filter(c => c !== r.chain).map(c => `<button type="button" class="chch ${esc(c)}" data-ch="${esc(c)}" title="${esc(t.chainSwT(CH[c] || c))}">${CHIP[c] || esc(c)}</button>`).join(' ')}</div>` : ''}
    ${m.uni ? `<div class="unipool">${esc(t.uniPool(m.uni.v))} · <a href="${esc(m.uni.url)}" target="_blank" rel="noopener" data-provider="uniswap">${t.uniLink} ↗</a></div>` : ''}
    ${m.launch?.four ? `<div class="fourm ${m.launch.curve ? 'curve' : 'grad'}">${esc(m.launch.curve ? t.fourCurve(m.launch.progress) : t.fourGrad)} <span class="muted">${esc(t.fourSrc(m.launch.src))}</span>${m.launch.curve ? ` <a href="https://four.meme/token/${esc(r.addr.toLowerCase())}" target="_blank" rel="noopener">four.meme ↗</a>` : ''}</div>` : ''}
+   ${probHtml(r, t)}
    ${r.partial ? `<div class="muted">${t.partial}</div>` : ''}</div>
    <div class="acts"><button type="button" class="ghost act" id="a-star" aria-pressed="${wl}" title="${wl ? t.unstar : t.star}">${wl ? '★' : '☆'}</button>
     <a class="ghost act" id="a-x" target="_blank" rel="noopener" href="${esc(xIntent(r))}"><b>𝕏</b> ${t.shareX}</a>
@@ -357,7 +383,8 @@ document.addEventListener('click', (e) => {
   if (pv && (el.dataset.action || pv !== 'telegram_bot' || /bot/i.test(u.pathname))) ga('trade_click', { action: el.dataset.action || (/sell/i.test(el.textContent + u.search) ? 'sell' : 'buy'), provider: pv, risk_level: last?.verdict?.level, ca: last?.addr, link_url: u.href.slice(0, 100) });
   ga('outbound_click', { url: u.href.slice(0, 100), domain: d, link_id: el.id || undefined, ca: last?.addr });
 }, true);
-const ca = params.get('ca') || params.get('a'), pch = params.get('chain');
+// ?ca= must be a Solana base58 mint (32-44 chars) or a 0x EVM address; ?chain= a known chain id. Anything else is ignored.
+const ca0 = (params.get('ca') || params.get('a') || '').trim(), ca = detectChain(ca0) ? ca0 : '', pch0 = params.get('chain'), pch = /^(solana|ethereum|bsc|base|arbitrum|auto)$/.test(pch0 || '') ? pch0 : null;
 if (pch && $(`#chain option[value="${pch}"]`)) $('#chain').value = pch;
 if (ca) $('#addr').value = ca;
 applyLang(); if (ca) run(null, 'url');

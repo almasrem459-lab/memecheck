@@ -8,12 +8,17 @@ const UPSTREAMS = [
 ];
 const METHODS = new Set(['getSignaturesForAddress', 'getTransaction', 'getTokenSupply', 'getTokenAccountsByOwner', 'getMultipleAccounts', 'getTokenLargestAccounts', 'getSlot', 'getBlockTime', 'getBlock']);
 const json = (status, body) => new Response(typeof body === 'string' ? body : JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*', 'cache-control': 'no-store' } });
-export const onRequest = async ({ request: req, env }) => {
+import { rateLimit } from '../_lib/rl.js';
+const ORIGIN_OK = /^https:\/\/([a-z0-9-]+\.)?memecheck\.pages\.dev$|^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+export const onRequest = async ({ request: req, env, waitUntil }) => {
   const ups = env && env.HELIUS_KEY ? [{ url: `https://mainnet.helius-rpc.com/?api-key=${env.HELIUS_KEY}` }, ...UPSTREAMS] : UPSTREAMS;
   if (req.method !== 'POST') return json(405, { error: 'POST only' });
-  let body; try { body = await req.json(); } catch { return json(400, { error: 'bad json' }); }
+  const o = req.headers.get('origin') || ''; if (o && !ORIGIN_OK.test(o)) return json(403, { error: 'origin' });   // other sites can't use our relay/Helius key
+  if (+(req.headers.get('content-length') || 0) > 16384) return json(413, { error: 'too large' });
+  const lim = await rateLimit(req, 'rpc', 300, 60, waitUntil); if (lim) return lim;
+  let body; try { const raw = await req.text(); if (raw.length > 16384) return json(413, { error: 'too large' }); body = JSON.parse(raw); } catch { return json(400, { error: 'bad json' }); }
   const arr = Array.isArray(body) ? body : [body];
-  if (!arr.length || arr.length > 10 || !arr.every(x => x && x.jsonrpc === '2.0' && METHODS.has(x.method) && Array.isArray(x.params))) return json(403, { error: 'method not allowed' });
+  if (!arr.length || arr.length > 10 || !arr.every(x => x && x.jsonrpc === '2.0' && METHODS.has(x.method) && Array.isArray(x.params) && x.params.length <= 3 && JSON.stringify(x.params).length < 6000)) return json(403, { error: 'method not allowed' });
   const log = [];
   const post = (up, b) => fetch(up, { method: 'POST', headers: { 'content-type': 'application/json', 'accept': 'application/json', 'user-agent': 'memecheck-rpc-relay/1.0' }, body: JSON.stringify(b) });
   const isLimited = (status, txt) => status === 429 || status === 403 || status === 401 || status === 402 || status >= 500 || /"code":\s*(429|-32429|403|-32005|-32052|-32029|-16401|-16402|-32603)/.test(txt) || /personal token|api key|paid plan/i.test(txt);

@@ -7,6 +7,7 @@
 // or exit (~30-40, needs the cached dev result). If exit does not fit, the client runs it locally.
 import { KINDS, validCa, keyOf, readShared, store, compute, useHelius, hotGet, hotPut, hotDel } from '../_lib/shared.js';
 import { dec } from '../../mccache.js';
+import { rateLimit } from '../_lib/rl.js';
 const WAIT = 25000;
 const inflight = new Map();
 const json = (status, body) => new Response(body == null ? null : typeof body === 'string' ? body : JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
@@ -18,6 +19,7 @@ export const onRequest = async ({ request: req, env, waitUntil }) => {
   const KV = env.MEMECHECK_CACHE, k = keyOf(kind, chain, ca);
   const hit = await readShared(KV, k); if (hit) return json(200, hit);
   if (peek) return json(404, { miss: true });
+  { const lim = await rateLimit(req, 'deep', 30, 60, waitUntil); if (lim) return lim; } // compute (and KV budget) is server-side only; cap how fast one IP can trigger it
   if (inflight.has(k)) return race(inflight.get(k));
   const lockK = 'lock:' + k;
   if (await hotGet(lockK)) return json(202, { pending: true });

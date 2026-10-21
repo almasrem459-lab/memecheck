@@ -51,7 +51,7 @@ export const onRequest = async ({ request: req }) => {
       snap: {
         proposedName: 'MemeCheckShield',
         formStatus: 'closed',
-        note: 'MetaMask Grants apply Typeform is closed as of 2026-10-20; this Snap is built ready for reopen.',
+        note: 'MetaMask Snap: open source, not yet listed in the Snaps directory.',
       },
     }, insight.critical ? 'public, max-age=30' : 'public, max-age=60');
   } catch (e) {

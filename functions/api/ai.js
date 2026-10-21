@@ -9,7 +9,7 @@ const TEST_MODELS = new Set([...MODELS, '@cf/meta/llama-4-scout-17b-16e-instruct
 const PV = 'p8'; // prompt version: part of the cache key
 const TTL = 600, MAX_OUT = 250, RL_MAX = 48, RL_WIN = 600; // 48 model calls / 10 min / IP (cache hits are free)
 const CHAINS = { solana: 'Solana', bsc: 'BNB Chain', ethereum: 'Ethereum', base: 'Base', arbitrum: 'Arbitrum' };
-const LEVELS = { low: 'Low risk', medium: 'Medium risk', high: 'High risk', extreme: 'Extreme risk', unknown: 'Risk unknown' };
+const LEVELS = { low: 'No major red flags (Low)', medium: 'Medium risk', high: 'High risk', extreme: 'Extreme risk', unknown: 'Risk unknown' };
 const ST = { fail: 'FAIL', warn: 'WARN', pass: 'PASS', na: 'N/A' };
 const MKT = { price: 'Price', mcap: 'Market cap', fdv: 'FDV', liq: 'Liquidity', vol: '24h volume', txns: '24h buys / sells', ch1h: '1h price change', ch24: '24h price change', age: 'Pair age', holders: 'Holder count', drop: 'Down from recent high', launch: 'Launch' };
 const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });

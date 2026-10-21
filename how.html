@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>How the MemeCheckShield Rug Risk Score Works</title>
-<meta name="description" content="How MemeCheckShield turns RugCheck, DexScreener, GoPlus, Honeypot.is, Four.meme and on-chain data into a Low / Medium / High / Extreme meme-coin risk score for Solana, BNB Chain, Ethereum, Base and Arbitrum. Real weights and thresholds.">
+<meta name="description" content="How MemeCheckShield turns RugCheck, DexScreener, GoPlus, Honeypot.is, Four.meme and on-chain data into a No-major-red-flags / Medium / High / Extreme meme-coin risk score for Solana, BNB Chain, Ethereum, Base and Arbitrum. Real weights and thresholds.">
 <link rel="canonical" href="https://memecheck.pages.dev/how">
 <link rel="alternate" hreflang="en" href="https://memecheck.pages.dev/how">
 <link rel="alternate" hreflang="ar" href="https://memecheck.pages.dev/how?lang=ar">
@@ -15,18 +15,18 @@
 <meta property="og:locale:alternate" content="ar_AR">
 <meta property="og:url" content="https://memecheck.pages.dev/how">
 <meta property="og:title" content="How the MemeCheckShield Rug Risk Score Works">
-<meta property="og:description" content="How MemeCheckShield turns RugCheck, DexScreener, GoPlus, Honeypot.is, Four.meme and on-chain data into a Low / Medium / High / Extreme meme-coin risk score for Solana, BNB Chain, Ethereum, Base and Arbitrum. Real weights and thresholds.">
+<meta property="og:description" content="How MemeCheckShield turns RugCheck, DexScreener, GoPlus, Honeypot.is, Four.meme and on-chain data into a No-major-red-flags / Medium / High / Extreme meme-coin risk score for Solana, BNB Chain, Ethereum, Base and Arbitrum. Real weights and thresholds.">
 <meta property="og:image" content="https://memecheck.pages.dev/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="How the MemeCheckShield Rug Risk Score Works">
-<meta name="twitter:description" content="How MemeCheckShield turns RugCheck, DexScreener, GoPlus, Honeypot.is, Four.meme and on-chain data into a Low / Medium / High / Extreme meme-coin risk score for Solana, BNB Chain, Ethereum, Base and Arbitrum. Real weights and thresholds.">
+<meta name="twitter:description" content="How MemeCheckShield turns RugCheck, DexScreener, GoPlus, Honeypot.is, Four.meme and on-chain data into a No-major-red-flags / Medium / High / Extreme meme-coin risk score for Solana, BNB Chain, Ethereum, Base and Arbitrum. Real weights and thresholds.">
 <meta name="twitter:image" content="https://memecheck.pages.dev/og-image.png">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"MemeCheckShield","item":"https://memecheck.pages.dev/"},{"@type":"ListItem","position":2,"name":"How the score works","item":"https://memecheck.pages.dev/how"}]}</script>
 <meta name="theme-color" content="#0b0f17">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-<link rel="stylesheet" href="style.css?v=1792900500">
+<link rel="stylesheet" href="style.css?v=1793000000">
 <style>
 nav.crumbs{display:flex;gap:8px;align-items:center;padding:0 20px;max-width:860px;margin:12px auto 0;font-size:14px}
 nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef}nav.crumbs span{color:#7d879c}
@@ -65,10 +65,10 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 <ul>
 <li>FAIL adds the full weight in risk points, WARN adds half, N/A adds nothing.</li>
 <li>Any <b>critical</b> FAIL (active mint or freeze authority, confirmed honeypot, sell tax over 50%, or a token RugCheck marks as rugged) makes the verdict <b>Extreme</b>, regardless of points.</li>
-<li>Otherwise: <b>40+ points = High</b>, <b>15–39 = Medium</b>, <b>under 15 = Low</b>.</li>
-<li>If no security source answered (RugCheck / Solana RPC, or GoPlus / Honeypot.is), a would-be Low is shown as <b>Unknown</b>: we never call a token Low risk from market data alone.</li>
+<li>Otherwise: <b>40+ points = High</b>, <b>15–39 = Medium</b>, <b>under 15 = “No major red flags”</b> (formerly “Low risk”). That label means our checks found nothing big — <b>not</b> that the coin is safe: in our own tracker most fresh meme coins with this label still died or rugged within 24h (see <a href="/accuracy">/accuracy</a>).</li>
+<li>If no security source answered (RugCheck / Solana RPC, or GoPlus / Honeypot.is), a would-be Low is shown as <b>Unknown</b>: we never show “No major red flags” from market data alone.</li>
 </ul>
-<div class="lv"><span class="badge low">Low &lt; 15</span><span class="badge medium">Medium 15–39</span><span class="badge high">High 40+</span><span class="badge extreme">Extreme = critical fail</span></div>
+<div class="lv"><span class="badge low">No major red flags &lt; 15</span><span class="badge medium">Medium 15–39</span><span class="badge high">High 40+</span><span class="badge extreme">Extreme = critical fail</span></div>
 </div>
 
 <div class="card"><h2>2. Solana contract &amp; holder checks</h2>
@@ -77,14 +77,23 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 <tr><td>Freeze authority</td><td>Still active (creator can freeze wallets = honeypot)</td><td>FAIL 40, critical</td></tr>
 <tr><td>Marked rugged</td><td>RugCheck reports the token as rugged</td><td>FAIL 50, critical</td></tr>
 <tr><td>LP locked / burned</td><td>≥ 90% = pass; 50–90% = warn; &lt; 50% = fail. pump.fun AMM pools count as burned; concentrated-liquidity pools are a warn</td><td>15 (warn 7.5)</td></tr>
-<tr><td>Top 10 holders</td><td>Pools and AMM accounts excluded. &gt; 50% fail, &gt; 30% warn</td><td>15 (warn 7.5)</td></tr>
-<tr><td>Largest holder</td><td>&gt; 10% of supply</td><td>WARN 4</td></tr>
-<tr><td>Insider networks</td><td>Linked insider wallets (RugCheck). Fail if they hold &gt; 10% or 10+ insiders, otherwise warn</td><td>15 (warn 7.5)</td></tr>
-<tr><td>Creator balance</td><td>Creator holds &gt; 5%</td><td>WARN 4</td></tr>
+<tr><td>Top 10 holders</td><td>Pools and AMM accounts excluded, one row per owner (merged), capped at 100%. &gt; 50% fail, &gt; 30% warn</td><td>15 (warn 7.5); pump.fun 22 (warn 11)</td></tr>
+<tr><td>Largest holder</td><td>&gt; 10% of supply</td><td>WARN 4; pump.fun WARN 6</td></tr>
+<tr><td>Insider networks</td><td>Linked insider wallets (RugCheck). Fail if they hold &gt; 10% or 10+ insiders, otherwise warn. Held % is deduplicated: each network capped at the supply and the total capped at the supply not sitting in pools (shown as “≤”)</td><td>15 (warn 7.5); pump.fun 25 (warn 12.5)</td></tr>
+<tr><td>Creator balance</td><td>Creator holds &gt; 5%</td><td>WARN 4; pump.fun WARN 5</td></tr>
 <tr><td>Transfer fee (Token-2022)</td><td>&gt; 10% fail, any fee warn</td><td>20 (warn 10)</td></tr>
 <tr><td>Mutable metadata</td><td>Name/logo can still be changed</td><td>WARN 2</td></tr>
 <tr><td>RugCheck danger flags</td><td>Any "danger" level flag</td><td>WARN 4</td></tr>
 </tbody></table>
+<p><b>pump.fun coins:</b> mint/freeze authority are always revoked and the AMM LP is always burned on pump.fun by platform design, so those PASSes tell you almost nothing about the coin. They are shown as informational (a FAIL would still be critical), and holder concentration and insiders carry more weight instead.</p>
+<h3>Signals folded into the score (Solana, once loaded)</h3>
+<table><thead><tr><th>Signal</th><th>Rule</th><th>Points</th></tr></thead><tbody>
+<tr><td>Sniper bots</td><td>Hold ≥ 25% of supply or 12+ pro bots = fail; ≥ 12% or 6+ = warn</td><td>12 (warn 6)</td></tr>
+<tr><td>Bubble-map cluster</td><td>Largest cluster of top holders linked by shared funding holds ≥ 15% = fail; ≥ 5% = warn</td><td>10 (warn 5)</td></tr>
+<tr><td>Liquidity flows</td><td>Wash-like = fail; suspicious = warn (only when enough swaps to judge)</td><td>8 (warn 4)</td></tr>
+<tr><td>Dev sell speed</td><td>Dev sold ≥ 50% of the launch buy within 6 h of launch = fail; ≥ 50% later = warn</td><td>10 (warn 5)</td></tr>
+</tbody></table>
+<p class="muted">These load a few seconds after the main result; the verdict updates when they arrive.</p>
 <p class="muted">If RugCheck fails, mint/freeze authority, transfer fee and top holders are read straight from the chain through our Solana RPC relay (Helius, with public RPC fallback).</p>
 </div>
 
@@ -102,7 +111,7 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 <ul><li><b>FAIL, +10 points</b>: 3+ dead/rugged coins that are at least half of the judged ones, or a serial launcher (10+ coins) with under 10% still alive.</li>
 <li><b>WARN, +3 points</b>: 2+ dead/rugged coins.</li><li>Never critical on its own.</li></ul></div>
 
-<div class="card" id="devrep"><h2>4b. Dev Reputation Score (0–100) — M1 v1</h2>
+<div class="card" id="devrep"><h2>4b. Dev Reputation Score (0–100)</h2>
 <p>A public reputation score for any Solana <b>token-creator wallet</b>. Shown on every Solana scan in the Developer history card, on the <a href="/dev">/dev lookup page</a>, and via <code>GET /api/devrep?wallet=…</code> or <code>?ca=…</code>.</p>
 <p><b>Labels:</b> <span class="badge low">Builder</span> (roughly 70+) · <span class="badge medium">Neutral</span> · <span class="badge high">Serial Launcher</span> (10+ launches with very low survival or rapid-fire cadence) · <span class="badge extreme">High Risk</span> (roughly under 40, or ≥70% dead/rugged of judged).</p>
 <table><thead><tr><th>Input (public data)</th><th>How it moves the score</th><th>v1 status</th></tr></thead><tbody>
@@ -111,8 +120,8 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 <tr><td>Time between launches (median gap)</td><td>≥ 7 days helps; under 1 hour between launches is a strong penalty.</td><td>Live</td></tr>
 <tr><td>Graduation rate (pump.fun complete)</td><td>Mild bonus when some coins graduated <i>and</i> at least one is still live.</td><td>Live</td></tr>
 <tr><td>LP lock / burn on prior launches</td><td>Soft sample: up to 2 RugCheck reports on graduated priors when available.</td><td>Partial</td></tr>
-<tr><td>Dev sell speed (1h / 1d)</td><td>Needs tx tracing (paid RPC / indexing).</td><td>Gap (M2)</td></tr>
-<tr><td>Linked-wallet supply + funded-wallet launches</td><td>Needs holder/funder graphs.</td><td>Gap (M2)</td></tr>
+<tr><td>Dev sell speed</td><td>Result page: share of the dev's launch buy sold, and how soon after launch (from the launch-bundle trace). Not yet in the 0–100 DevRep score.</td><td>Partial</td></tr>
+<tr><td>Linked-wallet supply + funded-wallet launches</td><td>Result page: bubble map links top holders by shared funding wallet and the largest linked cluster is scored. Cross-launch funded-wallet history still needs indexing.</td><td>Partial</td></tr>
 </tbody></table>
 <p>Thin history (fewer than 2 judged prior coins) pulls the score toward Neutral so a brand-new wallet is not crowned Builder. Score weights are checked against the <a href="/rugs">/rugs</a> tracker. Short risk-level backtest note: <a href="/backtest">/backtest</a> (High→rugged catch rate + Low/Medium baselines). Formal DevRep-label backtest waits until the tracker stores creator wallets. LP sample strengthened to ≤5 RugCheck priors (M2).</p>
 <p class="muted">Code: <code>devrep-core.js</code> (MIT). Not financial advice — a high score is not a buy signal.</p></div>
@@ -165,7 +174,7 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 <li><b>GeckoTerminal</b>: trending and new-pool lists; price candles (OHLCV) for BNB Chain / Ethereum pools.</li>
 </ul></div>
 
-<div class="warnbox"><b>Important:</b> <b>Low risk does not mean 100% safe.</b> Automated checks can miss new scam techniques, and data sources can be wrong or delayed; a legit token can also be flagged. MemeCheckShield is a free research tool, <b>not financial advice</b>. Always do your own research and never invest more than you can afford to lose.</div>
+<div class="warnbox"><b>Important:</b> <b>“No major red flags” does not mean safe.</b> Automated checks can miss new scam techniques, and data sources can be wrong or delayed; a legit token can also be flagged. MemeCheckShield is a free research tool, <b>not financial advice</b>. Always do your own research and never invest more than you can afford to lose.</div>
 <p class="muted">See real examples: <a href="/rugs">Rugs we caught</a> · Code: <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener">GitHub</a></p>
 </div>
 
@@ -225,8 +234,8 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 <tr><td>الزمن بين الإطلاقات (الوسيط)</td><td>‏7 أيام فأكثر تساعد؛ أقل من ساعة عقوبة قوية.</td><td>مباشر</td></tr>
 <tr><td>نسبة التخرّج</td><td>مكافأة خفيفة إذا تخرّجت بعض العملات وواحدة على الأقل ما زالت نشطة.</td><td>مباشر</td></tr>
 <tr><td>قفل/حرق السيولة السابق</td><td>عينة ناعمة: حتى تقريريْن من RugCheck عند التوفر.</td><td>جزئي</td></tr>
-<tr><td>سرعة بيع المطوّر</td><td>تحتاج تتبّع معاملات (RPC مدفوع / فهرسة).</td><td>فجوة (M2)</td></tr>
-<tr><td>المعروض المرتبط + إطلاقات المحافظ المموَّلة</td><td>تحتاج رسوم الحاملين/المموّلين.</td><td>فجوة (M2)</td></tr>
+<tr><td>سرعة بيع المطوّر</td><td>صفحة النتيجة: نسبة ما باعه المطوّر من شراء الإطلاق ومدى سرعته. ليست بعد ضمن درجة السمعة.</td><td>جزئي</td></tr>
+<tr><td>المعروض المرتبط + إطلاقات المحافظ المموَّلة</td><td>صفحة النتيجة: خريطة الفقاعات تربط كبار الحاملين بمحفظة التمويل المشتركة وتُحتسب أكبر مجموعة. سجل الإطلاقات عبر المحافظ المموّلة يحتاج فهرسة.</td><td>جزئي</td></tr>
 </tbody></table>
 <p>السجل الرقيق (أقل من عملتين محكومتين) يسحب الدرجة نحو المحايد. ملاحظة الاختبار الرجعي لمستوى الخطر: <a href="/backtest">/backtest</a>. اختبار تسمية DevRep الرسمي ينتظر تخزين محافظ المنشئ في المتعقّب. عينة قفل السيولة حتى 5 تقارير RugCheck (M2).</p>
 <p class="muted">الكود: <code>devrep-core.js</code> (MIT). ليست نصيحة مالية.</p></div>
@@ -287,13 +296,13 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
 <section class="card" id="metamask-snap" style="margin:18px 0">
   <h2>MetaMask Snap (transaction insights)</h2>
   <p>The same Low / Medium / High / Extreme bands and top plain-language reasons power a <strong>MetaMask Snap</strong> via <code>onTransaction</code> and <code>/api/snap-insight</code>. Solana scans show the shared <em>Risk insight</em> card so EVM wallet warnings and Solana site checks stay aligned.</p>
-  <p>Source: <a href="https://github.com/almasrem459-lab/memecheck-snap" target="_blank" rel="noopener">memecheck-snap</a> (MIT). Install needs MetaMask Flask — see the Snap README. <strong>Grants apply form is still closed</strong>; this is build readiness, not a submitted application. Audit planned later.</p>
+  <p>Source: <a href="https://github.com/almasrem459-lab/memecheck-snap" target="_blank" rel="noopener">memecheck-snap</a> (MIT). Install needs MetaMask Flask — see the Snap README. Not yet listed in the MetaMask Snaps directory.</p>
 </section>
 <footer><span data-l="en">Not financial advice. Always DYOR.</span><span data-l="ar">ليست نصيحة مالية. ابحث بنفسك دائمًا.</span> · <a href="/" data-t="navChecker">Checker</a> · <a href="/rugs" data-t="navRugs">Rugs we caught</a> · <a href="/how" data-t="navHow">How the score works</a> · <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a></footer>
 <script>
 (function(){var b=document.getElementById('how-lang');var ar=document.documentElement.lang==='ar';b.textContent=ar?'English':'العربية';
 b.addEventListener('click',function(){localStorage.setItem('mc_lang',ar?'en':'ar');location.reload();});})();
 </script>
-<script src="nav.js?v=1792900500" defer></script>
+<script src="nav.js?v=1793000000" defer></script>
 </body>
 </html>

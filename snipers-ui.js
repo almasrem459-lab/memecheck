@@ -69,6 +69,7 @@ function draw(box, d) {
   const lvl = risk.level || 'unknown';
   const st = levelClass[lvl] || 'na';
   const pct = d.sniperPct;
+  try { if (cur?.addr && cur.chain === 'solana' && pct != null) (window.__mcSig||(window.__mcSig={set(a,k,v){const m=(this.m||(this.m=new Map()));const o=m.get(a)||{};if(JSON.stringify(o[k])===JSON.stringify(v))return;o[k]=v;m.set(a,o);document.dispatchEvent(new CustomEvent('mc:signal',{detail:{addr:a,key:k}}))},get(a){return this.m&&this.m.get(a)}})).set(cur.addr, 'snipers', { pct: Math.min(100, +pct), pro: d.proSnipers || 0 }); } catch {}
   const showPct = (pct != null && pct > 0) ? pct : d.sniperBoughtPct;
   const headline = t.headline(d.proSnipers || d.snipers || 0, showPct) + t.pro(d.proSnipers || 0);
   const rows = (d.top || []).map((s, i) => {

@@ -1,4 +1,4 @@
-# MemeCheck shared cache (not served: /functions/* is 404 via _middleware)
+# MemeCheckShield shared cache (not served: /functions/* is 404 via _middleware)
 - Browsers can only READ: GET /api/cache (KV read-only, POST -> 405) and GET /api/deep.
 - Writes happen only server-side (functions/_lib/shared.js `store`): /api/deep (on-demand) and memecheck-warmer (cron).
 - /api/deep?ca&chain&kind=dev|exit|core: cached -> 200; else first caller computes inline (+ctx.waitUntil so it finishes

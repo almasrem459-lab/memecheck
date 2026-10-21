@@ -29,7 +29,7 @@
     add('/pro', 'Pro', 'Pro', 'nav-pro');
   }
 
-  // Guides + monthly report + infra (M2/M3)
+  // Guides + monthly report + infra
   if (!nav.querySelector('a[href="/guides"]')) {
     const add = (href, en, ar, cls) => {
       const a = document.createElement('a'); a.href = href; a.className = cls || '';
@@ -145,4 +145,14 @@
     busy = false; $('.fb-form button').disabled = false; apply();
   });
   $('.fb-more').addEventListener('click', () => { $('.fb-done').hidden = true; f.hidden = false; ta.focus(); });
+})();
+
+// Legal + accuracy links in every footer (privacy, terms, live accuracy), injected once.
+(function () {
+  const ft = document.querySelector('footer'); if (!ft) return;
+  const L = [['/accuracy', 'Accuracy', 'الدقة'], ['/privacy', 'Privacy', 'الخصوصية'], ['/terms', 'Terms', 'الشروط']];
+  const made = [];
+  for (const [h, en, ar] of L) { if (ft.querySelector(`a[href="${h}"]`)) continue; const a = document.createElement('a'); a.href = h; a.dataset.en = en; a.dataset.ar = ar; ft.append(document.createTextNode(' · '), a); made.push(a); }
+  const lbl = () => { const ar = document.documentElement.lang === 'ar'; made.forEach(a => { a.textContent = ar ? a.dataset.ar : a.dataset.en; }); };
+  lbl(); new MutationObserver(lbl).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
 })();

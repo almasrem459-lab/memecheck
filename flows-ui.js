@@ -374,6 +374,7 @@ function draw(box, data) {
   const t = L[lang()];
   if (inst) { inst.destroy(); inst = null; }
   const sum = data.summary || {};
+  try { const o = data.organic; if (cur?.addr && cur.chain === 'solana' && o && ORG_CLS[o.level] && o.trades > 0) (window.__mcSig||(window.__mcSig={set(a,k,v){const m=(this.m||(this.m=new Map()));const o=m.get(a)||{};if(JSON.stringify(o[k])===JSON.stringify(v))return;o[k]=v;m.set(a,o);document.dispatchEvent(new CustomEvent('mc:signal',{detail:{addr:a,key:k}}))},get(a){return this.m&&this.m.get(a)}})).set(cur.addr, 'flows', { level: o.level, trades: o.trades }); } catch {}
   box.innerHTML = `
     <div class="lf-head"><h3>${t.title} <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">· ${t.arTitle}</span></h3></div>
     ${orgBadge(data.organic, t)}<p class="lf-sum">${esc(t.summary(sum))}</p>

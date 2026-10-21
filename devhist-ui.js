@@ -2,8 +2,8 @@
 // Lazy, cached per mint, 25 s timeout; shows "unavailable" on any failure and never blocks the main scan.
 // If DexScreener rate-limited the server, the browser fetches it directly and re-scores with devrep-core.js.
 // Result on window.__mcDevHist + 'mc:devhist' event; app.js turns history flag into a finding.
-import { summarize, dexMarkets } from './devhist-core.js?v=1792466000';
-import { repFromHist, launchCadenceHours } from './devrep-core.js?v=1792466000';
+import { summarize, dexMarkets } from './devhist-core.js?v=1793000000';
+import { repFromHist, launchCadenceHours } from './devrep-core.js?v=1793000000';
 const CHN = { en: { bsc: 'BNB Chain', ethereum: 'Ethereum', base: 'Base', arbitrum: 'Arbitrum' }, ar: { bsc: 'سلسلة BNB', ethereum: 'إيثريوم', base: 'Base', arbitrum: 'أربيتروم' } };
 const LAB = {
   en: { Builder: 'Builder', Neutral: 'Neutral', 'Serial Launcher': 'Serial Launcher', 'High Risk': 'High Risk' },

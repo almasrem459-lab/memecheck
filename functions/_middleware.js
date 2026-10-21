@@ -4,7 +4,7 @@
 import { ogInfo, CA_RE } from './_lib/oginfo.js';
 const BOT = /twitterbot|facebookexternalhit|facebot|discordbot|telegrambot|slackbot|whatsapp|linkedinbot|skypeuripreview|redditbot|embedly|pinterest|applebot|googlebot|bingbot|bot\b|crawler|spider|preview/i;
 const AR_PATHS = new Set(['/', '/how', '/smart', '/chat', '/dev']);
-const LV = { low: 'Low', medium: 'Medium', high: 'High', extreme: 'Extreme' };
+const LV = { low: 'No major red flags', medium: 'Medium risk', high: 'High risk', extreme: 'Extreme risk' };
 export const onRequest = async (ctx) => {
   const { request: req, next, env } = ctx; const url = new URL(req.url);
   // /bots used to 404 — paper bots live on /smart#bots. Keep a stable bookmark.
@@ -34,9 +34,9 @@ export const onRequest = async (ctx) => {
   const share = `https://memecheck.pages.dev/?ca=${encodeURIComponent(ca)}${chain !== 'auto' ? '&chain=' + chain : ''}`;
   const img = `https://memecheck.pages.dev/api/og?ca=${encodeURIComponent(ca)}&chain=${chain}&v=${info?.level || 'n'}`;
   const nm = info?.name && info.name !== info.sym ? ` (${info.name})` : '';
-  const title = info?.sym && info.level ? `$${info.sym}: ${LV[info.level]} risk on MemeCheckShield` : info?.sym ? `$${info.sym} safety check on MemeCheckShield` : 'MemeCheckShield — token safety check';
-  const desc = info?.sym && info.level ? `I checked $${info.sym}${nm} on MemeCheckShield: ${LV[info.level]} risk, ${info.pts} risk points. Rug, honeypot, dev & bundle checks. Free.` : info?.sym ? `Is $${info.sym}${nm} safe? Check safety: rug, honeypot, dev & bundle checks on MemeCheckShield. Free.` : 'Check any meme coin before you ape in. Rug, honeypot, dev & bundle checks. Free.';
-  const alt = info?.sym ? `$${info.sym}${info.level ? ` — ${LV[info.level]} risk` : ' — check safety'} on MemeCheckShield` : 'MemeCheckShield token safety check';
+  const title = info?.sym && info.level ? `$${info.sym}: ${LV[info.level]} on MemeCheckShield` : info?.sym ? `$${info.sym} safety check on MemeCheckShield` : 'MemeCheckShield — token safety check';
+  const desc = info?.sym && info.level ? `I checked $${info.sym}${nm} on MemeCheckShield: ${LV[info.level]}, ${info.pts} risk points. Rug, honeypot, dev & bundle checks. Free.` : info?.sym ? `Is $${info.sym}${nm} safe? Check safety: rug, honeypot, dev & bundle checks on MemeCheckShield. Free.` : 'Check any meme coin before you ape in. Rug, honeypot, dev & bundle checks. Free.';
+  const alt = info?.sym ? `$${info.sym}${info.level ? ` — ${LV[info.level]}` : ' — check safety'} on MemeCheckShield` : 'MemeCheckShield token safety check';
   const set = (v) => ({ element(e) { e.setAttribute('content', v); } });
   const out = new HTMLRewriter()
     .on('title', { element(e) { e.setInnerContent(title); } })

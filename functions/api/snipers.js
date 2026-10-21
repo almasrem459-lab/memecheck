@@ -316,7 +316,8 @@ async function build(env, mint, preferPublic = false) {
     }
   } catch {}
 
-  const pct = (x) => (supply && x != null) ? Number(x * 1000000n / supply) / 1e4 : null;
+  // capped at 100%: round-trip buys (buy -> sell -> buy) can sum past the supply; a share of supply can never exceed it
+  const pct = (x) => (supply && x != null) ? Math.min(100, Number(x * 1000000n / supply) / 1e4) : null;
 
   const snipers = [];
   let sniperBought = 0n, sniperHeld = 0n, proCount = 0;

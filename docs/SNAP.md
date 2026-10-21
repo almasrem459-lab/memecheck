@@ -1,10 +1,10 @@
 # MetaMask Snap
 
-**Status (2026-10-20):** Snap MVP source ready. MetaMask Grants **apply Typeform is CLOSED** — nothing was submitted.
+**Status:** Snap MVP source ready (not yet listed in the MetaMask Snaps directory).
 
 | Item | Location |
 |---|---|
-| Snap monorepo | https://github.com/almasrem459-lab/memecheck-snap (or `/workspace/memecheck-snap`) |
+| Snap monorepo | https://github.com/almasrem459-lab/memecheck-snap |
 | Insight API | `GET /api/snap-insight?chain=&ca=` (+ optional `to`/`data` for approve decode) |
 | Shared reasons | `risk-insight.js` (site + Snap API; Solana Risk insight card) |
 | Flask install | Snap README — requires MetaMask Flask on the developer machine |

@@ -2,8 +2,8 @@
 // links via shared funders / exit-trace clusters. EVM: GoPlus top holders (no link data).
 // Canvas + tiny custom force simulation (no libraries): collide, repel, link springs, cluster cohesion, gravity.
 // Drag (mouse/touch), wheel/pinch zoom, pan, tap for details, cluster list. Lazy, cached, timeout, never invents data.
-import { holderLinks, withTimeout, rpc as rpcBatch, exitCache } from './devbundle.js?v=1792080000';
-import { rugReport } from './core.js?v=1792900001';
+import { holderLinks, withTimeout, rpc as rpcBatch, exitCache } from './devbundle.js?v=1793000000';
+import { rugReport } from './core.js?v=1793000000';
 const fn = (txt) => txt ? `<details class="fn"><summary title="info">ⓘ</summary><div>${txt}</div></details>` : '';
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -284,6 +284,7 @@ function draw(el, data, chain, addr) {
   if (st.sel?.c != null && !clusters.some(c => c.id === st.sel.c)) st.sel = null;
   const tab = st.tab || (clusters.length ? 'c' : 'w');
   const top = clusters[0]; const summary = !groups ? (data.linking ? t.linking : data.linkErr ? t.linkErr : t.noLinks) : top ? t.top(top.members.length, top.pct.toFixed(1)) : t.none;
+  try { if (chain === 'solana' && groups) (window.__mcSig||(window.__mcSig={set(a,k,v){const m=(this.m||(this.m=new Map()));const o=m.get(a)||{};if(JSON.stringify(o[k])===JSON.stringify(v))return;o[k]=v;m.set(a,o);document.dispatchEvent(new CustomEvent('mc:signal',{detail:{addr:a,key:k}}))},get(a){return this.m&&this.m.get(a)}})).set(addr, 'bubble', { pct: top ? Math.min(100, top.pct) : 0, n: top ? top.members.length : 0 }); } catch {}
   const touch = matchMedia('(pointer: coarse)').matches;
   el.innerHTML = `<div class="exv ${top && top.pct >= 15 ? 'fail' : top ? 'warn' : 'na'}">${esc(summary)}</div>
    <div class="bmwrap"><div class="bmx">

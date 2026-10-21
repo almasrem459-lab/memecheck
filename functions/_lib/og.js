@@ -39,7 +39,7 @@ function pill(px, x, y, w, h, r, ramp) { // anti-aliased rounded rect, 4x4 super
     px[yy * W + xx] = ramp + Math.min(15, Math.round(cov * 15 / 16));
   }
 }
-const LV = { low: 'LOW RISK', medium: 'MEDIUM RISK', high: 'HIGH RISK', extreme: 'EXTREME RISK' };
+const LV = { low: 'NO MAJOR RED FLAGS', medium: 'MEDIUM RISK', high: 'HIGH RISK', extreme: 'EXTREME RISK' };
 const CH = { solana: 'Solana', ethereum: 'Ethereum', base: 'Base', bsc: 'BSC' };
 export async function renderOg({ sym, name, level, pts, chain, ca }) {
   const { base, pal, fonts } = await load(); const px = base.slice();

@@ -1,36 +1,36 @@
-// MemeCheck community chat client (/chat). Plain text only: every message is built with DOM nodes + textContent,
+// MemeCheckShield community chat client (/chat). Plain text only: every message is built with DOM nodes + textContent,
 // never innerHTML, so nothing a user types can become markup. Contract addresses become scan chips (/?ca=<addr>).
 // Live via WebSocket (/api/chat?ws=1, Durable Object with hibernation); falls back to polling /api/chat?since=<id>.
 (function () {
   'use strict';
   const $ = (id) => document.getElementById(id);
   const C = {
-    en: { dir: 'ltr', langBtn: 'العربية', title: 'Community chat', sub: 'Talk coins in real time. Paste a contract address and it becomes a one-tap MemeCheck scan for everyone.',
+    en: { dir: 'ltr', langBtn: 'العربية', title: 'Community chat', sub: 'Talk coins in real time. Paste a contract address and it becomes a one-tap MemeCheckShield scan for everyone.',
       pin: 'Never share your seed phrase. Admins will never DM you. Not financial advice.', connecting: 'Connecting…', live: 'Live', polling: 'Live (slow mode)', offline: 'Reconnecting…',
       online: (n) => `${n} online`, send: 'Send', save: 'Save', cancel: 'Cancel', ph: 'Say something or paste a CA…', nickTitle: 'Change nickname', empty: 'No messages yet. Say gm 👋',
-      report: 'Report', reported: 'Reported', reportQ: 'Report this message as spam/scam? 3 reports hide it.', scan: 'Scan', team: 'MemeCheck team', newMsgs: 'New messages ↓',
+      report: 'Report', reported: 'Reported', reportQ: 'Report this message as spam/scam? 3 reports hide it.', scan: 'Scan', team: 'MemeCheckShield team', newMsgs: 'New messages ↓',
       rules: 'Rules: no links (except memecheck.pages.dev), no DMs/airdrop/seed-phrase talk, 1 message per 5 s. Use ⚑ to report: 3 reports hide a message.',
       nickSaved: 'Nickname saved.', sent: '', err: {
         rate_fast: (w) => `Slow down: 1 message every 5 seconds${w ? ` (wait ${w}s)` : ''}.`, rate_10m: (w) => `Limit reached: 20 messages per 10 minutes${w ? ` (try again in ${Math.ceil(w / 60)} min)` : ''}.`,
         too_long: () => 'Max 300 characters.', empty: () => 'Type a message first.', link: () => 'Links are not allowed (only memecheck.pages.dev). Paste the contract address instead: it becomes a scan chip.',
         scam: () => 'Blocked: looks like a common scam phrase (DMs, seed phrase/private key, wallet connect, airdrop claims, "send SOL").', bad_word: () => 'Blocked: hateful language is not allowed.',
         dup: () => 'Duplicate message.', banned: (w) => `You are muted${w ? ` for ${Math.ceil(w / 60)} more min` : ''}.`, auto_muted: () => 'Muted for 1 hour after repeated blocked messages.',
-        nick: () => 'Nickname: 2–24 letters, numbers, spaces or # . _ -', nick_reserved: () => 'That nickname is reserved (no admin / support / team / MemeCheck names).',
+        nick: () => 'Nickname: 2–24 letters, numbers, spaces or # . _ -', nick_reserved: () => 'That nickname is reserved (no admin / support / team / MemeCheckShield names).',
         too_many_ca: () => 'Max 3 contract addresses per message.', report_self: () => 'You cannot report your own message.', report_admin: () => 'Team messages cannot be reported.',
         full: () => 'The room is full right now. Try again soon.', net: () => 'Network error. Try again.', x: () => 'Could not send. Try again.' },
       nav: { navMenu: 'Menu', navChecker: 'Checker', navWhales: 'Whale buys', navSmart: 'Smart money', navChat: 'Community chat', navRugs: 'Rugs we caught', navHow: 'How the score works', navOpenSrc: 'Open source',
         disclaimer: 'Not financial advice. Automated checks can miss scams or flag legit tokens. Always DYOR.' } },
-    ar: { dir: 'rtl', langBtn: 'English', title: 'غرفة النقاش', sub: 'ناقش العملات مباشرة. الصق عنوان العقد ليتحوّل إلى فحص MemeCheck بلمسة واحدة للجميع.',
+    ar: { dir: 'rtl', langBtn: 'English', title: 'غرفة النقاش', sub: 'ناقش العملات مباشرة. الصق عنوان العقد ليتحوّل إلى فحص MemeCheckShield بلمسة واحدة للجميع.',
       pin: 'لا تشارك عبارة الاسترداد أبدًا. المشرفون لن يراسلوك على الخاص أبدًا. ليست نصيحة مالية.', connecting: 'جارٍ الاتصال…', live: 'مباشر', polling: 'مباشر (وضع بطيء)', offline: 'إعادة الاتصال…',
       online: (n) => `${n} متصل`, send: 'إرسال', save: 'حفظ', cancel: 'إلغاء', ph: 'اكتب رسالة أو الصق عنوان عقد…', nickTitle: 'تغيير الاسم', empty: 'لا توجد رسائل بعد. قل مرحبًا 👋',
-      report: 'إبلاغ', reported: 'تم الإبلاغ', reportQ: 'الإبلاغ عن هذه الرسالة كاحتيال/إزعاج؟ ثلاثة بلاغات تخفيها.', scan: 'افحص', team: 'فريق MemeCheck', newMsgs: 'رسائل جديدة ↓',
+      report: 'إبلاغ', reported: 'تم الإبلاغ', reportQ: 'الإبلاغ عن هذه الرسالة كاحتيال/إزعاج؟ ثلاثة بلاغات تخفيها.', scan: 'افحص', team: 'فريق MemeCheckShield', newMsgs: 'رسائل جديدة ↓',
       rules: 'القواعد: لا روابط (إلا memecheck.pages.dev)، لا حديث عن الخاص أو الإيردروب أو عبارة الاسترداد، رسالة كل 5 ثوانٍ. استخدم ⚑ للإبلاغ: ثلاثة بلاغات تخفي الرسالة.',
       nickSaved: 'تم حفظ الاسم.', sent: '', err: {
         rate_fast: (w) => `تمهّل: رسالة واحدة كل 5 ثوانٍ${w ? ` (انتظر ${w} ث)` : ''}.`, rate_10m: (w) => `وصلت للحد: 20 رسالة كل 10 دقائق${w ? ` (حاول بعد ${Math.ceil(w / 60)} د)` : ''}.`,
         too_long: () => 'الحد الأقصى 300 حرف.', empty: () => 'اكتب رسالة أولًا.', link: () => 'الروابط غير مسموحة (إلا memecheck.pages.dev). الصق عنوان العقد بدلًا من ذلك ليصبح زر فحص.',
         scam: () => 'محظور: تبدو كعبارة احتيال شائعة (الخاص، عبارة الاسترداد/المفتاح الخاص، ربط المحفظة، الإيردروب، "أرسل SOL").', bad_word: () => 'محظور: خطاب الكراهية غير مسموح.',
         dup: () => 'رسالة مكررة.', banned: (w) => `أنت مكتوم${w ? ` لمدة ${Math.ceil(w / 60)} د أخرى` : ''}.`, auto_muted: () => 'تم كتمك لمدة ساعة بسبب تكرار رسائل محظورة.',
-        nick: () => 'الاسم: من 2 إلى 24 حرفًا أو رقمًا أو مسافة أو # . _ -', nick_reserved: () => 'هذا الاسم محجوز (لا أسماء مشرف / دعم / فريق / MemeCheck).',
+        nick: () => 'الاسم: من 2 إلى 24 حرفًا أو رقمًا أو مسافة أو # . _ -', nick_reserved: () => 'هذا الاسم محجوز (لا أسماء مشرف / دعم / فريق / MemeCheckShield).',
         too_many_ca: () => 'الحد الأقصى 3 عناوين عقود في الرسالة.', report_self: () => 'لا يمكنك الإبلاغ عن رسالتك.', report_admin: () => 'لا يمكن الإبلاغ عن رسائل الفريق.',
         full: () => 'الغرفة ممتلئة الآن. حاول لاحقًا.', net: () => 'خطأ في الشبكة. حاول مرة أخرى.', x: () => 'تعذّر الإرسال. حاول مرة أخرى.' },
       nav: { navMenu: 'القائمة', navChecker: 'الفاحص', navWhales: 'حيتان', navSmart: 'الأموال الذكية', navChat: 'غرفة النقاش', navRugs: 'عمليات السحب التي رصدناها', navHow: 'كيف يعمل التقييم', navOpenSrc: 'مفتوح المصدر',
@@ -207,7 +207,7 @@
     document.querySelectorAll('[data-t]').forEach(e => { const v = L.nav[e.dataset.t]; if (v) e.textContent = v; });
     $('nav-toggle')?.setAttribute('aria-label', L.nav.navMenu);
     $('lang').textContent = L.langBtn; input.placeholder = L.ph; showNick(); setMode(mode); setOnline(onlineN); emptyState();
-    document.title = L.title + ' — MemeCheck';
+    document.title = L.title + ' — MemeCheckShield';
     for (const [id, n] of msgs) { const m = n; m.querySelectorAll('.ca .k').forEach(k => { k.textContent = '🔍 ' + L.scan; }); const tb = m.querySelector('.badge'); if (tb) tb.textContent = '✓ ' + L.team;
       const r = m.querySelector('.rep'); if (r) { if (r.disabled) r.textContent = '⚑ ' + L.reported; else { r.title = L.report; r.setAttribute('aria-label', L.report); } } }
   }

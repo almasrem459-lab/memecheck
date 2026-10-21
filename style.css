@@ -303,3 +303,4 @@ body.has-result .hero{padding:0}
   .mc-hero-name{font-size:16px}
   .mc-hero-empty-t{font-size:14px}
 }
+.prob{margin-top:8px;font-size:13px;line-height:1.45;color:#c9d1e0}.prob.caveat{background:#121826;border:1px solid #3d3510;border-radius:10px;padding:8px 10px;color:#ffd447}.prob a{white-space:nowrap}

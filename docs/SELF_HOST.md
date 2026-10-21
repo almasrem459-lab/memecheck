@@ -31,13 +31,13 @@ wrangler pages deploy . --project-name memecheck
 |---|---|---|
 | Community chat | `chat-worker/` | Durable Object for `/chat` (Pages binds `CHAT`) |
 | Smart money cron | `smart-worker/` | Refreshes `/api/smart` KV |
-| Telegram alerts | `alert-worker/` | `/watch` CA alerts — needs `TELEGRAM_BOT_TOKEN` from Jojo |
+| Telegram alerts | `alert-worker/` | `/watch` CA alerts — needs your own `TELEGRAM_BOT_TOKEN` (@BotFather) |
 
 Chat binding is already in root `wrangler.toml` (`script_name = "memecheck-chat"`). Deploy chat-worker before relying on `/chat`.
 
 ## 4. Accuracy tracker (ops)
 
-Hourly evidence job lives outside the static site (operator box). It regenerates `rugs.html`, `accuracy-daily.json`, `accuracy-monthly.json`. Public URLs:
+The study tracker runs inside the `memecheck-warmer` Worker (`warmer/src/tracker.js`, minute 7 = scan, minute 37 = 24h/48h recheck) and keeps its records in KV `study:v2`. `/api/study` merges them with the backfill `study-data.json` and computes every table on request (`study-core.js`), so `/rugs` and `/accuracy` stay current without regenerating HTML. Public URLs:
 
 - https://memecheck.pages.dev/rugs
 - https://memecheck.pages.dev/report

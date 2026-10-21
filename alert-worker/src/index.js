@@ -1,6 +1,6 @@
 /**
- * MemeCheckShield Telegram rug-alert bot (M3).
- * Secrets: TELEGRAM_BOT_TOKEN (ask Jojo — do not invent). Optional: MEMECHECK_ORIGIN, ALERT_CRON_SECRET.
+ * MemeCheckShield Telegram bot: /check verdicts + rug alerts.
+ * Secrets: TELEGRAM_BOT_TOKEN (from @BotFather, never commit). Optional: TELEGRAM_WEBHOOK_SECRET, MEMECHECK_ORIGIN, ALERT_CRON_SECRET.
  */
 import { DurableObject } from 'cloudflare:workers';
 
@@ -8,7 +8,32 @@ const J = (status, body) => new Response(JSON.stringify(body), {
   status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
 });
 const ORIGIN = (env) => (env.MEMECHECK_ORIGIN || 'https://memecheck.pages.dev').replace(/\/$/, '');
+import { dec } from '../../mccache.js';
 const CA_RE = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+const EVM_RE = /^0x[0-9a-fA-F]{40}$/;
+const LVL = { low: 'No major red flags', medium: 'Medium risk', high: 'High risk', extreme: 'EXTREME risk', unknown: 'Unknown' };
+const ICON = { low: '🟢', medium: '🟡', high: '🔴', extreme: '⛔', unknown: '⚪' };
+// /check: server-side cached/computed core result from /api/deep (no KV writes from here) + the tracker's measured outcome rate.
+async function checkText(origin, ca) {
+  const evm = EVM_RE.test(ca), chains = evm ? ['ethereum', 'bsc', 'base', 'arbitrum'] : ['solana'];
+  let r = null;
+  for (const c of chains) {
+    for (let i = 0; i < 3 && !r; i++) {
+      const res = await fetch(`${origin}/api/deep?ca=${encodeURIComponent(ca)}&chain=${c}&kind=core`, { headers: { 'user-agent': 'memecheck-telegram/1.0' } });
+      if (res.status === 200) { const j = await res.json().catch(() => null); try { r = j?.data ? dec(j.data) : null; } catch { r = null; } }
+      else if (res.status === 202) await new Promise(ok => setTimeout(ok, 2500)); else break;
+    }
+    if (r?.meta?.symbol || r?.verdict) break;
+  }
+  if (!r?.verdict) return `Could not check ${ca.slice(0, 6)}… right now. Try on the site: ${origin}/?ca=${ca}`;
+  const v = r.verdict, sym = String(r.meta?.symbol || '?').replace(/[^\w$. -]/g, '').slice(0, 20);
+  const bad = (r.findings || []).filter(f => f.status === 'fail' || f.status === 'warn').sort((a, b) => (b.status === 'fail') - (a.status === 'fail') || b.weight - a.weight).slice(0, 4).map(f => `• ${f.status.toUpperCase()}: ${f.id}`);
+  let prob = '';
+  try { const s = await (await fetch(`${origin}/api/study?view=summary`)).json(); const lv = v.level === 'extreme' ? 'high' : v.level, x = s?.byLevel?.[lv];
+    if (x && x.n >= 10) prob = `\nTracker: ${x.bad_pct}% of ${x.n} coins rated "${LVL[lv]}" were dead or rugged within 24h (all coins: ${s.base.bad_pct}%).`;
+    else if (x) prob = `\nTracker: not enough coins at this level yet (n=${x.n}).`; } catch {}
+  return `${ICON[v.level] || ''} $${sym} — ${LVL[v.level] || v.level} (${v.points} pts)\n${bad.join('\n') || '• no warnings in automated checks'}${prob}\n${origin}/token/${ca}\nNot financial advice.`;
+}
 const LEVEL_RANK = { low: 1, medium: 2, high: 3, extreme: 4, unknown: 0 };
 
 async function tg(env, method, body) {
@@ -152,6 +177,7 @@ function helpText(configured) {
   return `MemeCheckShield rug alerts
 ${configured ? '' : '⚠️ Bot token not configured on the worker yet.\n'}
 Commands:
+/check <CA> — instant MemeCheckShield verdict (Solana or 0x EVM)
 /watch <CA> — watch a Solana contract
 /unwatch <CA> — stop watching
 /list — your watches
@@ -177,6 +203,11 @@ async function handleUpdate(env, update) {
   const arg = rest.join(' ').trim();
 
   if (/^\/(start|help)/i.test(cmd)) { await reply(helpText(true)); return J(200, { ok: true }); }
+  if (/^\/check/i.test(cmd)) {
+    if (!CA_RE.test(arg) && !EVM_RE.test(arg)) { await reply('Usage: /check <Solana mint or 0x address>'); return J(200, { ok: true }); }
+    await reply(await checkText(ORIGIN(env), arg));
+    return J(200, { ok: true });
+  }
   if (/^\/list/i.test(cmd)) {
     const j = await (await stub.fetch('https://do/list', { method: 'POST', body: JSON.stringify({ chatId }) })).json();
     const lines = (j.watches || []).map(w => `• ${w.symbol ? '$' + w.symbol + ' ' : ''}${w.ca.slice(0, 6)}…${w.ca.slice(-4)} (${w.last_level || '?'})`);
@@ -205,13 +236,14 @@ export default {
     const u = new URL(req.url);
     if (u.pathname === '/health') return J(200, { ok: true, service: 'memecheck-alert', telegram: !!env.TELEGRAM_BOT_TOKEN, origin: ORIGIN(env) });
     if (u.pathname === '/telegram' && req.method === 'POST') {
+      if (env.TELEGRAM_WEBHOOK_SECRET && req.headers.get('x-telegram-bot-api-secret-token') !== env.TELEGRAM_WEBHOOK_SECRET) return J(401, { error: 'unauthorized' }); // setWebhook(secret_token=...)
       const update = await req.json().catch(() => null);
       if (!update) return J(400, { error: 'bad json' });
       return handleUpdate(env, update);
     }
     if (u.pathname === '/cron' && req.method === 'POST') {
       if (env.ALERT_CRON_SECRET && req.headers.get('x-alert-cron') !== env.ALERT_CRON_SECRET) return J(401, { error: 'unauthorized' });
-      if (!env.TELEGRAM_BOT_TOKEN) return J(503, { ok: false, error: 'TELEGRAM_BOT_TOKEN missing — ask Jojo' });
+      if (!env.TELEGRAM_BOT_TOKEN) return J(503, { ok: false, error: 'TELEGRAM_BOT_TOKEN not configured' });
       const stub = env.WATCH.get(env.WATCH.idFromName('global'));
       return stub.fetch('https://do/poll', { method: 'POST' });
     }

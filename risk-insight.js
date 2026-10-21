@@ -3,7 +3,7 @@
 // Plain EN strings here are Snap/API defaults; the site prefers i18n.r[id] when available.
 
 export const LEVEL_LABEL = {
-  low: 'Low risk',
+  low: 'No major red flags',
   medium: 'Medium risk',
   high: 'High risk',
   extreme: 'Extreme risk',

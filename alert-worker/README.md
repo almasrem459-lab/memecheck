@@ -8,10 +8,10 @@ Always-on Cloudflare Worker. Users `/watch` a Solana CA; the worker alerts on:
 
 Exact **dev-sell** detection needs paid Helius webhooks — documented on `/infra`. Until then dump/liq proxies fire.
 
-## Setup (needs Jojo's bot token)
+## Setup (needs a bot token from @BotFather)
 
 1. Talk to [@BotFather](https://t.me/BotFather) → `/newbot` → copy token.
-2. **Do not commit the token.** Ask Jojo / parent to provide it, then:
+2. **Do not commit the token.** Store it as a Worker secret:
 
 ```bash
 cd alert-worker
@@ -52,4 +52,4 @@ curl -X POST https://memecheck-alert.memecheck.workers.dev/cron
 
 ## Status this ship
 
-Worker + docs are in the OSS repo. **TELEGRAM_BOT_TOKEN is not set** — parent should request it from Jojo before production alerts.
+Worker + docs are in the OSS repo. The public MemeCheckShield bot is not live yet; self-hosters can deploy with their own `TELEGRAM_BOT_TOKEN`.

@@ -1,6 +1,6 @@
 // Renders "Developer" and "Early buyers / bundle" cards under a Solana pump.fun check result. Lazy + cached per mint.
-import { devCheck, bundleCheck, exitTrace, withTimeout, exitCache, setCreated } from './devbundle.js?v=1792080000';
-import { getDeep, ago, refreshLbl } from './mccache.js?v=1792080000';
+import { devCheck, bundleCheck, exitTrace, withTimeout, exitCache, setCreated } from './devbundle.js?v=1793000000';
+import { getDeep, ago, refreshLbl } from './mccache.js?v=1793000000';
 const CHN = { en: { bsc: 'BNB Chain', ethereum: 'Ethereum', base: 'Base', arbitrum: 'Arbitrum' }, ar: { bsc: 'سلسلة BNB', ethereum: 'إيثريوم', base: 'Base', arbitrum: 'أربيتروم' } }; // EVM chain names for the 'not available yet' line
 const L = {
   en: { dev:'Developer check', bundle:'Early buyers / bundle check', loading:'Analysing on-chain data…', na:'Unavailable', notPump:'Dev / bundle / exit-trace checks: Solana tokens only, when the launch history can be reached (pump.fun and other launchpads/DEXes).', notEvm:(c)=>`Developer, early-buyer bundle and exit-trace checks: not available on ${c} yet (Solana only for now).`,
@@ -55,7 +55,7 @@ function devHtml(d, t) {
     h += kv(t.devBuy, pc(b.devBuyPct) + '%');
     if (b.devBuy > 0n && d.held != null) {
       const sold = Math.max(0, Number((b.devBuy - (d.held < b.devBuy ? d.held : b.devBuy)) * 1000n / b.devBuy) / 10);
-      h += kv(t.devSold, sold.toFixed(0) + '%'); rows += sold >= 50 ? row('warn', t.fSold(sold.toFixed(0)), t) : row('pass', t.fKept, t);
+      h += kv(t.devSold, sold.toFixed(0) + '%'); try { const ageH = d.coin?.created ? (Date.now() - d.coin.created) / 36e5 : null; if (d.mint || window.__mcCurAddr) (window.__mcSig||(window.__mcSig={set(a,k,v){const m=(this.m||(this.m=new Map()));const o=m.get(a)||{};if(JSON.stringify(o[k])===JSON.stringify(v))return;o[k]=v;m.set(a,o);document.dispatchEvent(new CustomEvent('mc:signal',{detail:{addr:a,key:k}}))},get(a){return this.m&&this.m.get(a)}})).set(d.mint || window.__mcCurAddr, 'devSell', { sold, ageH }); } catch {} rows += sold >= 50 ? row('warn', t.fSold(sold.toFixed(0)), t) : row('pass', t.fKept, t);
     } else if (b.devBuy === 0n) rows += row('na', t.fNoBuy, t);
   }
   h += '</div>';

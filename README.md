@@ -3,19 +3,18 @@
 **Brand:** MemeCheckShield · 
 **Live: https://memecheck.pages.dev** · [Rugs we caught](https://memecheck.pages.dev/rugs) · [How the score works](https://memecheck.pages.dev/how) · [Dev Reputation](https://memecheck.pages.dev/dev)
 
-Free, open-source (MIT) meme-coin safety checker for **Solana, BNB Chain, Ethereum, Base and Arbitrum**. Paste a contract address and get a **Low / Medium / High / Extreme** risk verdict with plain-language reasons in seconds. No signup, no paywall. English + Arabic UI.
+Free, open-source (MIT) meme-coin safety checker for **Solana, BNB Chain, Ethereum, Base and Arbitrum**. Paste a contract address and get a **No major red flags / Medium / High / Extreme** verdict with plain-language reasons in seconds. No signup, no paywall. English + Arabic UI.
 
-> Not financial advice. Low risk does not mean 100% safe. Automated checks can miss scams or flag legit tokens. Always DYOR.
+> Not financial advice. “No major red flags” (formerly “Low risk”) does not mean safe — in our own tracker most fresh meme coins with that label still died or rugged within 24h ([/accuracy](https://memecheck.pages.dev/accuracy)). Automated checks can miss scams or flag legit tokens. Always DYOR.
 
 
 ## MetaMask Snap (transaction insights)
 
-OSS Snap repo: **[memecheck-snap](https://github.com/almasrem459-lab/memecheck-snap)** (MIT) — local path `/workspace/memecheck-snap` on the build box.
+OSS Snap repo: **[memecheck-snap](https://github.com/almasrem459-lab/memecheck-snap)** (MIT).
 
 - Entry point: `onTransaction` → severity (Low/Med/High/Extreme) + plain-language reasons
 - API: [`/api/snap-insight`](https://memecheck.pages.dev/api/snap-insight) (shared formatter `risk-insight.js` — **same card on Solana scans**)
 - Install: MetaMask **Flask** + `yarn && yarn build:snap && yarn start` (see Snap README)
-- **Grants apply Typeform: still CLOSED** (not submitted). Audit planned later.
 
 Docs: [`docs/SNAP.md`](docs/SNAP.md)
 
@@ -28,7 +27,7 @@ Docs: [`docs/SNAP.md`](docs/SNAP.md)
 - **Liquidity Flows**: animated map of recent swaps into/out of the pool; round-trips, fast flips, burst trading and the creator wallet are highlighted.
 - **Organic Volume indicator**: Organic / Suspicious / Wash-like badge from the same swap sample (share of recent swaps made by the top 5 wallets), e.g. "40% of the last 24 swaps came from 5 wallets". Shown only when there are enough swaps to judge.
 - **Buy / Sell pressure**: buys vs sells for 5m / 1h / 6h / 24h (DexScreener transaction counts) plus a green/red timeline of recent swaps from the same sample as Liquidity Flows (no extra RPC calls), with "big buy / big sell" markers. Context only, not scored.
-- **Rugs we caught** ([/rugs](https://memecheck.pages.dev/rugs)): a public proof page. Every fresh Solana meme coin that meets the entry rules is scored and rechecked 24h and 48h later, Low, Medium and High alike, and **all** outcomes are published, not just the hits. Accuracy tracking of flagged tokens is ongoing; the sample is still small.
+- **Rugs we caught** ([/rugs](https://memecheck.pages.dev/rugs)): a public proof page. Every fresh Solana meme coin that meets the entry rules is scored and rechecked 24h and 48h later, every level alike, and **all** outcomes are published, not just the hits. Accuracy tracking of flagged tokens is ongoing; the sample is still small.
 - **AI summary + Ask AI** (beta): after a scan, a 2-4 sentence plain-language explanation of the verdict with a one-line bottom line (EN / AR), plus up to 5 questions per token per session ("Can I sell?", "Who holds the most?"). Answers are grounded only in the scan data (no price predictions, no buy/sell advice). Runs on Cloudflare Workers AI through the Pages `AI` binding (`functions/api/ai.js`, `ai-ui.js`); summaries are cached 10 min per chain + CA + language + score. If AI is unavailable the card shows a calm notice and the scan is unaffected.
 - **Arabic support**: full EN / AR interface (RTL).
 - **Share card**: 1200×675 PNG result card (token, risk level, score, top reasons) with Download, Share on X, Copy link and the Web Share API.
@@ -64,8 +63,8 @@ Each check produces a finding: `pass`, `warn`, `fail`, or `na` (data unavailable
 
 - `fail` adds the full weight, `warn` adds half; `na` is ignored.
 - Some fails are **critical** (e.g. active mint or freeze authority, confirmed honeypot) → **Extreme**.
-- Otherwise: **≥ 40 points → High**, **≥ 15 → Medium**, else **Low**.
-- If no security source (RugCheck/Solana RPC, or GoPlus/Honeypot.is) answered, a "Low" is downgraded to **Unknown** – the app never calls a token safe from market data alone.
+- Otherwise: **≥ 40 points → High**, **≥ 15 → Medium**, else **No major red flags** (shown as “Low” in the API level field `low`).
+- If no security source (RugCheck/Solana RPC, or GoPlus/Honeypot.is) answered, a would-be “No major red flags” is downgraded to **Unknown** – the app never calls a token safe from market data alone.
 
 Every verdict lists the reasons and which data sources answered.
 
@@ -163,7 +162,7 @@ wrangler pages deploy . --project-name memecheck
 
 - EN/AR guides: https://memecheck.pages.dev/guides
 - Monthly accuracy report: https://memecheck.pages.dev/report
-- Telegram rug-alert worker: [`alert-worker/`](alert-worker/) — set `TELEGRAM_BOT_TOKEN` (ask Jojo; do not invent)
+- Telegram rug-alert worker: [`alert-worker/`](alert-worker/) — set your own `TELEGRAM_BOT_TOKEN` from @BotFather
 
 ## License
 

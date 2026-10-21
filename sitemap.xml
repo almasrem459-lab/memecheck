@@ -148,4 +148,7 @@
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
+  <url><loc>https://memecheck.pages.dev/accuracy</loc><changefreq>daily</changefreq></url>
+  <url><loc>https://memecheck.pages.dev/privacy</loc><changefreq>yearly</changefreq></url>
+  <url><loc>https://memecheck.pages.dev/terms</loc><changefreq>yearly</changefreq></url>
 </urlset>

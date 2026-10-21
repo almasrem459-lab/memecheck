@@ -1,4 +1,4 @@
-// MemeCheck core: data fetching + scoring. Works in browser and Node 18+ (global fetch).
+// MemeCheckShield core: data fetching + scoring. Works in browser and Node 18+ (global fetch).
 export const EVM_CHAINS = { ethereum: { id: 1, ds: 'ethereum' }, base: { id: 8453, ds: 'base' }, bsc: { id: 56, ds: 'bsc' }, arbitrum: { id: 42161, ds: 'arbitrum' } };
 
 export function detectChain(addr) {
@@ -105,17 +105,23 @@ function marketFindings(ds, chainKey, addr) {
   return { out, m };
 }
 
+// pump.fun coins: mint/freeze are always revoked and the AMM LP is burned at migration BY PLATFORM DESIGN, so those passes say
+// little about the coin. They keep their critical FAIL (should it ever happen) but carry ~no weight as passes; holder
+// concentration and insiders get more weight instead (W below). Weights only matter on WARN/FAIL (score() is additive).
+const PUMP_W = { top10: 22, top1: 12, insiders: 25, creator: 10 }, STD_W = { top10: 15, top1: 8, insiders: 15, creator: 8 };
 function solanaFindings(r) {
   const out = []; const extra = {};
-  out.push(r.mintAuthority ? F('mintAuth', 'fail', 40, {}, true) : F('mintAuth', 'pass', 40));
-  out.push(r.freezeAuthority ? F('freezeAuth', 'fail', 40, {}, true) : F('freezeAuth', 'pass', 40));
+  const pumpCoin = r.launchpad?.platform === 'pump_fun' || /pump$/.test(r.mint || '');
+  const W = pumpCoin ? PUMP_W : STD_W; extra.pump = pumpCoin;
+  out.push(r.mintAuthority ? F('mintAuth', 'fail', 40, {}, true) : F('mintAuth', 'pass', pumpCoin ? 2 : 40, pumpCoin ? { pump: 1 } : {}));
+  out.push(r.freezeAuthority ? F('freezeAuth', 'fail', 40, {}, true) : F('freezeAuth', 'pass', pumpCoin ? 2 : 40, pumpCoin ? { pump: 1 } : {}));
   const markets = r.markets || [];
   if (markets.length) {
     const best = markets.reduce((a, x) => ((x.lp?.quoteUSD || 0) + (x.lp?.baseUSD || 0)) > ((a.lp?.quoteUSD || 0) + (a.lp?.baseUSD || 0)) ? x : a, markets[0]);
     const lp = num(best.lp?.lpLockedPct); const mt = best.marketType || '';
     const isPumpAmm = /pump/i.test(mt) || r.launchpad?.platform === 'pump_fun' || /pump$/.test(r.mint || '');
     const conc = /clmm|whirlpool|dlmm|concentrated/i.test(mt);
-    if (isPumpAmm && (lp === null || lp >= 0)) out.push(F('lpLocked', 'pass', 15, { v: lp ?? 100, pump: 1 }));   // pump.fun AMM LP is burned at migration
+    if (isPumpAmm && (lp === null || lp >= 0)) out.push(F('lpLocked', 'pass', 2, { v: lp ?? 100, pump: 1 }));   // pump.fun AMM LP is burned at migration
     else if (lp === null) out.push(F('lpLocked', 'na', 0, { unk: 1 }));
     else if (lp >= 90) out.push(F('lpLocked', 'pass', 15, { v: lp }));
     else if (conc) out.push(F('lpLocked', 'warn', 15, { v: lp, v3: 1 }));
@@ -124,23 +130,31 @@ function solanaFindings(r) {
   // top holders excluding pools/known AMM accounts
   const poolOwners = new Set(); markets.forEach(mk => { poolOwners.add(mk.pubkey); if (mk.liquidityA) poolOwners.add(mk.liquidityA); if (mk.liquidityB) poolOwners.add(mk.liquidityB); });
   const known = r.knownAccounts || {};
-  const holders = (r.topHolders || []).filter(h => !poolOwners.has(h.owner) && !poolOwners.has(h.address) && !(known[h.owner]?.type === 'AMM'));
+  // dedupe: one owner can hold several token accounts -> merge by owner; percentages capped at 100
+  const hm = new Map(); (r.topHolders || []).filter(h => !poolOwners.has(h.owner) && !poolOwners.has(h.address) && !(known[h.owner]?.type === 'AMM')).forEach(h => { const k = h.owner || h.address, o = hm.get(k); hm.set(k, { ...h, pct: Math.min(100, (o?.pct || 0) + (+h.pct || 0)) }); });
+  const holders = [...hm.values()].sort((a, b) => b.pct - a.pct);
   if (r.topHolders) {
-    const top10 = holders.slice(0, 10).reduce((s, h) => s + (h.pct || 0), 0); const top1 = holders[0]?.pct || 0;
+    const top10 = Math.min(100, holders.slice(0, 10).reduce((s, h) => s + (h.pct || 0), 0)); const top1 = holders[0]?.pct || 0;
     extra.top10 = top10; extra.holders = holders.slice(0, 10);
-    out.push(top10 > 50 ? F('top10', 'fail', 15, { v: top10 }) : top10 > 30 ? F('top10', 'warn', 15, { v: top10 }) : F('top10', 'pass', 15, { v: top10 }));
-    out.push(top1 > 10 ? F('top1', 'warn', 8, { v: top1 }) : F('top1', 'pass', 8, { v: top1 }));
+    out.push(top10 > 50 ? F('top10', 'fail', W.top10, { v: top10 }) : top10 > 30 ? F('top10', 'warn', W.top10, { v: top10 }) : F('top10', 'pass', W.top10, { v: top10 }));
+    out.push(top1 > 10 ? F('top1', 'warn', W.top1, { v: top1 }) : F('top1', 'pass', W.top1, { v: top1 }));
   } else out.push(F('top10', 'na', 0));
   const ins = num(r.graphInsidersDetected) || 0;
   const nets = r.insiderNetworks || [];
   const supply = r.token?.supply || 0;
-  const netPct = supply ? nets.reduce((s, n) => s + (n.currentHolding || 0), 0) / supply * 100 : null;
+  // RugCheck "transfer" networks can include the pool vault and overlap each other, so the raw sum reached e.g. 337% of
+  // supply. Dedupe: each network is capped at the supply, and the total can never exceed the supply NOT sitting in pools/AMMs.
+  const poolPct = (r.topHolders || []).filter(h => poolOwners.has(h.owner) || poolOwners.has(h.address) || known[h.owner]?.type === 'AMM').reduce((s, h) => s + (+h.pct || 0), 0);
+  const rawPct = supply ? nets.reduce((s, n) => s + Math.min(+n.currentHolding || 0, supply), 0) / supply * 100 : null;
+  const capPct = Math.max(0, 100 - Math.min(100, poolPct));
+  const netPct = rawPct == null ? null : Math.min(rawPct, capPct);
+  const netCapped = rawPct != null && rawPct > capPct;
   extra.insiderPct = netPct;
   if (r.graphInsidersDetected === undefined && !r.insiderNetworks) out.push(F('insiders', 'na', 0));
-  else if (ins === 0 && !nets.length) out.push(F('insiders', 'pass', 15, { n: 0 }));
-  else out.push((netPct !== null && netPct > 10) || ins >= 10 ? F('insiders', 'fail', 15, { n: ins, nets: nets.length, pct: netPct }) : F('insiders', 'warn', 15, { n: ins, nets: nets.length, pct: netPct }));
-  const cpct = supply && r.creatorBalance ? r.creatorBalance / supply * 100 : 0;
-  out.push(cpct > 5 ? F('creator', 'warn', 8, { v: cpct }) : F('creator', 'pass', 8, { v: cpct }));
+  else if (ins === 0 && !nets.length) out.push(F('insiders', 'pass', W.insiders, { n: 0 }));
+  else { const p = { n: ins, nets: nets.length, pct: netPct, ...(netCapped ? { cap: 1 } : {}) }; out.push((netPct !== null && netPct > 10) || ins >= 10 ? F('insiders', 'fail', W.insiders, p) : F('insiders', 'warn', W.insiders, p)); }
+  const cpct = supply && r.creatorBalance ? Math.min(100, r.creatorBalance / supply * 100) : 0;
+  out.push(cpct > 5 ? F('creator', 'warn', W.creator, { v: cpct }) : F('creator', 'pass', W.creator, { v: cpct }));
   if (r.tokenMeta) out.push(r.tokenMeta.mutable ? F('mutable', 'warn', 4) : F('mutable', 'pass', 4));
   const tf = num(r.transferFee?.pct) || 0;
   out.push(tf > 10 ? F('tax', 'fail', 20, { b: tf, s: tf }) : tf > 0 ? F('tax', 'warn', 20, { b: tf, s: tf }) : F('tax', 'pass', 20, { b: 0, s: 0 }));
@@ -310,7 +324,8 @@ async function solRpc(mint, ds) {
     const own = await call([{ jsonrpc: '2.0', id: 0, method: 'getMultipleAccounts', params: [big.value.map(a => a.address), { encoding: 'jsonParsed' }] }]).then(a => a[0]?.result).catch(() => null);
     const pools = new Set([...(ds?.pairs || []).map(p => p.pairAddress), ...AMM_AUTH]);
     const hs = big.value.map((a, i) => ({ owner: own?.value?.[i]?.data?.parsed?.info?.owner || a.address, pct: +a.uiAmount / supply * 100 })).filter(h => !pools.has(h.owner) && h.owner !== '1nc1nerator11111111111111111111111111111111');
-    const top10 = hs.slice(0, 10).reduce((x, h) => x + h.pct, 0), top1 = hs[0]?.pct || 0; extra.holders = hs.slice(0, 10); extra.top10 = top10;
+    { const mm = new Map(); hs.forEach(h => mm.set(h.owner, { owner: h.owner, pct: Math.min(100, (mm.get(h.owner)?.pct || 0) + h.pct) })); hs.length = 0; hs.push(...[...mm.values()].sort((a, b) => b.pct - a.pct)); }
+    const top10 = Math.min(100, hs.slice(0, 10).reduce((x, h) => x + h.pct, 0)), top1 = hs[0]?.pct || 0; extra.holders = hs.slice(0, 10); extra.top10 = top10;
     out.push(top10 > 50 ? F('top10', 'fail', 15, { v: top10 }) : top10 > 30 ? F('top10', 'warn', 15, { v: top10 }) : F('top10', 'pass', 15, { v: top10 }));
     out.push(top1 > 10 ? F('top1', 'warn', 8, { v: top1 }) : F('top1', 'pass', 8, { v: top1 }));
   } else out.push(F('top10', 'na', 0));
@@ -326,7 +341,7 @@ export async function evmSecurity(addr, chain) {
     const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 12000);
     try { const r = await fetch(`/api/evm-security?chain=${chain}&ca=${addr.toLowerCase()}`, { signal: ctl.signal }); if (r.ok) { const x = await r.json(); if (x?.goplus && x.honeypot) j = x; } } catch {} finally { clearTimeout(tm); }
   }
-  const { getEvmSecurity } = await import('./evmsec.js?v=1792900500');
+  const { getEvmSecurity } = await import('./evmsec.js?v=1793000000');
   if (!j) return getEvmSecurity(addr, chain);
   const only = ['goplus', ...(HP_OK.has(chain) ? ['honeypot'] : []), ...(chain === 'bsc' ? ['four'] : [])].filter(k => !j[k] || j[k].s === 'fail');
   if (only.length) { const d = await getEvmSecurity(addr, chain, { only }).catch(() => null); only.forEach(k => { if (d?.[k] && d[k].s !== 'fail') j[k] = { ...d[k], via: 'browser' }; }); }

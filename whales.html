@@ -22,7 +22,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"MemeCheckShield","item":"https://memecheck.pages.dev/"},{"@type":"ListItem","position":2,"name":"Whale buys tracker","item":"https://memecheck.pages.dev/whales"}]}</script>
 <meta name="theme-color" content="#0b0f17">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-<link rel="stylesheet" href="style.css?v=1792900500">
+<link rel="stylesheet" href="style.css?v=1793000000">
 <style>
 nav.crumbs{display:flex;gap:8px;align-items:center;padding:0 20px;max-width:860px;margin:12px auto 0;font-size:14px}
 nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef}nav.crumbs span{color:#7d879c}
@@ -110,6 +110,7 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
     return Math.floor(s / 86400) + 'd ago';
   };
 
+  const esc = (x) => String(x ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   function renderChips() {
     const el = $('chips');
     const bits = [{ name: 'All', key: 'all' }].concat(WALLETS.map(w => ({ name: w.name, key: w.name, address: w.address })));
@@ -144,15 +145,15 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
       return;
     }
     feed.innerHTML = buys.map(b => {
-      const sym = (b.symbol || '???').replace(/[<>&]/g, '');
-      const img = b.image ? `<img src="${b.image.replace(/"/g, '')}" width="28" height="28" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : `<span class="chip">$</span>`;
+      const sym = esc(b.symbol || '???');
+      const img = b.image ? `<img src="${/^https:\/\//.test(b.image) ? esc(b.image) : ''}" width="28" height="28" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : `<span class="chip">$</span>`;
       const mc = fmtUsd(b.mcap);
       const when = b.source === 'hold' ? (b.timestamp ? ('held · ' + ago(b.timestamp)) : 'holding') : (b.timestamp ? ago(b.timestamp) : '—');
       const check = `/?ca=${encodeURIComponent(b.mint)}`;
       return `<div class="wrow">
         <div class="wl">${img}<div class="wn">
-          <b>$${sym}</b> <span class="tag-whale">${b.wallet}</span>
-          <div class="meta"><span>${when}</span><span class="mono" title="${b.mint}">${short(b.mint)}</span>${b.source ? `<span>${b.source}</span>` : ''}</div>
+          <b>$${sym}</b> <span class="tag-whale">${esc(b.wallet)}</span>
+          <div class="meta"><span>${when}</span><span class="mono" title="${esc(b.mint)}">${esc(short(b.mint))}</span>${b.source ? `<span>${esc(b.source)}</span>` : ''}</div>
         </div></div>
         <div class="wr">
           <div class="kvb"><span>Size</span><b>${sizeLabel(b)}</b></div>
@@ -230,6 +231,6 @@ nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef
   load();
 })();
 </script>
-<script src="nav.js?v=1792900500" defer></script>
+<script src="nav.js?v=1793000000" defer></script>
 </body>
 </html>

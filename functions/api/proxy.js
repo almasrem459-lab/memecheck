@@ -5,9 +5,25 @@ const TTL = { 'nfs.faireconomy.media': 2700, 'api.gold-api.com': 60, 'api.rugche
 const STALE = 86400;
 const json = (status, body, extra = {}) => new Response(typeof body === 'string' ? body : JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*', ...extra } });
 const mem = new Map(); // per-isolate fallback when the Cache API is unavailable
+// Strict allowlist: host AND path shape (only the read endpoints the site actually calls). GET only, no credentials forwarded.
+const B58 = '[1-9A-HJ-NP-Za-km-z]{32,44}', ADDR = `(?:${B58}|0x[0-9a-fA-F]{40})`;
+const PATHS = {
+  'api.dexscreener.com': new RegExp(`^/(latest/dex/tokens/${ADDR}(,${ADDR})*|tokens/v1/[a-z]+/${ADDR}(,${ADDR})*|token-profiles/latest/v1|latest/dex/pairs/[a-z]+/[0-9A-Za-z]{32,66})$`),
+  'api.rugcheck.xyz': new RegExp(`^/v1/tokens/${B58}/report(/summary)?$`),
+  'api.gopluslabs.io': /^\/api\/v1\/(token_security\/\d+|solana\/token_security)$/,
+  'api.honeypot.is': /^\/v2\/IsHoneypot$/,
+  'api.gold-api.com': /^\/price\/[A-Z]{3}$/,
+  'nfs.faireconomy.media': /^\/ff_calendar_thisweek\.json$/,
+  'frontend-api-v3.pump.fun': new RegExp(`^/coins(-v2/(user-created-coins/)?${B58}|/top-holders/${B58})?$`),
+  'api.geckoterminal.com': /^\/api\/v2\/networks\/[a-z0-9_-]+\/(new_pools|trending_pools|tokens\/[0-9A-Za-z]{32,44}(\/pools)?|pools\/[0-9A-Za-z]{32,66}(\/ohlcv\/(minute|hour|day))?)$/,
+};
+import { rateLimit } from '../_lib/rl.js';
 export const onRequest = async ({ request: req, waitUntil }) => {
+  if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET' } });
+  if (req.method !== 'GET') return json(405, { error: 'GET only' });
   let u; try { u = new URL(new URL(req.url).searchParams.get('url')); } catch { return json(400, { error: 'bad url' }); }
-  if (u.protocol !== 'https:' || !ALLOW.includes(u.hostname) || (u.hostname === 'nfs.faireconomy.media' && u.pathname !== '/ff_calendar_thisweek.json') || (u.hostname === 'frontend-api-v3.pump.fun' && !/^\/coins(-v2\/(user-created-coins\/)?[1-9A-HJ-NP-Za-km-z]{32,44})?$/.test(u.pathname))) return json(403, { error: 'host not allowed' });
+  if (u.protocol !== 'https:' || u.username || u.password || u.port || !ALLOW.includes(u.hostname) || !PATHS[u.hostname]?.test(u.pathname) || u.search.length > 300) return json(403, { error: 'host not allowed' });
+  const lim = await rateLimit(req, 'proxy', 240, 60, waitUntil); if (lim) return lim;
   const ttl = TTL[u.hostname] || 30;
   const key = new Request('https://memecheck-cache.internal/' + encodeURIComponent(u.toString()));
   const cache = typeof caches !== 'undefined' ? caches.default : null;

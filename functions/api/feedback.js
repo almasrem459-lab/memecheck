@@ -2,10 +2,12 @@
 // "Suggest an idea to the developer" box (injected by nav.js). Stored in the `memecheck-chat` ChatRoom Durable Object's
 // SQLite (feedback table) via the CHAT binding - no KV writes. The DO keeps only a salted IP hash (3 posts / IP / hour).
 // Admin read/delete: POST /api/chat-admin {action:'feedback_list'|'feedback_delete'}.
+import { rateLimit } from '../_lib/rl.js';
 const ORIGIN_OK = /^https:\/\/([a-z0-9-]+\.)?memecheck\.pages\.dev$|^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, waitUntil }) {
   if (!env.CHAT) return json(503, { err: 'unavailable' });
+  const lim = await rateLimit(request, 'feedback', 6, 600, waitUntil); if (lim) return lim;
   const o = request.headers.get('origin') || ''; if (o && !ORIGIN_OK.test(o)) return json(403, { err: 'origin' });
   const len = +(request.headers.get('content-length') || 0); if (len > 8192) return json(413, { err: 'too_long' });
   const raw = await request.text(); if (raw.length > 8192) return json(413, { err: 'too_long' });
