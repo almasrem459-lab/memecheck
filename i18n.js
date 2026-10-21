@@ -121,6 +121,7 @@ export const BOTS = {
   updated: (a) => `Updated ${a}`, tick: (a) => `last price check ${a}`,
   paused: (a) => `Bot data paused. The simulation has not sent an update for a while (last snapshot ${a}). The numbers below are from that snapshot.`,
   sorted: 'Sorted by total PnL. Tap a bot to see its trades.',
+  hiredLine: (s) => 'Hired: ' + ((s.hiredList && s.hiredList.length) ? s.hiredList.map((h) => `#${h.slot} ${h.n}` + (h.losses ? ` (${h.losses}L)` : '')).join(' · ') : (s.hired || '—')) + (s.fireCount ? ` · fires ${s.fireCount}` : '') + (s.paused ? ` · PAUSED ${s.pauseReason || ''}` : ''),
   equity: 'Equity', fromBank: (b) => `from $${b}`, pnl: 'Total PnL', win: 'Win rate', counts: 'Open / closed',
   rejectedN: (n) => `${n} rejected`, sparkT: 'Equity over time (closed trades)',
   show: 'Show trades', hide: 'Hide trades',
@@ -132,6 +133,7 @@ export const BOTS = {
   mcLv: { low: 'Low risk', medium: 'Medium risk', high: 'High risk', extreme: 'Extreme risk', unknown: 'Not scanned' }, pts: 'pts',
   scan: 'Full scan', score: 'signal score', chase: 'price vs first wallet buy',
   title(c) {
+    if (c.kind === 'fomo') return `FOMO Copy (top ${c.slots || 3} traders, fire after ${c.fire_losses || 2} losses)`;
     if (c.kind === 'scalper') return 'Solo scalper (new coins ~$30K MC)';
     if (c.kind === 'wq') return 'Quality-weighted consensus' + ({ strict: ', strict filter', basic: ', basic filter', none: ', no filter' }[c.gate] || '') + (c.accel ? ' + momentum' : '');
     if (c.kind === 'instant') return `Instant copy (top ${c.top})` + (c.size ? ', strict filter + size' : ', basic filter');
@@ -139,6 +141,12 @@ export const BOTS = {
   },
   rule(c) {
     const gate = { strict: 'strict MemeCheckShield filter (Low risk only, plus dev, holder and sniper checks)', basic: 'MemeCheckShield filter on (skips High/Extreme)', none: 'MemeCheckShield filter off' };
+    if (c.kind === 'fomo') {
+      const top = c.top != null ? c.top : 8;
+      const sz = c.size != null ? c.size : 15;
+      const fl = c.fire_losses != null ? c.fire_losses : 2;
+      return `Hires the top ${c.slots || 3} quality-weighted watched wallets (from a weekly top-${top} list, refreshed 30d PnL/win rate) as independent slots and paper-mirrors each one's verified buys at ~$${sz} (≈0.25×). Each slot exits when its wallet sells. After ${fl} consecutive closed losses that wallet is fired and replaced by the next best not already hired (cooldown on recently fired). MemeCheckShield filter on (skips High/Extreme). Optional daily $50 paper target.`;
+    }
     if (c.kind === 'scalper') {
       const lo = c.mc_lo != null ? Math.round(c.mc_lo / 1000) + 'K' : '18K';
       const hi = c.mc_hi != null ? Math.round(c.mc_hi / 1000) + 'K' : '45K';
@@ -151,6 +159,7 @@ export const BOTS = {
     return `Buys when ${c.n}+ top wallets buy within ${c.window_min} min${chase}${liq}; MemeCheckShield filter ${c.filter ? 'on (skips High/Extreme risk)' : 'off'}.`;
   },
   exits(c) {
+    if (c.exits === 'fomo') return 'FOMO exits: sells when the hired wallet sells (≥50%); −40% stop; 12 h max; fire hire after 2 consecutive losses.';
     if (c.exits === 'scalp') return 'Scalp exits: half at +30%, rest at +60% or a tight trailing stop; −18% stop before TP1; 2 h max hold.';
     if (c.exits === 'smart') return 'Sells: half at +60%, a quarter at +150%; then trail ~22% under the peak; −28% stop before TP1; follows wallets when ~40% of trigger weight sells; 8 h max.';
     if (c.exits === 'instant') return 'Sells: when the copied wallet sells; −40% stop; 12 h max.';
@@ -164,6 +173,7 @@ export const BOTS = {
     if ((m = /^follow_sell_([\d.]+)\/([\d.]+)_weight$/.exec(r))) return `Followed the wallets out: wallets with ${m[1]} of ${m[2]} signal weight sold`;
     if ((m = /^follow_sell_(\d+)\/(\d+)$/.exec(r))) return `Followed the wallets out: ${m[1]} of ${m[2]} trigger wallets sold`;
     if (r === 'follow_sell_wallet') return 'Followed the copied wallet out: it sold';
+    if (r === 'fire_close') return 'Closed because the hired trader was fired after consecutive losses';
     if ((m = /^time_stop_(\d+)h$/.exec(r))) return `Time limit: closed after ${m[1]} h`;
     if (r === 'dead_no_price') return 'No price for 45 min: counted as dead ($0)';
     if ((m = /^tp\d_\+(\d+)%$/.exec(r))) return `Take-profit at +${m[1]}%`;
@@ -201,6 +211,7 @@ export const BOTS = {
   updated: (a) => `آخر تحديث ${a}`, tick: (a) => `آخر فحص للأسعار ${a}`,
   paused: (a) => `بيانات الروبوتات متوقفة مؤقتًا. لم ترسل المحاكاة تحديثًا منذ فترة (آخر لقطة ${a}). الأرقام أدناه من تلك اللقطة.`,
   sorted: 'مرتبة حسب إجمالي الربح/الخسارة. اضغط على روبوت لرؤية صفقاته.',
+  hiredLine: (s) => `الموظَّف: ${s.hired || '—'}` + (s.consecLoss != null ? ` · خسائر متتالية ${s.consecLoss}` : '') + (s.fireCount ? ` · فصل ${s.fireCount}` : '') + (s.paused ? ` · متوقف ${s.pauseReason || ''}` : ''),
   equity: 'الرصيد', fromBank: (b) => `من ${b}$`, pnl: 'إجمالي الربح/الخسارة', win: 'نسبة الربح', counts: 'مفتوحة / مغلقة',
   rejectedN: (n) => `${n} مرفوضة`, sparkT: 'الرصيد عبر الزمن (الصفقات المغلقة)',
   show: 'عرض الصفقات', hide: 'إخفاء الصفقات',
@@ -212,6 +223,7 @@ export const BOTS = {
   mcLv: { low: 'مخاطرة منخفضة', medium: 'مخاطرة متوسطة', high: 'مخاطرة مرتفعة', extreme: 'مخاطرة شديدة', unknown: 'لم تُفحص' }, pts: 'نقطة',
   scan: 'فحص كامل', score: 'نقاط الإشارة', chase: 'السعر مقارنة بأول شراء لمحفظة',
   title(c) {
+    if (c.kind === 'fomo') return 'نسخ FOMO (أفضل 3 متداولين، فصل بعد خسارتين)';
     if (c.kind === 'scalper') return 'مضارب منفرد (عملات جديدة ~30K$ قيمة سوقية)';
     if (c.kind === 'wq') return 'إجماع مرجّح بالجودة' + ({ strict: '، فلتر صارم', basic: '، فلتر أساسي', none: '، بلا فلتر' }[c.gate] || '') + (c.accel ? ' + زخم' : '');
     if (c.kind === 'instant') return `نسخ فوري (أفضل ${c.top})` + (c.size ? '، فلتر صارم + حجم' : '، فلتر أساسي');
@@ -219,6 +231,9 @@ export const BOTS = {
   },
   rule(c) {
     const gate = { strict: 'فلتر MemeCheckShield صارم (مخاطرة منخفضة فقط، مع فحص المطوّر والحاملين والقنّاصين)', basic: 'فلتر MemeCheckShield مفعّل (يتجنب المرتفعة/الشديدة)', none: 'فلتر MemeCheckShield معطّل' };
+    if (c.kind === 'fomo') {
+      return 'يوظّف أفضل 3 محافظ مراقبة حسب الجودة (كل واحدة في خانة مستقلة) من قائمة أسبوعية وينسخ شراء كل منها الموثّق على السلسلة بحجم ورقي صغير (~0.25×). يخرج عندما تبيع، ويفصلها بعد خسارتين متتاليتين ثم يوظّف التالي. فلتر MemeCheckShield مفعّل. هدف يومي اختياري 50$.';
+    }
     if (c.kind === 'scalper') {
       return 'يراقب عملات ميم سولانا الجديدة قرب قيمة سوقية ~30K$. يشتري ورقيًا فقط إذا كانت مخاطرة MemeCheckShield منخفضة أو متوسطة (أبدًا مرتفعة/شديدة)، مع سيولة مقبولة، وعمر بضع دقائق إلى ~ساعتين، ودون تركز كبير لدى أكبر 10 حاملين.';
     }
@@ -229,6 +244,7 @@ export const BOTS = {
     return `يشتري عندما تشتري ${c.n}+ من أفضل المحافظ خلال ${c.window_min} دقيقة${chase}${liq}؛ فلتر MemeCheckShield ${c.filter ? 'مفعّل (يتجنب المخاطرة المرتفعة/الشديدة)' : 'معطّل'}.`;
   },
   exits(c) {
+    if (c.exits === 'fomo') return 'خروج FOMO: يبيع عندما تبيع المحفظة الموظَّفة (≥50%)؛ وقف −40%؛ 12 ساعة كحد أقصى؛ فصل المتداول بعد خسارتين متتاليتين.';
     if (c.exits === 'scalp') return 'خروج المضاربة: النصف عند +30%، والباقي عند +60% أو وقف متحرك ضيق؛ وقف −18% قبل أول جني أرباح؛ ساعتان كحد أقصى.';
     if (c.exits === 'smart') return 'البيع: النصف عند +60%، وربع عند +150%؛ ثم وقف متحرك ~22% تحت القمة؛ وقف −28% قبل ذلك؛ يتبع المحافظ عند بيع ~40% من وزن الإشارة؛ 8 ساعات كحد أقصى.';
     if (c.exits === 'instant') return 'البيع: عندما تبيع المحفظة المنسوخة؛ وقف −40%؛ 12 ساعة كحد أقصى.';
@@ -242,6 +258,7 @@ export const BOTS = {
     if ((m = /^follow_sell_([\d.]+)\/([\d.]+)_weight$/.exec(r))) return `تبع المحافظ في البيع: باعت محافظ وزنها ${m[1]} من ${m[2]}`;
     if ((m = /^follow_sell_(\d+)\/(\d+)$/.exec(r))) return `تبع المحافظ في البيع: باعت ${m[1]} من ${m[2]} محافظ محفِّزة`;
     if (r === 'follow_sell_wallet') return 'تبع المحفظة المنسوخة: باعت';
+    if (r === 'fire_close') return 'أُغلقت لأن المتداول الموظَّف فُصل بعد خسائر متتالية';
     if ((m = /^time_stop_(\d+)h$/.exec(r))) return `حد زمني: أُغلقت بعد ${m[1]} ساعة`;
     if (r === 'dead_no_price') return 'لا سعر لمدة 45 دقيقة: اعتُبرت ميتة (0$)';
     if ((m = /^tp\d_\+(\d+)%$/.exec(r))) return `جني ربح عند +${m[1]}%`;

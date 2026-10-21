@@ -18,8 +18,8 @@ export async function onRequestGet({ request, env, waitUntil }) {
   let ok = false;
   try { const d = JSON.parse(raw); ok = !!(d && d.ok && Array.isArray(d.bots)); } catch {}
   if (!ok) return json(200, { ok: false, bots: [], note: 'Bot data is not available yet.' }, { 'cache-control': 'public, max-age=30' });
-  // Paper bots whitelist (no extra KV writes): only surface the active three.
-  const KEEP = ['c5_filter', 'c5_nofilter', 'solo_scalper'];
+  // Paper bots whitelist (no extra KV writes): only surface the active paper bots (incl. FOMO Copy).
+  const KEEP = ['c5_filter', 'c5_nofilter', 'solo_scalper', 'fomo_copy'];
   try {
     const d = JSON.parse(raw);
     const by = Object.fromEntries((d.bots || []).filter((b) => b && b.id).map((b) => [b.id, b]));
@@ -29,6 +29,14 @@ export async function onRequestGet({ request, env, waitUntil }) {
         id: 'solo_scalper',
         cfg: { kind: 'scalper', mc_lo: 18000, mc_hi: 45000, mc_target: 30000, min_liq: 2500, min_age_min: 3, max_age_min: 120, max_top10: 42, max_open: 3, size: 15, exits: 'scalp' },
         stats: { equity: 1000, realized: 0, unrealized: 0, pnl: 0, pnlPct: 0, closed: 0, open: 0, wins: 0, winRate: null, rejected: 0 },
+        spark: [], open: [], closed: [], rejected: [],
+      };
+    }
+    if (!by.fomo_copy) {
+      by.fomo_copy = {
+        id: 'fomo_copy',
+        cfg: { kind: 'fomo', slots: 3, top: 8, copy_mult: 0.25, size: 15, max_open: 5, filter: true, fire_losses: 2, fire_cooldown_h: 12, fresh_min: 30, chase: 0.4, min_liq: 5000, exits: 'fomo', daily_target_usd: 50 },
+        stats: { equity: 1000, realized: 0, unrealized: 0, pnl: 0, pnlPct: 0, closed: 0, open: 0, wins: 0, winRate: null, rejected: 0, hired: null, consecLoss: 0, fireCount: 0 },
         spark: [], open: [], closed: [], rejected: [],
       };
     }

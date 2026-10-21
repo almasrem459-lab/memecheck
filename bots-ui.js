@@ -1,6 +1,6 @@
 // Smart money page: "Bots" section. Renders /api/bots (SIMULATED paper-trading snapshot published from the off-site bot).
 // Strings live in i18n.js (BOTS, EN + AR). Everything from the API is escaped; mints are validated before linking.
-import { BOTS } from './i18n.js?v=1792900500';
+import { BOTS } from './i18n.js?v=1792930000';
 
 const AR = document.documentElement.lang === 'ar';
 const L = BOTS[AR ? 'ar' : 'en'];
@@ -85,6 +85,7 @@ function card(b, i, bank) {
     + '<button type="button" class="bot-h" aria-expanded="' + open + '" aria-controls="' + pid + '">'
     + '<div class="bot-top"><span class="rk">' + N('#' + (i + 1)) + '</span><div class="bot-nm"><b>' + esc(L.title(b.cfg)) + '</b> <code dir="ltr">' + esc(b.id) + '</code>'
     + '<div class="bot-rule">' + esc(L.rule(b.cfg)) + '</div><div class="bot-ex">' + esc(L.exits(b.cfg)) + '</div></div>' + spark(b.spark) + '</div>'
+    + ((s.hired || (s.hiredList && s.hiredList.length)) ? '<div class="bot-rule" style="margin-top:4px">' + esc(L.hiredLine ? L.hiredLine(s) : ('Hired: ' + s.hired + (s.consecLoss != null ? ' · losses ' + s.consecLoss : '') + (s.fireCount ? ' · fired ' + s.fireCount : ''))) + '</div>' : '')
     + '<div class="bot-st">'
     + '<div class="kv2"><small>' + esc(L.equity) + '</small><b dir="ltr">' + money(s.equity) + '</b><small>' + esc(L.fromBank(bank.toLocaleString('en-US'))) + '</small></div>'
     + '<div class="kv2"><small>' + esc(L.pnl) + '</small><b dir="ltr" class="' + cls(s.pnl) + '">' + money(s.pnl, true) + '</b><small dir="ltr" class="' + cls(s.pnl) + '">' + pctTxt(s.pnlPct) + '</small></div>'
@@ -98,7 +99,7 @@ function card(b, i, bank) {
 let DATA = null;
 function render(d) {
   DATA = d;
-  const KEEP = new Set(['c5_filter', 'c5_nofilter', 'solo_scalper']);
+  const KEEP = new Set(['c5_filter', 'c5_nofilter', 'solo_scalper', 'fomo_copy']);
   const bots = (d.bots || []).filter((b) => b && KEEP.has(b.id) && b.stats && b.cfg).sort((a, b) => (b.stats.pnl || 0) - (a.stats.pnl || 0));
   const bank = (d.config && d.config.bank) || 1000;
   const at = d.at || tms(d.generatedAt), tick = tms(d.bot && d.bot.lastPriceAt);
