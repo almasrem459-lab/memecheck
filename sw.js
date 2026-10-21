@@ -1,7 +1,7 @@
 // Minimal service worker: caches same-origin static assets only. Never touches /api/* or cross-origin requests.
 // HTML is never served from the cache while online (network-first; Pages serves HTML with max-age=0, must-revalidate); the cached '/' is an offline fallback only.
-const V = 'mc-static-audit1';
-const CORE = ['/', '/style.css?v=1793000000', '/app.js?v=1793000000', '/i18n.js?v=1793000000', '/nav.js?v=1793000000', '/manifest.webmanifest', '/icon-64.png', '/favicon-32.png'];
+const V = 'mc-static-social1-1793100200';
+const CORE = ['/', '/style.css?v=1793100200', '/app.js?v=1793100200', '/i18n.js?v=1793100200', '/nav.js?v=1793100200', '/manifest.webmanifest', '/icon-64.png', '/favicon-32.png'];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).catch(() => {})); self.skipWaiting(); });
 self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', (e) => {

@@ -2,8 +2,8 @@
 // links via shared funders / exit-trace clusters. EVM: GoPlus top holders (no link data).
 // Canvas + tiny custom force simulation (no libraries): collide, repel, link springs, cluster cohesion, gravity.
 // Drag (mouse/touch), wheel/pinch zoom, pan, tap for details, cluster list. Lazy, cached, timeout, never invents data.
-import { holderLinks, withTimeout, rpc as rpcBatch, exitCache } from './devbundle.js?v=1793000000';
-import { rugReport } from './core.js?v=1793000000';
+import { holderLinks, withTimeout, rpc as rpcBatch, exitCache } from './devbundle.js?v=1793100200';
+import { rugReport } from './core.js?v=1793100200';
 const fn = (txt) => txt ? `<details class="fn"><summary title="info">ⓘ</summary><div>${txt}</div></details>` : '';
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));

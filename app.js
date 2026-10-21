@@ -1,9 +1,9 @@
-import { T, usd } from './i18n.js?v=1793000000';
+import { T, usd } from './i18n.js?v=1793100200';
 // Homepage speed: only app.js + i18n.js + nav.js load up front. core.js (the scanner), the result-section modules and the
 // new-tokens list are imported on demand: the scanner + result modules when a scan starts (or a valid CA is pasted),
 // the new-tokens list when it scrolls near the viewport. Result modules only listen for mc:render / mc:final events, so
 // render() waits for them to finish importing before it dispatches (see fireRender).
-const V = '1793000000';
+const V = '1793100200';
 // same rules as core.js detectChain (kept inline so the homepage does not need core.js before a scan)
 function detectChain(addr) { addr = (addr || '').trim(); if (/^0x[0-9a-fA-F]{40}$/.test(addr)) return 'evm'; if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr)) return 'solana'; return null; }
 let core = null, coreP = null, modsP = null, proof = null; // proof: 'Rugs we caught' card data (see loadProof)
@@ -12,7 +12,7 @@ const loadCore = () => coreP ||= Promise.all([
   import(`./core.js?v=${V}`),
   import(`./risk-insight.js?v=${V}`),
 ]).then(([m, ri]) => { core = m; riskInsight = ri; return m; });
-const RESULT_MODS = ['devbundle-ui', 'devhist-ui', 'ai-ui', 'extras', 'bubble-ui', 'flows-ui', 'snipers-ui', 'bp-ui', 'swap', 'revenue-ui']; // same order as the old <script> tags
+const RESULT_MODS = ['devbundle-ui', 'devhist-ui', 'ai-ui', 'extras', 'bubble-ui', 'flows-ui', 'snipers-ui', 'bp-ui', 'swap', 'revenue-ui', 'social-ui']; // same order as the old <script> tags
 const loadResultMods = () => modsP ||= Promise.allSettled(RESULT_MODS.map(n => import(`./${n}.js?v=${V}`))).then(() => {});
 const warmScan = () => { loadCore().catch(() => { coreP = null; }); loadResultMods(); };
 const $ = (s) => document.querySelector(s);
@@ -66,7 +66,7 @@ function onInput() {
   if (k) warmScan(); // a valid address is in the box: fetch the scanner + result modules now so Scan starts instantly
 }
 const pc = (v) => v === null || v === undefined ? '—' : `<span dir="ltr" class="${v >= 0 ? 'up' : 'dn'}">${v > 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
-const SLOTS = ['ai-box', 'dh-box', 'db-box', 'ex-box', 'bm-box', 'bp-box', 'lf-box', 'sn-box'];
+const SLOTS = ['ai-box', 'dh-box', 'db-box', 'ex-box', 'bm-box', 'bp-box', 'lf-box', 'sn-box', 'so-box'];
 // Developer history (devhist-ui.js -> window.__mcDevHist) becomes one finding. Conservative score nudge: FAIL (serial
 // launcher / >= 3 dead-or-rugged coins) = +10 risk points, WARN (2+ dead) = +3 (half of weight 6), PASS = +0. Never critical.
 // "Risk unknown" stays unknown (no market/security data). The shared server snapshot (/api/deep core, OG image) is not nudged.
@@ -180,7 +180,7 @@ function render(r0, fire) {
       .map(([k, val]) => `<div class="kv"><span>${k}</span><b>${val}</b></div>`).join('')}</div></div>
   <div id="ai-box"></div>
   <div class="card" id="fcard"><h3>${t.findings}</h3>${r.pending.filter(k => k !== 'DexScreener').map(k => `<div class="row"><span class="st na"><span class="spin sm"></span></span><span>${esc(t.waiting(k))}</span></div>`).join('')}${fs.map(f => `<div class="row"><span class="st ${f.status}">${st[f.status]}</span><span>${esc((t.r[f.id] || (() => f.id))(f.params, f.status))}</span></div>`).join('')}</div>
-  <div id="dh-box"></div><div id="db-box"></div><div id="ex-box"></div><div id="bm-box" class="card"></div>${skel('bp')}${skel('lf')}${skel('sn')}
+  <div id="dh-box"></div><div id="db-box"></div><div id="so-box"></div><div id="ex-box"></div><div id="bm-box" class="card"></div>${skel('bp')}${skel('lf')}${skel('sn')}
   ${r.extra.holders?.length ? `<div class="card"><h3>${t.topHolders}</h3>${r.extra.holders.map((h, i) => `<div class="row"><span class="st na">#${i + 1}</span><span class="mono">${esc(h.owner)}</span><b style="margin-inline-start:auto" dir="ltr">${(+h.pct).toFixed(2)}%</b></div>`).join('')}</div>` : ''}
   ${r.flags.length ? `<div class="card"><h3>${t.flags}</h3>${r.flags.map(x => `<div class="row"><span class="st ${x.level === 'danger' || x.level === 'high' ? 'fail' : 'warn'}">${esc(x.level)}</span><span dir="ltr">${esc(x.name)}${x.desc ? ' — ' + esc(x.desc) : ''}</span></div>`).join('')}</div>` : ''}
   <div class="card"><h3>${t.sources}</h3>${Object.entries(r.sources).map(([k, s]) => `<div class="row"><span class="st ${s === 'ok' ? 'pass' : 'na'}">${s === 'ok' ? t.ok : s === 'empty' ? t.empty : s === 'unsupported' ? t.unsup : t.fail}</span><span>${k}</span></div>`).join('')}</div>`;

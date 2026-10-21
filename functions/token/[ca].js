@@ -35,7 +35,7 @@ ${r || rec ? '' : '<meta name="robots" content="noindex">'}
 <meta property="og:type" content="website"><meta property="og:site_name" content="MemeCheckShield"><meta property="og:url" content="${canon}">
 <meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}">
 <meta property="og:image" content="https://memecheck.pages.dev/api/og?ca=${encodeURIComponent(ca)}${evm ? '&chain=' + encodeURIComponent(chain) : ''}"><meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#0b0f17"><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"><link rel="stylesheet" href="/style.css?v=1793000000">
+<meta name="theme-color" content="#0b0f17"><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"><link rel="stylesheet" href="/style.css?v=1793100200">
 <style>main{max-width:860px;margin:0 auto;padding:0 20px}nav.crumbs{display:flex;gap:8px;padding:0 20px;max-width:860px;margin:12px auto 0;font-size:14px}nav.crumbs a{color:#9aa4b8;text-decoration:none}.caveat{background:#121826;border:1px solid #3d3510;border-radius:12px;padding:10px 12px;color:#ffd447;font-size:14px;margin-top:10px}</style>
 <script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'WebPage', name: title, url: canon, description: desc }).replace(/</g, '\\u003c')}</script>
 </head><body><header><div class="brand"><img src="/icon-64.png" width="26" height="26" alt="MemeCheckShield"> <b>MemeCheckShield</b></div></header>
