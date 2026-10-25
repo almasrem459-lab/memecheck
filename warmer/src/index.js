@@ -90,12 +90,17 @@ async function exits(env, log) {
   }
   log.push('exits warm');
 }
+async function runMinute(env, minute) {
+  const log = [], of = globalThis.fetch; let n = 0; const t = Date.now();
+  globalThis.fetch = (...a) => { if (++n > BUDGET) return Promise.reject(new Error('subrequest budget')); return of(...a); };
+  useHelius(env.HELIUS_KEY, 110);
+  try { if (minute === 7) await trackerScan(env, log); else if (minute === 37) await trackerRecheck(env, log); else if (minute % 3 === 2) await exits(env, log); else await fresh(env, minute, log); } catch (e) { log.push('err ' + (e?.message || e)); } finally { globalThis.fetch = of; }
+  const line = `warmer m${minute}: ${log.join(' | ')} | subreq=${n} writesToday~${await writesToday(env.MEMECHECK_CACHE)} ms=${Date.now() - t}`;
+  console.log(line); return { log, line, minute, subreq: n };
+}
 export default {
   async scheduled(ev, env, ctx) {
-    const log = [], of = globalThis.fetch; let n = 0; const t = Date.now(), minute = new Date(ev.scheduledTime || t).getUTCMinutes();
-    globalThis.fetch = (...a) => { if (++n > BUDGET) return Promise.reject(new Error('subrequest budget')); return of(...a); };
-    useHelius(env.HELIUS_KEY, 110);
-    try { if (minute === 7) await trackerScan(env, log); else if (minute === 37) await trackerRecheck(env, log); else if (minute % 3 === 2) await exits(env, log); else await fresh(env, minute, log); } catch (e) { log.push('err ' + (e?.message || e)); } finally { globalThis.fetch = of; }
-    console.log(`warmer m${minute}: ${log.join(' | ')} | subreq=${n} writesToday~${await writesToday(env.MEMECHECK_CACHE)} ms=${Date.now() - t}`);
+    await runMinute(env, new Date(ev.scheduledTime || Date.now()).getUTCMinutes());
   },
+  async fetch() { return new Response('memecheck-warmer (cron only)', { status: 200 }); },
 };

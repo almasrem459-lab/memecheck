@@ -17,7 +17,8 @@ export const onRequest = async ({ request: req, env, waitUntil }) => {
   const m = new Map(); for (const r of [...seed, ...live]) if (r && r.ca && r.scanned) m.set(r.ca, r);
   const recs = [...m.values()];
   if (!recs.length) return json(503, { ok: false, error: 'no tracker data yet' }, { 'cache-control': 'no-store' });
-  const s = summarize(recs, { source: live.length ? `backfill + live tracker (updated ${liveAt})` : 'backfill only (live tracker not deployed yet)' });
+  const src = liveAt ? (live.length ? `backfill + live tracker (updated ${liveAt})` : `live tracker online (updated ${liveAt}; 0 live rows yet)`) : 'backfill only (live tracker not deployed yet)';
+  const s = summarize(recs, { source: src });
   s.live_records = live.length; s.tracker_updated = liveAt;
   const body = view === 'summary' ? brief(s) : view === 'records' ? { ok: true, generated: s.generated, records: recs.sort((a, b) => a.scanned < b.scanned ? 1 : -1) } : s;
   const txt = JSON.stringify(body);
