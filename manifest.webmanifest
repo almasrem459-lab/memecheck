@@ -1,6 +1,6 @@
 {
-  "name": "MemeCheck — meme-coin safety checker",
-  "short_name": "MemeCheck",
+  "name": "MemeCheckShield — meme-coin safety checker",
+  "short_name": "MemeCheckShield",
   "description": "Check any meme coin before you ape in. Rug, honeypot, dev & bundle checks. Free.",
   "start_url": "/?source=pwa",
   "scope": "/",

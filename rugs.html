@@ -11,13 +11,13 @@
 <meta property="og:url" content="https://memecheck.pages.dev/rugs">
 <meta property="og:title" content="Solana Meme Coin Rugs Caught &amp; Accuracy Study – MemeCheckShield">
 <meta property="og:description" content="Honest accuracy study with automated daily tables. All outcomes published.">
-<meta property="og:image" content="https://memecheck.pages.dev/og-image.png">
+<meta property="og:image" content="https://memecheck.pages.dev/og-image.png?v=1793201025">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Solana Meme Coin Rugs Caught &amp; Accuracy Study – MemeCheckShield">
-<meta name="twitter:image" content="https://memecheck.pages.dev/og-image.png">
+<meta name="twitter:image" content="https://memecheck.pages.dev/og-image.png?v=1793201025">
 <meta name="theme-color" content="#0b0f17">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-<link rel="stylesheet" href="style.css?v=1793100200">
+<link rel="stylesheet" href="style.css?v=1793201025">
 <style>
 .coin .verdict{margin-bottom:0}
 .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:12px}
@@ -29,28 +29,29 @@ nav.crumbs{display:flex;gap:8px;align-items:center;padding:0 20px;max-width:860p
 nav.crumbs a{color:#9aa4b8;text-decoration:none}nav.crumbs a:hover{color:#e6e9ef}nav.crumbs span{color:#7d879c}
 details{margin:8px 0;padding:10px 12px;background:#0f1420;border:1px solid #1c2333;border-radius:10px}
 details summary{cursor:pointer;color:#e6e9ef}
+html[dir=rtl] table.acc th,html[dir=rtl] table.acc td{text-align:right}
 </style>
 </head>
 <body>
 <header>
   <div class="brand"><img src="/icon-64.png" width="26" height="26" alt="MemeCheckShield"> <b>MemeCheckShield</b></div>
-  <a class="ghost" href="/" style="padding:8px 12px;border:1px solid #273046;border-radius:10px;color:#9aa4b8;text-decoration:none;font-size:14px">← Checker</a>
+  <a class="ghost" href="/" data-s="back" style="padding:8px 12px;border:1px solid #273046;border-radius:10px;color:#9aa4b8;text-decoration:none;font-size:14px">← Checker</a>
 </header>
-<nav class="crumbs"><a href="/">Home</a><span>/</span><span>Rugs we caught</span></nav>
+<nav class="crumbs"><a href="/" data-s="home">Home</a><span>/</span><span data-s="crumb">Rugs we caught</span></nav>
 <main>
-  <h1 style="font-size:22px;margin:8px 0 4px">Accuracy study &amp; rugs we caught</h1>
-  <p class="tag">Every fresh Solana meme coin that meets the entry criteria is scored by MemeCheckShield and rechecked 24h and 48h later — every level alike, not just the ones we flagged. Outcomes come only from stored DexScreener / GeckoTerminal / MemeCheckShield responses — never invented. Tables below are computed live from the tracker data (<a href="/api/study">/api/study</a>).</p>
+  <h1 style="font-size:22px;margin:8px 0 4px" data-s="h1">Accuracy study &amp; rugs we caught</h1>
+  <p class="tag" data-s="tag">Every fresh Solana meme coin that meets the entry criteria is scored by MemeCheckShield and rechecked 24h and 48h later — every level alike, not just the ones we flagged. Outcomes come only from stored DexScreener / GeckoTerminal / MemeCheckShield responses — never invented. Tables below are computed live from the tracker data (<a href="/api/study">/api/study</a>).</p>
 
   <div class="card">
-    <h3>Accuracy study</h3>
-    <div id="study" data-mode="rugs"><p class="muted"><span class="spin"></span> Loading live study numbers…</p></div>
-    <noscript><p class="muted">Enable JavaScript to see the live tables, or read the JSON at <a href="/api/study">/api/study</a>.</p></noscript>
-    <p class="muted" style="margin-top:10px">Also: <a href="/accuracy">live accuracy dashboard</a> · <a href="/report">monthly report</a>.</p>
+    <h3 data-s="hStudy">Accuracy study</h3>
+    <div id="study" data-mode="rugs"><p class="muted"><span class="spin"></span> <span data-s="load">Loading live study numbers…</span></p></div>
+    <noscript><p class="muted" data-s="noscript">Enable JavaScript to see the live tables, or read the JSON at <a href="/api/study">/api/study</a>.</p></noscript>
+    <p class="muted" style="margin-top:10px" data-s="also">Also: <a href="/accuracy">live accuracy dashboard</a> · <a href="/report">monthly report</a>.</p>
   </div>
 
-  <h2 style="font-size:16px;margin:28px 0 4px;color:#9aa4b8;text-transform:uppercase;letter-spacing:.04em">Legacy records (not part of the study)</h2>
-  <p class="section-note">Collected Oct 14–15 before the study, High-risk only; most were tiny ($1K–$10K mcap) when flagged. Kept for transparency, excluded from the accuracy numbers.</p>
-  <div class="banner">
+  <h2 style="font-size:16px;margin:28px 0 4px;color:#9aa4b8;text-transform:uppercase;letter-spacing:.04em" data-s="hLeg">Legacy records (not part of the study)</h2>
+  <p class="section-note" data-s="pLeg">Collected Oct 14–15 before the study, High-risk only; most were tiny ($1K–$10K mcap) when flagged. Kept for transparency, excluded from the accuracy numbers.</p>
+  <div class="banner" data-s="banLeg">
     <strong>Legacy records:</strong> 15 confirmed rugged after our flag ·
     0 down ≥70% · 1 still alive ·
     0 still tracking / pending 24h recheck.
@@ -58,20 +59,20 @@ details summary{cursor:pointer;color:#e6e9ef}
   </div>
 
   <div class="card">
-    <h3>Legacy summary</h3>
+    <h3 data-s="hSum">Legacy summary</h3>
     <div class="stats">
-      <div class="kv"><span>High-risk tracked</span><b>23</b></div>
-      <div class="kv"><span>Excluded (post-collapse)</span><b>7</b></div>
-      <div class="kv"><span>Counted (pre-collapse)</span><b>16</b></div>
-      <div class="kv"><span>Rugged after flag</span><b>15</b></div>
-      <div class="kv"><span>Down ≥70%</span><b>0</b></div>
-      <div class="kv"><span>Still alive</span><b>1</b></div>
-      <div class="kv"><span>Pending recheck</span><b>0</b></div>
+      <div class="kv"><span data-s="s1">High-risk tracked</span><b>23</b></div>
+      <div class="kv"><span data-s="s2">Excluded (post-collapse)</span><b>7</b></div>
+      <div class="kv"><span data-s="s3">Counted (pre-collapse)</span><b>16</b></div>
+      <div class="kv"><span data-s="s4">Rugged after flag</span><b>15</b></div>
+      <div class="kv"><span data-s="s5">Down ≥70%</span><b>0</b></div>
+      <div class="kv"><span data-s="s6">Still alive</span><b>1</b></div>
+      <div class="kv"><span data-s="s7">Pending recheck</span><b>0</b></div>
     </div>
   </div>
 
-  <h2 style="font-size:16px;margin:28px 0 4px;color:#9aa4b8;text-transform:uppercase;letter-spacing:.04em">Legacy — flagged before collapse</h2>
-  <p class="section-note">Coins that met the post-flag collapse criteria, plus others still being tracked.</p>
+  <h2 style="font-size:16px;margin:28px 0 4px;color:#9aa4b8;text-transform:uppercase;letter-spacing:.04em" data-s="hPre">Legacy — flagged before collapse</h2>
+  <p class="section-note" data-s="pPre">Coins that met the post-flag collapse criteria, plus others still being tracked.</p>
   <article class="card coin">
   <div class="verdict">
     <span class="badge high">HIGH (47)</span>
@@ -489,7 +490,7 @@ details summary{cursor:pointer;color:#e6e9ef}
 </article>
 
   <h2 style="font-size:16px;margin:28px 0 4px;color:#9aa4b8;text-transform:uppercase;letter-spacing:.04em">Legacy — excluded, flagged after collapse</h2>
-  <p class="section-note">These were already deeply down from their pre-flag peak when MemeCheckShield flagged them. They are tracked for honesty but <b>not</b> counted as "rugs we caught."</p>
+  <p class="section-note"></p>
   <article class="card coin">
   <div class="verdict">
     <span class="badge high">HIGH (43)</span>
@@ -669,7 +670,40 @@ details summary{cursor:pointer;color:#e6e9ef}
   Not financial advice. Automated checks can miss scams or flag legit tokens. Always DYOR.
   · <a href="/">MemeCheckShield</a> · <a href="/report">Monthly report</a> · <a href="/guides">Guides</a>
 </footer>
-<script src="nav.js?v=1793100200" defer></script>
-<script type="module" src="study-ui.js?v=1793100200"></script>
+
+<script>
+(function(){
+  const S={
+    en:{back:'← Checker',home:'Home',crumb:'Rugs we caught',h1:'Accuracy study & rugs we caught',
+      tag:'Every fresh Solana meme coin that meets the entry criteria is scored by MemeCheckShield and rechecked 24h and 48h later — every level alike, not just the ones we flagged. Outcomes come only from stored DexScreener / GeckoTerminal / MemeCheckShield responses — never invented. Tables below are computed live from the tracker data (<a href="/api/study">/api/study</a>).',
+      hStudy:'Accuracy study',load:'Loading live study numbers…',
+      noscript:'Enable JavaScript to see the live tables, or read the JSON at <a href="/api/study">/api/study</a>.',
+      also:'Also: <a href="/accuracy">live accuracy dashboard</a> · <a href="/report">monthly report</a>.',
+      hLeg:'Legacy records (not part of the study)',
+      pLeg:'Collected Oct 14–15 before the study, High-risk only; most were tiny ($1K–$10K mcap) when flagged. Kept for transparency, excluded from the accuracy numbers.',
+      banLeg:'<strong>Legacy records:</strong> 15 confirmed rugged after our flag · 0 down ≥70% · 1 still alive · 0 still tracking / pending 24h recheck. 7 additional coins were flagged after they had already collapsed and are excluded from the "caught" count.',
+      hSum:'Legacy summary',s1:'High-risk tracked',s2:'Excluded (post-collapse)',s3:'Counted (pre-collapse)',s4:'Rugged after flag',s5:'Down ≥70%',s6:'Still alive',s7:'Pending recheck',
+      hPre:'Legacy — flagged before collapse',pPre:'Coins that met the post-flag collapse criteria, plus others still being tracked.'},
+    ar:{back:'← الفاحص',home:'الرئيسية',crumb:'عمليات السحب التي رصدناها',h1:'دراسة الدقة وعمليات السحب التي رصدناها',
+      tag:'كل عملة ميم جديدة على سولانا تستوفي شروط الدخول تُقيَّم بواسطة MemeCheckShield ثم تُعاد فحصها بعد 24 و48 ساعة — لكل المستويات، وليس فقط التي نبّهنا إليها. النتائج من ردود DexScreener / GeckoTerminal / MemeCheckShield المخزّنة فقط — بلا اختراع. الجداول أدناه تُحسب مباشرة من بيانات المتتبّع (<a href="/api/study">/api/study</a>).',
+      hStudy:'دراسة الدقة',load:'جارٍ تحميل أرقام الدراسة…',
+      noscript:'فعّل JavaScript لرؤية الجداول المباشرة، أو اقرأ JSON من <a href="/api/study">/api/study</a>.',
+      also:'أيضًا: <a href="/accuracy">لوحة الدقة المباشرة</a> · <a href="/report">التقرير الشهري</a>.',
+      hLeg:'سجلات سابقة (ليست جزءًا من الدراسة)',
+      pLeg:'جُمعت في 14–15 أكتوبر قبل الدراسة، عالية الخطورة فقط؛ معظمها كانت صغيرة (1–10 آلاف دولار قيمة سوقية) عند التنبيه. أُبقيت للشفافية واستُبعدت من أرقام الدقة.',
+      banLeg:'<strong>سجلات سابقة:</strong> 15 تأكيد سحب بعد تنبيهنا · 0 هبوط ≥70% · 1 لا تزال حيّة · 0 قيد التتبّع / إعادة فحص 24 ساعة. 7 عملات إضافية نُبّه إليها بعد انهيارها مسبقًا واستُبعدت من عدّ «الرصد».',
+      hSum:'ملخص السجلات السابقة',s1:'عالية الخطورة متتبَّعة',s2:'مستبعدة (بعد الانهيار)',s3:'محسوبة (قبل الانهيار)',s4:'سُحبت بعد التنبيه',s5:'هبوط ≥70%',s6:'لا تزال حيّة',s7:'إعادة فحص معلّقة',
+      hPre:'سابقة — تنبيه قبل الانهيار',pPre:'عملات استوفت معايير الانهيار بعد التنبيه، إضافة إلى أخرى ما زالت قيد التتبّع.'}
+  };
+  const ar=(localStorage.getItem('mc_lang')||'en')==='ar';
+  document.documentElement.lang=ar?'ar':'en';
+  document.documentElement.dir=ar?'rtl':'ltr';
+  const t=S[ar?'ar':'en'];
+  document.querySelectorAll('[data-s]').forEach(e=>{ if(t[e.dataset.s]!=null) e.innerHTML=t[e.dataset.s]; });
+  if(ar) document.title='دراسة الدقة وعمليات السحب – MemeCheckShield';
+})();
+</script>
+<script src="nav.js?v=1793201025" defer></script>
+<script type="module" src="study-ui.js?v=1793201025"></script>
 </body>
 </html>

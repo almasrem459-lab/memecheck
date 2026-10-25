@@ -1,6 +1,6 @@
 // Smart money page: "Bots" section. Renders /api/bots (SIMULATED paper-trading snapshot published from the off-site bot).
 // Strings live in i18n.js (BOTS, EN + AR). Everything from the API is escaped; mints are validated before linking.
-import { BOTS } from './i18n.js?v=1793100200';
+import { BOTS } from './i18n.js?v=1793201025';
 
 const AR = document.documentElement.lang === 'ar';
 const L = BOTS[AR ? 'ar' : 'en'];
