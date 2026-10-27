@@ -18,10 +18,16 @@ class_name = "SmartDO"
 tag = "v1"
 new_sqlite_classes = ["SmartDO"]
 
-# Reads cached MemeCheck core scans (core:solana:*); writes ONE key, smart:v1, every ~10 min (~144 writes/day).
+# Reads cached MemeCheck core scans (core:solana:*); writes ONE key, smart:v1, every ~20 min (~72 writes/day), counted in D1 kv_writes.
 [[kv_namespaces]]
 binding = "MEMECHECK_CACHE"
 id = "b5362a97a846452d9a41db24111b939c"
 
 [observability]
 enabled = true
+
+# Exact KV write counter (table kv_writes) shared with Pages; see functions/_lib/shared.js
+[[d1_databases]]
+binding = "REV"
+database_name = "memecheck-revenue"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"  # same D1 as Pages REV

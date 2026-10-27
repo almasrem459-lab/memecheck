@@ -2,11 +2,13 @@
 // humans get the static page untouched. Data comes from cached results only (see _lib/oginfo.js): no risk computation,
 // no KV writes. The image is the dynamic PNG from /api/og (X needs PNG/JPG); the homepage keeps /og-image.png.
 import { ogInfo, CA_RE } from './_lib/oginfo.js';
+import { useCounter } from './_lib/shared.js';
 const BOT = /twitterbot|facebookexternalhit|facebot|discordbot|telegrambot|slackbot|whatsapp|linkedinbot|skypeuripreview|redditbot|embedly|pinterest|applebot|googlebot|bingbot|bot\b|crawler|spider|preview/i;
 const AR_PATHS = new Set(['/', '/how', '/smart', '/chat', '/dev']);
 const LV = { low: 'No major red flags', medium: 'Medium risk', high: 'High risk', extreme: 'Extreme risk' };
 export const onRequest = async (ctx) => {
   const { request: req, next, env } = ctx; const url = new URL(req.url);
+  useCounter(env.REV); // exact KV write counter (D1) for guardedPut in every Function
   // /bots used to 404 — paper bots live on /smart#bots. Keep a stable bookmark.
   if (req.method === 'GET' && (url.pathname === '/bots' || url.pathname === '/bots/')) {
     return Response.redirect(new URL('/smart#bots', url.origin).toString(), 302);

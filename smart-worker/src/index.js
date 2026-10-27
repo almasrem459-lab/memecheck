@@ -1,5 +1,5 @@
 // memecheck-smart: "Smart money" consensus for MemeCheck /smart.html. A separate Worker + one SQLite-backed Durable Object.
-// It never writes the site's KV (it only READS cached MemeCheck core scans from MEMECHECK_CACHE) and needs no API key.
+// It READS cached MemeCheck core scans from MEMECHECK_CACHE and writes ONE KV key (smart:v1) every 20 min, counted in D1 kv_writes. No API key.
 //
 // Why this shape (Cloudflare free plan, measured from the edge):
 //  * the account's 5 free cron triggers are all used by memecheck-warmer -> scheduling is a self-rescheduling DO alarm (every 2 min);
@@ -23,8 +23,20 @@ const CORE_LV = 4;                                   // = functions/_lib/shared.
 const MIN = 60e3, EVERY_MS = 2 * MIN;
 const PROBE_W = 30, HOT = 30, WATCH_MAX = 14;        // 30 top-weighted wallets x 30 hot coins = 900 pairs
 const DERIVE_PER = 30, DERIVE_STEPS = 6, GMA_PER_STEP = 3, VERIFY_PER_RUN = 6;
-const VER = '2026-10-19d';
-const KV_KEY = 'smart:v1', KV_EVERY_MS = 9.5 * 60e3;
+const VER = '2026-10-19e';
+const KV_KEY = 'smart:v1', KV_EVERY_MS = 20 * 60e3;       // ~72 KV writes/day (was 9.5 min = ~150)
+const KV_SYS_LIMIT = 850;                            // = cf-dist/functions/_lib/shared.js SYS_LIMIT (exact D1 counter kv_writes)
+const kvDay = () => new Date().toISOString().slice(0, 10);
+// Exact KV write budget shared with Pages/warmer/tracker/exporter: reserve 1 write in D1 or skip. D1 error -> allow (bounded by KV_EVERY_MS).
+async function kvReserve(db) {
+  if (!db) return true;
+  try {
+    const r = await db.prepare('SELECT COALESCE(SUM(n), 0) AS n FROM kv_writes WHERE day = ?').bind(kvDay()).first();
+    if ((+(r && r.n) || 0) >= KV_SYS_LIMIT) return false;
+    await db.prepare('INSERT INTO kv_writes (day, src, n) VALUES (?, ?, 1) ON CONFLICT(day, src) DO UPDATE SET n = n + 1').bind(kvDay(), 'smart').run();
+  } catch {}
+  return true;
+}
 const NOT_MEME = /securities|xstock|tokenized|\bindex\b|\bstock\b|\betf\b|wrapped|bridged|staked|wormhole|\(portal\)/i;
 const PICK_SCORE = 2.5, PICK_MAX_H = 6, FRICTION = 0.02, NEW_MIN = 60;
 const SKIP = new Set(['So11111111111111111111111111111111111111112', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', 'USD1ttGY1N17NEEHLmELoaybftRBUSErhqYiQzvEmuB', 'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN']);
@@ -197,11 +209,17 @@ export class SmartDO extends DurableObject {
     const show = rows.slice(0, 24);
     // MemeCheck risk: the site's own cached core scan (KV read only), else our analyze() result kept in this DO
     const KV = this.env.MEMECHECK_CACHE, rank = show.slice(0, 12);
-    if (KV) await Promise.all(rank.filter(r => !risk[r.m] || now - risk[r.m].at > 10 * MIN).slice(0, 8).map(async (r) => {
-      try { const v = await KV.get('core:solana:' + r.m); if (!v) return; const j = JSON.parse(v); if (j.lv !== CORE_LV) return;
-        risk[r.m] = { lv: j.data?.verdict?.level || null, pts: j.data?.verdict?.points ?? null, at: now, scannedAt: j.at, src: 'memecheck-cache' }; } catch {}
+    if (KV) await Promise.all(rank.slice(0, 8).map(async (r) => {
+      // Prefer a real site scan over a prior worker "failed" (DexScreener often blocks Workers IPs).
+      try {
+        if (risk[r.m] && risk[r.m].src === 'memecheck-cache' && now - risk[r.m].at <= 10 * MIN) return;
+        const v = await KV.get('core:solana:' + r.m); if (!v) return; const j = JSON.parse(v); if (j.lv !== CORE_LV) return;
+        const lv = j.data?.verdict?.level; if (!lv) return;
+        if (!risk[r.m] || risk[r.m].src === 'failed' || !risk[r.m].lv || now - risk[r.m].at > 10 * MIN)
+          risk[r.m] = { lv, pts: j.data?.verdict?.points ?? null, at: now, scannedAt: j.at, src: 'memecheck-cache' };
+      } catch {}
     }));
-    const todo = rank.filter(r => r.n >= 1 && (!risk[r.m] || (risk[r.m].src !== 'memecheck-cache' && now - risk[r.m].at > 30 * MIN))).map(r => r.m).slice(0, 1);
+    const todo = rank.filter(r => r.n >= 1 && (!risk[r.m] || !risk[r.m].lv || (risk[r.m].src === 'failed' && now - risk[r.m].at > 5 * MIN) || (risk[r.m].src !== 'memecheck-cache' && now - risk[r.m].at > 30 * MIN))).map(r => r.m).slice(0, 1);
     for (const k of Object.keys(risk)) if (now - risk[k].at > 6 * 3600e3) delete risk[k];
     // SIMULATED track record. pick = >= 2 weighted wallets hold, score >= PICK_SCORE, at least one bought in the last hour.
     // Paper entry = Jupiter price when we saw it (+2%); exit when more than half of those wallets (by weight) no longer hold, or 6 h (-2%).
@@ -233,16 +251,30 @@ export class SmartDO extends DurableObject {
       record, model: { tracked: WALLETS.length, probed: PW.length, scalpers: WALLETS.filter(w => w.s).length, at: WALLETS_AT, hot: HOT },
       coverage: { hot: (job.hot || []).length, pairs: job.pairs || null, ms: now - (job.t0 || now), runs: runs.n, log: log.slice(-12), rpc: { ok: st.rpcOk || 0, err: st.rpcErr || 0 } } };
     await this.ctx.storage.put({ picks, risk, snap, meta });
-    // publish to KV for the Pages Function: at most once per ~10 min => ~144 writes/day, well under the 1000/day free cap
+    // publish to KV for the Pages Function: at most once per 20 min => ~72 writes/day, counted in the shared D1 budget
     const kvAt = await this.get('kvAt', 0);
-    if (this.env.MEMECHECK_CACHE && now - kvAt >= KV_EVERY_MS) { await this.ctx.storage.put('kvAt', now); try { await this.env.MEMECHECK_CACHE.put(KV_KEY, JSON.stringify({ ...snap, kvAt: now }), { expirationTtl: 6 * 3600 }); log.push('kv write'); } catch (e) { log.push('kv ' + e.message); } }
+    if (this.env.MEMECHECK_CACHE && now - kvAt >= KV_EVERY_MS) { await this.ctx.storage.put('kvAt', now); try { if (!(await kvReserve(this.env.REV))) { log.push('kv budget skip'); } else { await this.env.MEMECHECK_CACHE.put(KV_KEY, JSON.stringify({ ...snap, kvAt: now }), { expirationTtl: 6 * 3600 }); log.push('kv write'); } } catch (e) { log.push('kv ' + e.message); } }
     return todo;
   }
 
   async riskOne(mint) {
     const risk = await this.get('risk', {}), now = Date.now();
-    try { const r = await analyze(mint, 'solana');
-      risk[mint] = r.sources?.DexScreener === 'ok' ? { lv: r.verdict?.level || null, pts: r.verdict?.points ?? null, at: now, src: 'memecheck-worker', partial: !!r.partial } : { lv: null, at: now, src: 'failed' };
+    try {
+      // Prefer the site's shared KV scan (written by /api/deep or a warm pass) before running analyze in-Worker.
+      const KV = this.env.MEMECHECK_CACHE;
+      if (KV) {
+        try {
+          const v = await KV.get('core:solana:' + mint); const j = v ? JSON.parse(v) : null;
+          if (j && j.lv === CORE_LV && j.data?.verdict?.level) {
+            risk[mint] = { lv: j.data.verdict.level, pts: j.data.verdict.points ?? null, at: now, scannedAt: j.at, src: 'memecheck-cache' };
+            await this.ctx.storage.put('risk', risk); return risk[mint].lv;
+          }
+        } catch {}
+      }
+      const r = await analyze(mint, 'solana');
+      // DexScreener often blocks Workers; keep a partial verdict when any level is present.
+      if (r?.verdict?.level) risk[mint] = { lv: r.verdict.level, pts: r.verdict.points ?? null, at: now, src: 'memecheck-worker', partial: !!r.partial || r.sources?.DexScreener !== 'ok' };
+      else risk[mint] = { lv: null, at: now, src: 'failed' };
     } catch { risk[mint] = { lv: null, at: now, src: 'failed' }; }
     await this.ctx.storage.put('risk', risk); return risk[mint].lv;
   }

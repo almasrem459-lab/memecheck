@@ -11,22 +11,42 @@ export const keyOf = (kind, chain, ca) => `${kind}:${chain}:${chain === 'solana'
 export const ttlFor = (created, kind) => kind === 'core' ? 15 * 60 : (created && Date.now() - created < 24 * 36e5) ? 30 * 60 : 6 * 3600;
 
 // ---- KV write budget (free tier: 1000 writes/day) ----
-// Counter key wc:<UTC day>. Bumping it on every write would double the cost, so it is bumped by 10 with probability 1/10
-// (unbiased estimate, ~10% overhead). Hard stop at LIMIT estimated writes incl. the counter's own writes.
-// The warmer is additionally paced (share of the day elapsed) so it can't burn the budget early and starve on-demand checks.
-export const LIMIT = 880, WARMER_LIMIT = 600;
+// KV free plan: 1000 writes/day per account (UTC day). Every KV write in the project is counted EXACTLY in D1
+// (memecheck-revenue, table kv_writes(day, src, n)) before it happens; budgetOk reads the day's total across all writers
+// (Pages scans/meta/social, warmer, tracker, smart-worker, bots exporter). Call useCounter(env.REV) once per request/run.
+//   LIMIT 700      : cache writers (pages scans, meta, social, warmer) stop here;
+//   WARMER_LIMIT 450: the warmer is also paced through the UTC day against the same total;
+//   SYS_LIMIT 850  : small fixed-rate writers (tracker 48/day, smart ~72/day, bots exporter <=48/day) may continue to here
+//                    so /smart, /bots and /rugs never go stale; worst case stays < 900 (= the 90% alert).
+// If D1 is unreachable: cache writers fail closed (no write), fixed-rate writers fail open (bounded by their interval).
+// Without a D1 binding (e.g. a fork) it falls back to the old sampled KV counter wc:<day>.
+export const LIMIT = 700, WARMER_LIMIT = 450, SYS_LIMIT = 850;
+const SYS = new Set(['tracker', 'smart', 'bots']);
+let REV = null;
+export function useCounter(db) { if (db && typeof db.prepare === 'function') REV = db; }
 const day = () => new Date().toISOString().slice(0, 10);
-export async function writesToday(KV) { return +(await KV.get('wc:' + day()).catch(() => 0)) || 0; }
+export async function writesToday(KV) {
+  if (REV) { try { const r = await REV.prepare('SELECT COALESCE(SUM(n), 0) AS n FROM kv_writes WHERE day = ?').bind(day()).first(); return +(r && r.n) || 0; } catch { return NaN; } }
+  return +(await KV.get('wc:' + day()).catch(() => 0)) || 0;
+}
 export async function budgetOk(KV, who) {
   const n = await writesToday(KV);
+  if (Number.isNaN(n)) return SYS.has(who);                       // D1 error
+  if (SYS.has(who)) return n < SYS_LIMIT;
   if (n >= LIMIT) return false;
   if (who === 'warmer') { const frac = (Date.now() % 864e5) / 864e5; return n < Math.min(WARMER_LIMIT, 40 + WARMER_LIMIT * frac); }
   return true;
 }
+// Reserve the write in the counter first (a failed put is over-counted, never under-counted).
+async function countWrite(KV, who) {
+  if (REV) { try { await REV.prepare('INSERT INTO kv_writes (day, src, n) VALUES (?, ?, 1) ON CONFLICT(day, src) DO UPDATE SET n = n + 1').bind(day(), who || 'pages').run(); return true; } catch { return SYS.has(who); } }
+  if (Math.random() < 0.1) { const n = +(await KV.get('wc:' + day()).catch(() => 0)) || 0; await KV.put('wc:' + day(), String(n + 11), { expirationTtl: 2 * 86400 }); } // legacy: 10 data + 1 counter write
+  return true;
+}
 export async function guardedPut(KV, key, value, opts, who = 'pages') {
   if (!(await budgetOk(KV, who))) return false;
+  if (!(await countWrite(KV, who))) return false;
   await KV.put(key, value, opts);
-  if (Math.random() < 0.1) { const n = await writesToday(KV); await KV.put('wc:' + day(), String(n + 11), { expirationTtl: 2 * 86400 }); } // 10 data + 1 counter write
   return true;
 }
 

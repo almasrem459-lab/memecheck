@@ -10,3 +10,6 @@ CREATE TABLE IF NOT EXISTS watchlist (wallet TEXT NOT NULL, ca TEXT NOT NULL, ch
 CREATE TABLE IF NOT EXISTS projects (ca TEXT PRIMARY KEY, chain TEXT NOT NULL, owner TEXT NOT NULL, name TEXT, website TEXT, twitter TEXT, telegram TEXT, descr TEXT, updated INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS boosts (tx TEXT PRIMARY KEY, ca TEXT NOT NULL, chain TEXT NOT NULL, wallet TEXT NOT NULL, start INTEGER NOT NULL, until INTEGER NOT NULL, at INTEGER NOT NULL);
 CREATE INDEX IF NOT EXISTS boosts_until ON boosts(until);
+
+-- Exact KV write counter (all KV writers reserve 1 row-increment per write; see functions/_lib/shared.js)
+CREATE TABLE IF NOT EXISTS kv_writes (day TEXT NOT NULL, src TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (day, src)) WITHOUT ROWID;

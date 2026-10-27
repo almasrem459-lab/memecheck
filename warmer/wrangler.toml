@@ -10,3 +10,9 @@ crons = ["*/5 * * * *", "1-59/5 * * * *", "2-59/5 * * * *", "3-59/5 * * * *", "4
 [[kv_namespaces]]
 binding = "MEMECHECK_CACHE"
 id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"  # same KV as Pages MEMECHECK_CACHE
+
+# Exact KV write counter (table kv_writes) shared with Pages; see functions/_lib/shared.js
+[[d1_databases]]
+binding = "REV"
+database_name = "memecheck-revenue"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"  # same D1 as Pages REV

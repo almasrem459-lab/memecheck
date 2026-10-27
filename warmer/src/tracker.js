@@ -19,7 +19,7 @@ const j = async (u, retry = 1) => {
   return r.json();
 };
 async function load(KV) { return (await KV.get(KEY, 'json').catch(() => null)) || { updated: null, records: [] }; }
-async function save(KV, db) { db.updated = new Date().toISOString(); db.records = db.records.slice(-MAX_RECORDS); return guardedPut(KV, KEY, JSON.stringify(db), {}, 'pages'); }
+async function save(KV, db) { db.updated = new Date().toISOString(); db.records = db.records.slice(-MAX_RECORDS); return guardedPut(KV, KEY, JSON.stringify(db), {}, 'tracker'); }
 
 async function discoverCas(log) {
   const out = new Set();

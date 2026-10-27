@@ -5,9 +5,10 @@
 //   otherwise       : FRESH — discovery feeds (2-6 subreq) -> score by traction -> dev+bundle for the best Solana token
 //                     missing it (~15-25), then the core risk check (3-5 each) for up to 2 tokens (EVM first) if budget remains.
 // minute 7 / 37: accuracy-study tracker (src/tracker.js) -> KV study:v2, read by /api/study (/rugs, /accuracy).
-// KV writes go through guardedPut (daily counter, warmer paced to <=600/day, hard stop ~880 total).
+// KV writes go through guardedPut (exact D1 counter kv_writes; warmer paced to total <=450/day, cache writers stop at 700).
+// The dev:solana: KV.list for EXIT runs is reused in-isolate for up to 6 min (~halves KV lists when the isolate stays warm).
 import { trackerScan, trackerRecheck } from './tracker.js';
-import { compute, store, keyOf, useHelius, budgetOk, writesToday } from '../../cf-dist/functions/_lib/shared.js';
+import { compute, store, keyOf, useHelius, useCounter, budgetOk, writesToday } from '../../cf-dist/functions/_lib/shared.js';
 const BUDGET = 48, UA = { 'user-agent': 'memecheck-warmer/2.0 (+https://memecheck.pages.dev)' };
 const EVM = { eth: 'ethereum', bsc: 'bsc', base: 'base', ethereum: 'ethereum' };
 const getJ = async (u, h = {}, retry = 1) => { const r = await fetch(u, { headers: { accept: 'application/json', ...UA, ...h } });
@@ -71,9 +72,12 @@ async function fresh(env, minute, log) {
     catch (e) { log.push('core err ' + (e?.message || e)); break; }
   }
 }
+const LIST = { at: 0, l: null }, LIST_MS = 6 * 60e3;
 async function exits(env, log) {
   const KV = env.MEMECHECK_CACHE;
-  const l = await KV.list({ prefix: 'dev:solana:', limit: 1000 });
+  if (!(await budgetOk(KV, 'warmer'))) { log.push('budget pause'); return; } // nothing could be stored: skip the KV.list too
+  let l = LIST.at && Date.now() - LIST.at < LIST_MS ? LIST.l : null;
+  if (!l) { l = await KV.list({ prefix: 'dev:solana:', limit: 1000 }); LIST.at = Date.now(); LIST.l = l; } else log.push('list cached');
   const ks = l.keys.filter(k => k.metadata?.at).sort((a, b) => b.metadata.at - a.metadata.at).slice(0, 15);
   const have = await Promise.all(ks.map(k => KV.get(k.name.replace(/^dev:/, 'exit:'))));
   for (let j = 0; j < ks.length; j++) {
@@ -93,9 +97,9 @@ async function exits(env, log) {
 async function runMinute(env, minute) {
   const log = [], of = globalThis.fetch; let n = 0; const t = Date.now();
   globalThis.fetch = (...a) => { if (++n > BUDGET) return Promise.reject(new Error('subrequest budget')); return of(...a); };
-  useHelius(env.HELIUS_KEY, 110);
+  useHelius(env.HELIUS_KEY, 110); useCounter(env.REV);
   try { if (minute === 7) await trackerScan(env, log); else if (minute === 37) await trackerRecheck(env, log); else if (minute % 3 === 2) await exits(env, log); else await fresh(env, minute, log); } catch (e) { log.push('err ' + (e?.message || e)); } finally { globalThis.fetch = of; }
-  const line = `warmer m${minute}: ${log.join(' | ')} | subreq=${n} writesToday~${await writesToday(env.MEMECHECK_CACHE)} ms=${Date.now() - t}`;
+  const line = `warmer m${minute}: ${log.join(' | ')} | subreq=${n} kvWritesToday=${await writesToday(env.MEMECHECK_CACHE)} ms=${Date.now() - t}`;
   console.log(line); return { log, line, minute, subreq: n };
 }
 export default {
