@@ -1,6 +1,6 @@
 // Renders "Developer" and "Early buyers / bundle" cards under a Solana pump.fun check result. Lazy + cached per mint.
-import { devCheck, bundleCheck, exitTrace, withTimeout, exitCache, setCreated } from './devbundle.js?v=1793201025';
-import { getDeep, ago, refreshLbl } from './mccache.js?v=1793201025';
+import { devCheck, bundleCheck, exitTrace, withTimeout, exitCache, setCreated } from './devbundle.js?v=1793300000';
+import { getDeep, ago, refreshLbl } from './mccache.js?v=1793300000';
 const CHN = { en: { bsc: 'BNB Chain', ethereum: 'Ethereum', base: 'Base', arbitrum: 'Arbitrum' }, ar: { bsc: 'سلسلة BNB', ethereum: 'إيثريوم', base: 'Base', arbitrum: 'أربيتروم' } }; // EVM chain names for the 'not available yet' line
 const L = {
   en: { dev:'Developer check', bundle:'Early buyers / bundle check', loading:'Analysing on-chain data…', na:'Unavailable', notPump:'Dev / bundle / exit-trace checks: Solana tokens only, when the launch history can be reached (pump.fun and other launchpads/DEXes).', notEvm:(c)=>`Developer, early-buyer bundle and exit-trace checks: not available on ${c} yet (Solana only for now).`,
@@ -75,8 +75,12 @@ function bundleHtml(d, t) {
   else if (b.boughtPct > 15) rows += row('warn', t.fBundleSold(pc(b.boughtPct)), t);
   else if (b.heldPct != null) rows += row('pass', t.fBundleLow(pc(b.heldPct)), t);
   const top = b.top.length ? `<div class="muted" style="margin-top:10px">${t.top}</div>${b.top.map(x => `<div class="row"><span class="st na">+${x.slot}</span>${short(x.owner)}<b style="margin-inline-start:auto" dir="ltr">${pc(x.pct)}%</b></div>`).join('')}` : '';
-  return `<div class="grid">${kv(t.window, t.windowV(b.txCount))}${kv(t.buyers, b.buyers)}${kv(t.sameSlot, b.sameSlot)}${kv(t.bought, pc(b.boughtPct) + '%')}${kv(t.stillHeld, b.heldPct == null ? t.na : pc(b.heldPct) + '%')}</div><div style="margin-top:8px">${rows}</div>${top}`;
+  const loud = b.heldPct != null && b.heldPct >= 15
+    ? `<div class="exv ${b.heldPct >= 40 ? 'fail' : 'warn'} bundle-loud"><b dir="ltr" style="font-size:1.6rem">${pc(b.heldPct)}%</b> ${langIsAr() ? 'من العرض لسا عند مشترين نفس السلوت / الباقة' : 'of supply still held by same-slot / bundle buyers'}${b.sameSlot >= 3 ? ` · ${b.sameSlot} ${langIsAr() ? 'بنفس السلوت' : 'same-slot'}` : ''}</div>`
+    : '';
+  return `${loud}<div class="grid">${kv(t.window, t.windowV(b.txCount))}${kv(t.buyers, b.buyers)}${kv(t.sameSlot, b.sameSlot)}${kv(t.bought, pc(b.boughtPct) + '%')}${kv(t.stillHeld, b.heldPct == null ? t.na : pc(b.heldPct) + '%')}</div><div style="margin-top:8px">${rows}</div>${top}`;
 }
+function langIsAr(){ return document.documentElement.lang === 'ar'; }
 function exitHtml(d, t) {
   if (!d || d === 'loading' || d.error || !d.pump) return d && d.pump === false ? `<span class="muted">${t.notPump}</span>` : d?.error ? `<span class="muted">${t.na}: ${t.rpcErr}</span>` : `<span class="spin"></span> ${t.loading}`;
   const e = d.exit;
@@ -92,10 +96,28 @@ function exitHtml(d, t) {
   const cl = e.clusters.slice(0, 6).map(c => `<div class="row"><span class="st ${c.heldPct >= 5 ? 'fail' : c.soldPct >= 80 ? 'warn' : 'na'}">${c.buyers} ${t.exW}</span><span>${c.dev ? `<b>${t.exDev}</b> · ` : ''}${t.exBought} <b dir="ltr">${pc(c.boughtPct)}%</b> · ${t.exHeld} <b dir="ltr">${pc(c.heldPct)}%</b> · ${t.exSold} <b dir="ltr">${c.soldPct == null ? '—' : c.soldPct.toFixed(0) + '%'}</b>${c.funder ? ` · ${t.exFunder} ${short(c.funder)}` : ''}</span></div>`).join('');
   return `<div class="exv ${st}">${esc(line)}</div>${cl ? `<div class="muted" style="margin-top:10px">${t.exCl}</div>${cl}` : ''}${fn(t.exNote(e.buyers, e.fundersKnown, e.wallets))}`;
 }
+function emitBundleSig(addr, d) {
+  try {
+    const b = d && d.bundle && typeof d.bundle === 'object' && !d.bundle.error ? d.bundle : null;
+    const e = d && d.exit && typeof d.exit === 'object' && !d.exit.error ? d.exit : null;
+    if (!b && !e) return;
+    const payload = {
+      heldPct: b?.heldPct ?? null,
+      boughtPct: b?.boughtPct ?? null,
+      sameSlot: b?.sameSlot ?? null,
+      buyers: b?.buyers ?? null,
+      linkedHeldPct: e && e.linkedHeldPct != null ? e.linkedHeldPct : null,
+      linkedBoughtPct: e && e.linkedBoughtPct != null ? e.linkedBoughtPct : null,
+      clusterN: e && Array.isArray(e.clusters) ? e.clusters.length : null,
+    };
+    (window.__mcSig||(window.__mcSig={set(a,k,v){const m=(this.m||(this.m=new Map()));const o=m.get(a)||{};if(JSON.stringify(o[k])===JSON.stringify(v))return;o[k]=v;m.set(a,o);document.dispatchEvent(new CustomEvent('mc:signal',{detail:{addr:a,key:k}}))},get(a){return this.m&&this.m.get(a)}})).set(addr, 'bundle', payload);
+  } catch {}
+}
 function paint(addr, lang) {
   const out = document.querySelector('#out'); if (!out || cur?.addr !== addr) return;
   const t = L[lang] || L.en, d = cache.get(addr);
   const box = document.querySelector('#db-box'); if (!box) return;
+  if (d && d !== 'loading') emitBundleSig(addr, d);
   if (d === 'loading') { box.innerHTML = `<div class="card"><h3>${t.dev} · ${t.bundle}</h3><span class="spin"></span> ${t.loading}</div>`; return; }
   if (d && d.pump === false) { box.innerHTML = `<div class="card oneline muted">ⓘ ${t.notPump}</div>`; return; }
   const note = d?.cachedAt ? `<div class="muted cnote" id="db-cnote">⚡ ${ago(d.cachedAt, cur.lang)} <button type="button" class="ghost act" id="db-refresh">↻ ${refreshLbl(cur.lang)}</button></div>` : '';

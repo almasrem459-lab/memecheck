@@ -29,6 +29,29 @@
     add('/pro', 'Pro', 'Pro', 'nav-pro');
   }
 
+  // Revenue 2: Projects (Promoted) + API docs
+  if (!nav.querySelector('a[href="/api-docs"]')) {
+    const add2 = (href, en, ar) => {
+      const a = document.createElement('a'); a.href = href;
+      const lbl = () => { a.textContent = document.documentElement.lang === 'ar' ? ar : en; };
+      lbl(); new MutationObserver(lbl).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+      const ad = nav.querySelector('a[href="/advertise"]') || nav.querySelector('a[href="/how"]');
+      if (ad) nav.insertBefore(a, ad); else nav.appendChild(a);
+    };
+    add2('/projects', 'Projects', 'المشاريع');
+    add2('/api-docs', 'API', 'API');
+  }
+
+
+  // Calls channel win-rate checker
+  if (!nav.querySelector('a[href="/calls"]')) {
+    const a = document.createElement('a'); a.href = '/calls'; a.className = 'nav-calls';
+    const lbl = () => { a.textContent = document.documentElement.lang === 'ar' ? 'فاحص الاستدعاءات' : 'Calls checker'; a.setAttribute('data-t', 'navCalls'); };
+    lbl(); new MutationObserver(lbl).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+    const rugs = nav.querySelector('a[href="/rugs"]');
+    if (rugs) nav.insertBefore(a, rugs); else nav.appendChild(a);
+  }
+
   // Guides + monthly report + infra
   if (!nav.querySelector('a[href="/guides"]')) {
     const add = (href, en, ar, cls) => {
@@ -86,6 +109,10 @@
       navPro: 'Pro',
       navReport: 'التقرير',
       navOpenSrc: 'مفتوح المصدر',
+      navApi: 'API',
+      navProjects: 'المشاريع',
+      navAccount: 'حسابي',
+      navCalls: 'فاحص الاستدعاءات',
     };
     const lang = localStorage.getItem('mc_lang') || 'en';
     if (lang === 'ar') {

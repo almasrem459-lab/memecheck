@@ -218,7 +218,7 @@ button.chch{cursor:pointer}button.chch:hover{border-color:#7fa2ff;color:#fff}
 .pft{margin:4px 10px 8px;font-size:15px;color:#9aa4b8;text-transform:uppercase;letter-spacing:.04em}
 #pf-list{min-height:0}#pf:not(.pf-all) .pfrow:nth-child(n+6){display:none}
 #pf-more{display:block;width:calc(100% - 20px);margin:8px 10px 0;font-size:13px;color:#9aa4b8}#pf-more[hidden]{display:none}
-body.has-result .hero h1,body.has-result .chainrow,body.has-result #home,body.has-result .pft{display:none}
+body.has-result .hero h1,body.has-result .mcs-squad,body.has-result .chainrow,body.has-result #home,body.has-result .pft{display:none}
 body.has-result .hero{padding:0}
 @media(max-width:560px){.hero{padding:8px 0 0}.hero h1{font-size:25px}.hero .tag{font-size:15px;margin:6px 0 14px}
  .hero #f{flex-wrap:nowrap}.hero #addr{min-width:0;font-size:16px}.hero #go{padding:0 18px}
@@ -310,3 +310,43 @@ body.has-result .hero{padding:0}
 .so-k{font-weight:600}.so-v{overflow-wrap:anywhere}.so-b{font-size:.9em;text-align:end}
 .so-note{font-size:.8em;margin-top:8px}
 @media (max-width:560px){.so-row{grid-template-columns:1fr}.so-b{text-align:start}}
+
+/* MemeCheckShield police squad hero (top of homepage) */
+.mcs-squad{margin:0 0 14px;padding:0;text-align:center}
+.mcs-squad picture,.mcs-squad img{display:block;margin:0 auto;max-width:min(50%,210px);width:100%;height:auto;border-radius:16px;border:1px solid #2a3344;box-shadow:0 12px 40px #000a,0 0 0 1px #3ee08f22;background:#0b0f17;object-fit:cover;object-position:center top;aspect-ratio:3/4;max-height:min(26vh,280px)}
+@media(max-width:560px){.mcs-squad{margin:0 0 10px}.mcs-squad picture,.mcs-squad img{max-width:min(50%,130px);border-radius:12px;max-height:min(21vh,170px)}}
+.mcs-squad picture img{max-width:100%!important;max-height:none!important}
+
+/* ---- Feature panels (bundle/insider, boost chips, freeze, pre-sign, calls) ---- */
+.risk-chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0;width:100%}
+.risk-chips .chip{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid #2a3344}
+.chip-boost{background:#3a2a12;color:#ffd447;border-color:#6a4a18!important}
+.chip-wash{background:#3a1218;color:#ff8fa0;border-color:#6a1828!important}
+.chip-insider{background:#2a123a;color:#d4a0ff;border-color:#4a186a!important}
+.freeze-callout{margin:10px 0;background:#2a0e14;border-inline-start:4px solid #ff4d6a;padding:14px 16px}
+.freeze-callout .hd{font-size:1.05rem;font-weight:800;color:#ff6b81;margin-bottom:6px}
+.freeze-body{margin:.35rem 0 .6rem;line-height:1.45}
+.freeze-check{margin:.4rem 0 0;padding-inline-start:1.2rem;line-height:1.55}
+.freeze-check li{margin:.2rem 0}
+.presign-panel{margin:10px 0;background:#0e1320;border-inline-start:4px solid #5b8cff;padding:12px 14px}
+.presign-panel .hd{font-weight:800;margin-bottom:6px}
+.presign-list{margin:.3rem 0 0;padding-inline-start:1.15rem;line-height:1.5}
+.presign-list li.fail{color:#ff6b81}
+.presign-list li.warn{color:#ffd447}
+.presign-list li.ok{color:#3ee08f}
+.insider-panel{margin:10px 0;background:#140e20;border-inline-start:4px solid #a855f7;padding:12px 14px}
+.insider-panel .hd.fail{color:#ff6b81}.insider-panel .hd.warn{color:#ffd447}.insider-panel .hd.ok{color:#3ee08f}
+.insider-stats,.dh-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-top:10px}
+.insider-stats .stat,.dh-stat{background:#0b0f17;border:1px solid #1c2333;border-radius:12px;padding:12px 10px;text-align:center}
+.stat-n,.dh-stat-n{font-size:1.55rem;font-weight:800;line-height:1.1;color:#e8ecf4}
+.stat-l,.dh-stat-l{font-size:.72rem;color:#8b93a5;margin-top:4px;text-transform:uppercase;letter-spacing:.02em}
+.dh-stat.bad .dh-stat-n{color:#ff6b81}.dh-stat.ok .dh-stat-n{color:#3ee08f}
+.bundle-loud{margin:0 0 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.calls-box{max-width:720px;margin:0 auto}
+.calls-box textarea{width:100%;min-height:140px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;padding:10px;border-radius:10px;border:1px solid #2a3344;background:#0b0f17;color:#e8ecf4;resize:vertical}
+.calls-box .calls-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.calls-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin:14px 0}
+.calls-summary .stat-n{font-size:1.7rem}
+.calls-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid #1c2333}
+.calls-row .mono{font-size:12px}
+.calls-limit{font-size:.85rem;line-height:1.45;margin:8px 0 14px}

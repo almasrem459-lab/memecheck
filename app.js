@@ -1,9 +1,9 @@
-import { T, usd } from './i18n.js?v=1793201025';
+import { T, usd } from './i18n.js?v=1793402701';
 // Homepage speed: only app.js + i18n.js + nav.js load up front. core.js (the scanner), the result-section modules and the
 // new-tokens list are imported on demand: the scanner + result modules when a scan starts (or a valid CA is pasted),
 // the new-tokens list when it scrolls near the viewport. Result modules only listen for mc:render / mc:final events, so
 // render() waits for them to finish importing before it dispatches (see fireRender).
-const V = '1793201025';
+const V = '1793402701';
 // same rules as core.js detectChain (kept inline so the homepage does not need core.js before a scan)
 function detectChain(addr) { addr = (addr || '').trim(); if (/^0x[0-9a-fA-F]{40}$/.test(addr)) return 'evm'; if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr)) return 'solana'; return null; }
 let core = null, coreP = null, modsP = null, proof = null; // proof: 'Rugs we caught' card data (see loadProof)
@@ -12,7 +12,7 @@ const loadCore = () => coreP ||= Promise.all([
   import(`./core.js?v=${V}`),
   import(`./risk-insight.js?v=${V}`),
 ]).then(([m, ri]) => { core = m; riskInsight = ri; return m; });
-const RESULT_MODS = ['devbundle-ui', 'devhist-ui', 'ai-ui', 'extras', 'bubble-ui', 'flows-ui', 'snipers-ui', 'bp-ui', 'swap', 'revenue-ui', 'social-ui']; // same order as the old <script> tags
+const RESULT_MODS = ['devbundle-ui', 'devhist-ui', 'ai-ui', 'extras', 'bubble-ui', 'flows-ui', 'snipers-ui', 'bp-ui', 'swap', 'revenue-ui', 'social-ui', 'feat-panels']; // same order as the old <script> tags
 const loadResultMods = () => modsP ||= Promise.allSettled(RESULT_MODS.map(n => import(`./${n}.js?v=${V}`))).then(() => {});
 const warmScan = () => { loadCore().catch(() => { coreP = null; }); loadResultMods(); };
 const $ = (s) => document.querySelector(s);
@@ -195,6 +195,7 @@ function render(r0, fire) {
   $('#a-img').onclick = () => { warm(); openShare(r); };
   document.body.classList.add('has-result'); pfToggle(); syncBack();
   if (fire) fireRender(r); // extra analyses (devbundle-ui.js, extras.js, bubble-ui.js, flows-ui.js, snipers-ui.js)
+  try { document.dispatchEvent(new CustomEvent('mc:panels', { detail: { r } })); } catch {}
 }
 // ---- shareable result card: PNG drawn client-side (canvas 1200x675), in the current language (RTL aware) ----
 const LV = { low: ['#0f3d2a', '#3ee08f'], medium: ['#3d3510', '#ffd447'], high: ['#40220f', '#ff8f3e'], extreme: ['#4a0f17', '#ff4d6a'], unknown: ['#222833', '#aab2c0'] };
@@ -395,7 +396,7 @@ const lazyOn = (el, fn, margin = '300px') => { if (!el) return; if (!('Intersect
 const afterLoad = (fn) => { const go = () => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 2000 }) : setTimeout(fn, 200)); if (document.readyState === 'complete') go(); else addEventListener('load', go, { once: true }); };
 afterLoad(() => lazyOn($('#pf'), loadPump, '150px'));
 // Homepage revenue surfaces (Hero Banner + Sponsored strip) — idle-load so empty CTA is visible without a scan
-afterLoad(() => { import(`./revenue-ui.js?v=${V}`).catch(() => {}); }); document.addEventListener('click', (e) => { if (e.target.closest?.('#pf-tg')) loadPump(); });
+afterLoad(() => { import(`./revenue-ui.js?v=${V}`).catch(() => {}); import(`./ads.js?v=${V}`).catch(() => {}); }); document.addEventListener('click', (e) => { if (e.target.closest?.('#pf-tg')) loadPump(); });
 // ---- 'Rugs we caught' proof: count + 2-3 examples parsed from the static /rugs page (same origin, edge-cached), so it can
 // never drift from the full page. Loaded when it nears the viewport, 6 s timeout; on failure only the link stays. ----
 // proof state is declared at the top (applyLang -> proofPaint runs before this point)

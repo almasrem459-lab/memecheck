@@ -1,6 +1,6 @@
 // Result extras for every chain: live sell-proof (DexScreener txns) + true-cost round-trip calculator.
 // Also mounts a standalone cost calculator on the Meme tab. Does not touch scoring.
-import { dexTokens, sanePairs } from './core.js?v=1793201025';
+import { dexTokens, sanePairs } from './core.js?v=1793300000';
 const $ = (s) => document.querySelector(s);
 const fn = (txt) => txt ? `<details class="fn"><summary title="info">ⓘ</summary><div>${txt}</div></details>` : '';
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -118,4 +118,10 @@ document.addEventListener('mc:render', async (e) => {
     taxNote: (r.chain === 'solana' ? t.taxSol : tax ? t.taxSrc('GoPlus') : '') + (liqNote ? ' ' + liqNote : liq == null ? ' ' + t.liqNA : '') };
   box.innerHTML = `<div class="card" id="ex-sell"><h3>${t.sp}</h3>${sellProof(p, t)}</div><details class="card" id="ex-cost"${wasOpen ? ' open' : ''}><summary><h3>${t.cost}</h3></summary>${calcForm('rc', o)}</details>`;
   wire('rc', r.chain);
+  try {
+    const x = p?.txns, b = x?.h1?.buys ?? 0, s = x?.h1?.sells ?? 0;
+    const fail = !!(x && s === 0 && b > 10);
+    const warn = !!(x && !fail && (b + s) >= 10 && s / Math.max(b, 1) < 0.1);
+    (window.__mcSig||(window.__mcSig={set(a,k,v){const m=(this.m||(this.m=new Map()));const o=m.get(a)||{};if(JSON.stringify(o[k])===JSON.stringify(v))return;o[k]=v;m.set(a,o);document.dispatchEvent(new CustomEvent('mc:signal',{detail:{addr:a,key:k}}))},get(a){return this.m&&this.m.get(a)}})).set(r.addr, 'sellProof', { fail, warn, buys: b, sells: s });
+  } catch {}
 });

@@ -2,8 +2,8 @@
 // Lazy, cached per mint, 25 s timeout; shows "unavailable" on any failure and never blocks the main scan.
 // If DexScreener rate-limited the server, the browser fetches it directly and re-scores with devrep-core.js.
 // Result on window.__mcDevHist + 'mc:devhist' event; app.js turns history flag into a finding.
-import { summarize, dexMarkets } from './devhist-core.js?v=1793201025';
-import { repFromHist, launchCadenceHours } from './devrep-core.js?v=1793201025';
+import { summarize, dexMarkets } from './devhist-core.js?v=1793300000';
+import { repFromHist, launchCadenceHours } from './devrep-core.js?v=1793300000';
 const CHN = { en: { bsc: 'BNB Chain', ethereum: 'Ethereum', base: 'Base', arbitrum: 'Arbitrum' }, ar: { bsc: 'سلسلة BNB', ethereum: 'إيثريوم', base: 'Base', arbitrum: 'أربيتروم' } };
 const LAB = {
   en: { Builder: 'Builder', Neutral: 'Neutral', 'Serial Launcher': 'Serial Launcher', 'High Risk': 'High Risk' },
@@ -104,7 +104,9 @@ function html(d, t, lang) {
   else { line = t.naMkt; st = 'na'; }
   const now = Date.now();
   const rows = (d.recent || []).slice(0, 6).map(x => `<div class="row dh-r"><span class="st ${ST[x.status] || 'na'}">${t.st[x.status] || '?'}</span><span class="dh-n"><a href="/?ca=${encodeURIComponent(x.mint)}" title="${t.scan}" dir="ltr">$${esc(String(x.symbol || '?').replace(/^\$/, ''))}</a> <span class="muted">${esc(x.name || '')}</span></span><span class="dh-m muted"><bdi>${x.created ? t.ago((now - x.created) / 36e5) : ''}</bdi> · ${x.mcap != null ? `${t.mc} <bdi dir="ltr">${usd(x.mcap)}</bdi>` : t.noMkt}${x.ath ? ` · ${t.ath} <bdi dir="ltr">${usd(x.ath)}</bdi>` : ''}</span></div>`).join('');
-  return `${repHtml(d, t, lang)}<div class="grid" style="margin-top:10px">${kv(t.creator, wallet)}${kv(t.made, d.total)}${kv(t.bad, d.checked ? `${d.bad} / ${d.checked}` : '—', d.bad && d.flag !== 'pass' ? 'dn' : '')}${kv(t.live, d.checked ? d.live : '—')}${kv(t.grad, d.graduated ?? '—')}</div>
+  const big = (lab, val, cls='') => `<div class="dh-stat ${cls}"><div class="dh-stat-n" dir="ltr">${val}</div><div class="dh-stat-l">${lab}</div></div>`;
+  const stats = `<div class="dh-stats">${big(t.made, d.total)}${big(t.bad, d.checked ? d.bad : '—', d.bad && d.flag !== 'pass' ? 'bad' : '')}${big(t.live, d.checked ? d.live : '—', 'ok')}${big(t.grad, d.graduated ?? '—')}</div>`;
+  return `${repHtml(d, t, lang)}${stats}<div class="grid" style="margin-top:10px">${kv(t.creator, wallet)}${kv(t.made, d.total)}${kv(t.bad, d.checked ? `${d.bad} / ${d.checked}` : '—', d.bad && d.flag !== 'pass' ? 'dn' : '')}${kv(t.live, d.checked ? d.live : '—')}${kv(t.grad, d.graduated ?? '—')}</div>
     <div class="exv ${st}" style="margin-top:10px">${esc(line)}</div>${rows ? `<div class="muted" style="margin-top:10px">${t.last}</div>${rows}` : ''}${fn(t.note(d.total, d.checked))}`;
 }
 function paint() {
@@ -114,6 +116,9 @@ function paint() {
   const d = store.get(cur.addr) || 'loading';
   box.innerHTML = `<div class="card" id="dh-card"><h3>${t.title}</h3>${html(d, t, cur.lang)}</div>`;
   box.querySelector('.dh-copy')?.addEventListener('click', (e) => { const b = e.currentTarget; navigator.clipboard?.writeText(b.dataset.c).then(() => { b.textContent = t.copied; setTimeout(() => b.textContent = t.copy, 1200); }).catch(() => {}); });
+  try {
+    if (d && d.ok) (window.__mcSig||(window.__mcSig={set(a,k,v){const m=(this.m||(this.m=new Map()));const o=m.get(a)||{};if(JSON.stringify(o[k])===JSON.stringify(v))return;o[k]=v;m.set(a,o);document.dispatchEvent(new CustomEvent('mc:signal',{detail:{addr:a,key:k}}))},get(a){return this.m&&this.m.get(a)}})).set(cur.addr, 'devhist', { ok:1, total:d.total, bad:d.bad, live:d.live, checked:d.checked, flag:d.flag, graduated:d.graduated });
+  } catch {}
 }
 document.addEventListener('mc:render', (e) => {
   const { r, lang } = e.detail; cur = { addr: r.addr, chain: r.chain, lang };

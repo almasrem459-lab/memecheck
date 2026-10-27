@@ -75,7 +75,28 @@ function marketFindings(ds, chainKey, addr) {
     txns: p.txns || null, volw: p.volume || null, // per-window buys/sells counts + volume (Buy / Sell pressure card)
     ch: { m5: num(p.priceChange?.m5), h1: num(p.priceChange?.h1), h6: num(p.priceChange?.h6), h24: num(p.priceChange?.h24) },
     created: p.pairCreatedAt, dex: p.dexId, labels: p.labels || null, url: p.url, image: p.info?.imageUrl, pairs: good.length, pairAddr: p.pairAddress,
+    boostsActive: num(p.boosts?.active) || 0,
   });
+  // Paid DexScreener boosts = promotion context, never safety. Wash hint is best-effort from pair txns/volume only.
+  {
+    const tx = (m.buys24 || 0) + (m.sells24 || 0);
+    const avg = tx > 0 && m.vol24 != null ? m.vol24 / tx : null;
+    const volLiq = liq > 0 && m.vol24 != null ? m.vol24 / liq : null;
+    const reasons = [];
+    if (m.boostsActive >= 50) reasons.push('boost_high');
+    else if (m.boostsActive > 0) reasons.push('boost');
+    if (volLiq != null && volLiq > 40 && tx >= 80) reasons.push('vol_liq');
+    if (avg != null && avg < 8 && tx >= 120 && (m.vol24 || 0) > 20000) reasons.push('micro_tx');
+    if (m.buys24 != null && m.sells24 != null && tx >= 100) {
+      const bal = Math.min(m.buys24, m.sells24) / Math.max(m.buys24, m.sells24);
+      if (bal > 0.85 && avg != null && avg < 25) reasons.push('round_trip');
+    }
+    m.washHint = {
+      level: reasons.includes('boost_high') || reasons.filter(x => x !== 'boost').length >= 2 ? 'fail'
+        : reasons.length ? 'warn' : 'none',
+      reasons, avgTrade: avg, volLiq, boosts: m.boostsActive,
+    };
+  }
   // DexScreener socials/websites (for Ask AI + future UI); URLs only, capped
   const socials = [];
   for (const w of (p.info?.websites || [])) { const u = String(w?.url || '').trim(); if (/^https?:\/\//i.test(u)) socials.push({ t: 'website', u: u.slice(0, 140) }); }
@@ -341,7 +362,7 @@ export async function evmSecurity(addr, chain) {
     const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 12000);
     try { const r = await fetch(`/api/evm-security?chain=${chain}&ca=${addr.toLowerCase()}`, { signal: ctl.signal }); if (r.ok) { const x = await r.json(); if (x?.goplus && x.honeypot) j = x; } } catch {} finally { clearTimeout(tm); }
   }
-  const { getEvmSecurity } = await import('./evmsec.js?v=1793201025');
+  const { getEvmSecurity } = await import('./evmsec.js?v=1793300000');
   if (!j) return getEvmSecurity(addr, chain);
   const only = ['goplus', ...(HP_OK.has(chain) ? ['honeypot'] : []), ...(chain === 'bsc' ? ['four'] : [])].filter(k => !j[k] || j[k].s === 'fail');
   if (only.length) { const d = await getEvmSecurity(addr, chain, { only }).catch(() => null); only.forEach(k => { if (d?.[k] && d[k].s !== 'fail') j[k] = { ...d[k], via: 'browser' }; }); }
