@@ -1,0 +1,54 @@
+<!doctype html><html lang="en" dir="ltr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Promoted projects · MemeCheckShield</title>
+<meta name="description" content="Promoted (paid) token projects on MemeCheckShield. Paying never changes a risk score.">
+<link rel="canonical" href="https://memecheck.pages.dev/projects">
+<meta name="theme-color" content="#0b0f17">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="stylesheet" href="style.css?v=1793202000">
+</head><body>
+<header><button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span><span></span><span></span></button><div class="brand"><img src="/icon-64.png" width="26" height="26" alt="MemeCheckShield"> <b>MemeCheckShield</b></div></header>
+<nav class="site-nav" id="site-nav" hidden>
+<a href="/" data-t="navChecker">Checker</a>
+<a href="/smart" data-t="navSmart">Smart money</a>
+<a href="/projects" aria-current="page" data-t="navProjects">Projects</a>
+<a href="/api-docs" data-t="navApi">API</a>
+<a href="/advertise" data-t="navAdvertise">Advertise</a>
+<a href="/pro" data-t="navPro">Pro</a>
+<a href="/account" data-t="navAccount">Account</a>
+<a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a>
+</nav>
+<main style="max-width:820px">
+<nav class="crumbs"><a href="/" data-s="home">Home</a><span>/</span><span data-s="crumb">Projects</span></nav>
+<h1 data-s="h1">Promoted projects</h1>
+<p class="tag" data-s="note"><b>Promoted = paid placement.</b> Paying NEVER changes a risk score: every token shows the same automated score it gets in a normal scan, including High / Extreme. Not an endorsement, not financial advice.</p>
+<section class="card"><h2><span class="mc-spon-tag" data-s="promo">Promoted</span></h2><div id="list"><p class="muted">…</p></div></section>
+<section class="card" id="boost"><h2 data-s="hBoost">Boost your project</h2>
+<p data-s="bInfo">60 USDC = 7 days in the Promoted section (homepage strip + this page) and a profile page with your links. Stacks up to 8 weeks per payment. Your risk score is shown unchanged next to your listing.</p>
+<div id="auth"></div>
+<div id="bForm" hidden><label class="mc-lab" data-s="ca">Token address (CA)<input class="mc-in" id="bCa" dir="ltr" maxlength="64"></label>
+<label class="mc-lab" data-s="chain">Chain<select class="mc-in" id="bChain"><option>solana</option><option>ethereum</option><option>bsc</option><option>base</option><option>arbitrum</option></select></label>
+<div id="bPay"></div></div></section>
+</main>
+<footer><span data-s="foot">Not financial advice. Paid features never change any risk score.</span></footer>
+<script src="nav.js?v=1793300000" defer></script>
+<script type="module">
+import * as A from '/acct-ui.js?v=1793300000';
+const AR = {"home": "الرئيسية", "crumb": "المشاريع", "h1": "مشاريع مُروَّجة", "note": "<b>مُروَّج = إعلان مدفوع.</b> الدفع لا يغيّر درجة المخاطر أبدًا: كل توكن يظهر بنفس الدرجة الآلية التي يحصل عليها في الفحص العادي، بما فيها مرتفع / شديد. ليس توصية وليس نصيحة مالية.", "promo": "مُروَّج", "hBoost": "روّج لمشروعك", "bInfo": "٦٠ USDC = ٧ أيام في قسم المُروَّج (شريط الصفحة الرئيسية + هذه الصفحة) وصفحة ملف بروابطك. تتراكم حتى ٨ أسابيع لكل دفعة. درجة المخاطر تظهر بجانب إعلانك دون تغيير.", "ca": "عنوان التوكن (CA)", "chain": "الشبكة", "foot": "ليست نصيحة مالية. الدفع لا يغيّر أي درجة مخاطر.", "none": "لا توجد مشاريع مُروَّجة حاليًا — كن الأول.", "prof": "الملف", "scan": "افحص", "until": "حتى"};
+A.applyAR(AR);
+const ar = A.lang() === 'ar';
+const $ = (s) => document.querySelector(s), L = (k, en) => ar && AR[k] ? AR[k] : en;
+A.style();
+A.api('/api/projects?promoted=1').then((j) => {
+  const it = j.items || [];
+  $('#list').innerHTML = it.length ? '<table class="mc-tbl"><tbody>' + it.map((x) => `<tr><td><span class="mc-spon-tag">${L('promo', 'Promoted')}</span> <b>${A.esc(x.name || x.risk?.name || x.risk?.symbol || x.ca.slice(0, 6) + '…')}</b> <span class="muted">${A.esc(x.risk?.symbol || '')} · ${A.esc(x.chain)}</span></td><td>${A.lvl(x.risk?.level)}</td><td><a class="act" href="/project?ca=${encodeURIComponent(x.ca)}&chain=${A.esc(x.chain)}">${L('prof', 'Profile')}</a> <a class="act" href="/?ca=${encodeURIComponent(x.ca)}&chain=${A.esc(x.chain)}">${L('scan', 'Scan')}</a></td></tr>`).join('') + '</tbody></table>' : `<p class="muted">${L('none', 'No promoted projects right now — be the first.')}</p>`;
+}).catch(() => { $('#list').innerHTML = '<p class="muted">—</p>'; });
+const q = new URLSearchParams(location.search); if (q.get('ca')) $('#bCa').value = q.get('ca'); if (q.get('chain')) $('#bChain').value = q.get('chain');
+A.authBar($('#auth'), async (u) => {
+  $('#bForm').hidden = !u; if (!u) return;
+  const pj = await A.api('/api/pro'), cfg = pj.cfg, link = pj.me?.boostLink;
+  A.payBox($('#bPay'), { usdc: cfg.prices.boost.usdc, payTo: cfg.payTo, link, label: 'Boost · 7 days', submit: (tx) => A.api('/api/projects', { action: 'boost', ca: $('#bCa').value.trim(), chain: $('#bChain').value, tx }),
+    onOk: () => setTimeout(() => { location.href = '/project?ca=' + encodeURIComponent($('#bCa').value.trim()) + '&chain=' + $('#bChain').value; }, 1000) });
+});
+</script>
+</body></html>

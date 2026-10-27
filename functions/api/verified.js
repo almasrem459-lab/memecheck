@@ -1,3 +1,4 @@
+import { notifyOwnerPayment } from '../_lib/acct.js';
 // GET  /api/verified  → { verified[], sponsored[], banners[], cfg }
 // POST /api/verified  → claim (on-chain USDC verify) | approve (Bearer REVENUE_ADMIN_TOKEN)
 // kinds: verified | sponsored | banner — Payment NEVER changes risk score — UI only.
@@ -169,7 +170,7 @@ export async function onRequestOptions() {
   return new Response(null, { status: 204, headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET,POST,OPTIONS', 'access-control-allow-headers': 'content-type,authorization' } });
 }
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, waitUntil }) {
   const o = request.headers.get('origin') || '';
   if (o && !ORIGIN_OK.test(o)) return json(403, { err: 'origin' });
   const len = +(request.headers.get('content-length') || 0);
@@ -206,6 +207,7 @@ export async function onRequestPost({ request, env }) {
   const mint = s(b.mint), tx = s(b.tx), kind = normalizeKind(b.kind);
   if (!validMint(mint)) return json(400, { err: 'bad_mint' });
   if (!SIG_RE.test(tx)) return json(400, { err: 'bad_tx' });
+  if (env.REV) { const u = await env.REV.prepare('SELECT 1 FROM payments WHERE tx = ?').bind(tx).first().catch(() => null); if (u) return json(400, { err: 'tx_already_used' }); } // tx already used for Pro/API/Boost (D1 read)
   const need = priceFor(kind);
   let pay; try { pay = await verifyPayment(tx, need); } catch (e) { return json(502, { err: 'rpc', detail: String(e.message || e).slice(0, 120) }); }
   if (!pay.ok) return json(400, { err: pay.err, received: pay.received, need: pay.need, tip: 'Send ≥' + need + ' USDC to ' + PAY_TO + ' then paste the signature. Jojo can also admin-approve later.' });
@@ -218,6 +220,7 @@ export async function onRequestPost({ request, env }) {
     at: Date.now(), by: 'onchain', memo: (pay.memo || '').slice(0, 200), kind,
     note: 'Paid placement — does not change risk score',
   };
+  const payerGuess = ((pay.memo || '').match(/mc:([1-9A-HJ-NP-Za-km-z]{32,44})/) || [])[1] || null;
   try {
     const store = await loadStore(env);
     // idempotent on same tx
@@ -226,9 +229,11 @@ export async function onRequestPost({ request, env }) {
     const i = arr.findIndex((x) => x.mint.toLowerCase() === mint.toLowerCase());
     if (i >= 0) arr[i] = { ...arr[i], ...entry }; else arr.push(entry);
     await saveStore(env, store);
+    notifyOwnerPayment(env, waitUntil, { product: kind, amountUsdc: pay.received, wallet: payerGuess, tx, ref: mint });
     return json(200, { ok: true, entry, kind, cfg: cfg() });
   } catch (e) {
     // KV write failed — still return verified payment so Jojo can approve from the note
+    notifyOwnerPayment(env, waitUntil, { product: kind, amountUsdc: pay.received, wallet: payerGuess, tx, ref: mint });
     return json(200, { ok: true, entry, kind, pendingStore: true, detail: String(e.message || e).slice(0, 80), cfg: cfg() });
   }
 }

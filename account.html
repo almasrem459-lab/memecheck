@@ -1,0 +1,61 @@
+<!doctype html><html lang="en" dir="ltr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Account · MemeCheckShield</title>
+<meta name="description" content="Sign in with your Solana wallet: synced watchlist and API keys for MemeCheckShield.">
+<link rel="canonical" href="https://memecheck.pages.dev/account">
+<meta name="theme-color" content="#0b0f17">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="stylesheet" href="style.css?v=1793202000">
+</head><body>
+<header><button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span><span></span><span></span></button><div class="brand"><img src="/icon-64.png" width="26" height="26" alt="MemeCheckShield"> <b>MemeCheckShield</b></div></header>
+<nav class="site-nav" id="site-nav" hidden>
+<a href="/" data-t="navChecker">Checker</a>
+<a href="/smart" data-t="navSmart">Smart money</a>
+<a href="/projects" data-t="navProjects">Projects</a>
+<a href="/api-docs" data-t="navApi">API</a>
+<a href="/advertise" data-t="navAdvertise">Advertise</a>
+<a href="/pro" data-t="navPro">Pro</a>
+<a href="/account" aria-current="page" data-t="navAccount">Account</a>
+<a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a>
+</nav>
+<main style="max-width:820px">
+<nav class="crumbs"><a href="/" data-s="home">Home</a><span>/</span><span data-s="crumb">Account</span></nav>
+<h1 data-s="h1">Your account</h1>
+<p class="tag" data-s="sub">Sign in with your Solana wallet to sync your watchlist and manage API keys. Scanning tokens never needs an account.</p>
+<div id="auth" class="card"></div>
+<section class="card" id="wl" hidden><h2 data-s="hWl">Watchlist</h2><p class="muted" id="wlInfo"></p>
+<div class="mc-ac"><input class="mc-in" id="wlCa" dir="ltr" placeholder="Token address (CA)" maxlength="64" style="flex:1;min-width:220px"><select class="mc-in" id="wlChain" style="width:auto"><option>solana</option><option>ethereum</option><option>bsc</option><option>base</option><option>arbitrum</option></select><button class="act" id="wlAdd" data-s="add">Add</button><button class="act" id="wlImp" data-s="imp">Import from this device</button></div>
+<p class="muted" id="wlSt" role="status"></p><table class="mc-tbl"><tbody id="wlBody"></tbody></table></section>
+<section class="card" id="keys" hidden><h2 data-s="hKeys">API keys</h2><p class="muted" data-s="keysSub">Docs and pricing: <a href="/api-docs">/api-docs</a>. A key is shown only once — store it safely.</p>
+<button class="act mc-main" id="kNew" data-s="kNew">Create free API key</button> <span class="muted" id="kSt" role="status"></span>
+<pre class="mc-code" id="kShow" hidden></pre><table class="mc-tbl"><tbody id="kBody"></tbody></table><div id="kPay"></div></section>
+</main>
+<footer><span data-s="foot">Not financial advice. Paid features never change any risk score.</span></footer>
+<script src="nav.js?v=1793300000" defer></script>
+<script type="module">
+import * as A from '/acct-ui.js?v=1793300000';
+const AR = {"home": "الرئيسية", "crumb": "الحساب", "h1": "حسابك", "sub": "سجّل الدخول بمحفظة سولانا لمزامنة قائمة المراقبة وإدارة مفاتيح API. فحص التوكنات لا يحتاج حسابًا أبدًا.", "hWl": "قائمة المراقبة", "add": "إضافة", "imp": "استيراد من هذا الجهاز", "hKeys": "مفاتيح API", "keysSub": "التوثيق والأسعار: <a href=\"/api-docs\">/api-docs</a>. يظهر المفتاح مرة واحدة فقط — احفظه بأمان.", "kNew": "إنشاء مفتاح API مجاني", "foot": "ليست نصيحة مالية. الميزات المدفوعة لا تغيّر أي درجة مخاطر.", "of": "من", "rm": "حذف", "scan": "افحص", "upS": "ترقية إلى Starter", "upB": "ترقية إلى Business", "rev": "إلغاء", "revoked": "ملغى", "tier": "الفئة", "used": "الاستخدام (تقريبي)", "created": "أُنشئ", "copyNow": "انسخ هذا المفتاح الآن — لن يظهر مجددًا:", "limit": "تم بلوغ الحد. Pro يسمح بـ ١٠٠ توكن.", "imported": "تم الاستيراد", "empty": "لا توجد توكنات بعد.", "sure": "إلغاء هذا المفتاح نهائيًا؟"};
+A.applyAR(AR);
+const ar = A.lang() === 'ar';
+const $ = (s) => document.querySelector(s), L = (k, en) => ar && AR[k] ? AR[k] : en;
+let user = null;
+async function loadWl() {
+  const j = await A.api('/api/watchlist'); if (!j.items) return;
+  $('#wlInfo').textContent = `${j.items.length} ${L('of', 'of')} ${j.max}` + (j.pro ? ' · Pro' : ' · Free (Pro: 100)');
+  $('#wlBody').innerHTML = j.items.length ? j.items.map((x) => `<tr><td><b>${A.esc(x.sym || '')}</b></td><td dir="ltr"><code>${A.esc(x.ca.slice(0, 6) + '…' + x.ca.slice(-4))}</code> <span class="muted">${A.esc(x.chain)}</span></td><td><a class="act" href="/?ca=${encodeURIComponent(x.ca)}&chain=${A.esc(x.chain)}">${L('scan', 'Scan')}</a> <button class="act" data-rm="${A.esc(x.ca)}" data-c="${A.esc(x.chain)}">${L('rm', 'Remove')}</button></td></tr>`).join('') : `<tr><td class="muted">${L('empty', 'No tokens yet.')}</td></tr>`;
+  $('#wlBody').querySelectorAll('[data-rm]').forEach((b) => b.onclick = async () => { await A.api('/api/watchlist', { action: 'remove', ca: b.dataset.rm, chain: b.dataset.c }); loadWl(); });
+}
+async function addWl(ca, chain, sym) { const j = await A.api('/api/watchlist', { action: 'add', ca, chain, sym }); if (!j.ok) $('#wlSt').textContent = j.err === 'limit' ? L('limit', 'Limit reached. Pro allows 100 tokens.') : A.errText(j); return j.ok; }
+$('#wlAdd').onclick = async () => { const ca = $('#wlCa').value.trim(); if (await addWl(ca, $('#wlChain').value, '')) { $('#wlCa').value = ''; $('#wlSt').textContent = ''; } loadWl(); };
+$('#wlImp').onclick = async () => { let w = []; try { w = JSON.parse(localStorage.getItem('mc_watch') || '[]'); } catch {} for (const x of w) { if (!(await addWl(x.a, x.c || 'solana', x.s || ''))) break; } $('#wlSt').textContent = L('imported', 'Imported'); loadWl(); };
+async function loadKeys() {
+  const j = await A.api('/api/keys'); if (!j.keys) return;
+  $('#kBody').innerHTML = `<tr><th>Key</th><th>${L('tier', 'Tier')}</th><th>${L('used', 'Used (approx.)')}</th><th></th></tr>` + j.keys.map((k) => `<tr><td dir="ltr"><code>${A.esc(k.prefix)}…</code></td><td>${k.revoked ? L('revoked', 'revoked') : A.esc(k.limits.tier) + ` <span class="muted">${k.limits.perDay}/day · ${k.limits.perMin}/min${k.limits.until ? ' · ' + new Date(k.limits.until).toLocaleDateString() : ''}</span>`}</td><td>${k.used}</td><td>${k.revoked ? '' : `<button class="act" data-up="starter" data-p="${A.esc(k.prefix)}">${L('upS', 'Upgrade: Starter')}</button> <button class="act" data-up="business" data-p="${A.esc(k.prefix)}">${L('upB', 'Upgrade: Business')}</button> <button class="act" data-rv="${A.esc(k.prefix)}">${L('rev', 'Revoke')}</button>`}</td></tr>`).join('');
+  $('#kBody').querySelectorAll('[data-rv]').forEach((b) => b.onclick = async () => { if (!confirm(L('sure', 'Revoke this key permanently?'))) return; await A.api('/api/keys', { action: 'revoke', prefix: b.dataset.rv }); loadKeys(); });
+  $('#kBody').querySelectorAll('[data-up]').forEach((b) => b.onclick = () => { const tier = b.dataset.up, P = j.prices[tier];
+    A.payBox($('#kPay'), { usdc: P.usdc, payTo: 'F29KLNySMghCZbpMqhNaR8k3jMUZHd485CHxX7x9Z9u5', link: j.pay[tier], label: `API ${tier} · ${b.dataset.p}… · 30 days`, submit: (tx) => A.api('/api/keys', { action: 'upgrade', prefix: b.dataset.p, tier, tx }), onOk: loadKeys }); $('#kPay').scrollIntoView({ behavior: 'smooth' }); });
+}
+$('#kNew').onclick = async () => { const j = await A.api('/api/keys', { action: 'create' }); if (j.ok) { $('#kShow').hidden = false; $('#kShow').textContent = L('copyNow', 'Copy this key now — it will not be shown again:') + '\n' + j.key; $('#kSt').textContent = ''; loadKeys(); } else $('#kSt').textContent = A.errText(j); };
+A.authBar($('#auth'), (u) => { user = u; $('#wl').hidden = $('#keys').hidden = !u; if (u) { loadWl(); loadKeys(); if (location.hash === '#keys') $('#keys').scrollIntoView(); } });
+</script>
+</body></html>

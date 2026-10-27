@@ -15,3 +15,10 @@ binding = "AI"  # Workers AI (free daily allowance) for /api/ai
 name = "CHAT"
 class_name = "ChatRoom"
 script_name = "memecheck-chat"
+
+# Revenue features (accounts / Pro / API keys / project boosts). D1, not KV.
+[[d1_databases]]
+binding = "REV"
+database_name = "memecheck-revenue"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"  # wrangler d1 create memecheck-revenue
+

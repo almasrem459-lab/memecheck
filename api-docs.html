@@ -1,0 +1,68 @@
+<!doctype html><html lang="en" dir="ltr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>API · MemeCheckShield</title>
+<meta name="description" content="MemeCheckShield token risk API: free key (300 calls/day), paid USDC plans. Solana, Ethereum, BNB, Base, Arbitrum.">
+<link rel="canonical" href="https://memecheck.pages.dev/api-docs">
+<meta name="theme-color" content="#0b0f17">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="stylesheet" href="style.css?v=1793202000">
+</head><body>
+<header><button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span><span></span><span></span></button><div class="brand"><img src="/icon-64.png" width="26" height="26" alt="MemeCheckShield"> <b>MemeCheckShield</b></div></header>
+<nav class="site-nav" id="site-nav" hidden>
+<a href="/" data-t="navChecker">Checker</a>
+<a href="/smart" data-t="navSmart">Smart money</a>
+<a href="/projects" data-t="navProjects">Projects</a>
+<a href="/api-docs" aria-current="page" data-t="navApi">API</a>
+<a href="/advertise" data-t="navAdvertise">Advertise</a>
+<a href="/pro" data-t="navPro">Pro</a>
+<a href="/account" data-t="navAccount">Account</a>
+<a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a>
+</nav>
+<main style="max-width:820px">
+<nav class="crumbs"><a href="/" data-s="home">Home</a><span>/</span><span>API</span></nav>
+<h1 data-s="h1">MemeCheckShield API</h1>
+<p class="tag" data-s="sub">The same token risk score the website shows, as JSON — for bots, wallets, dashboards and trading tools. Solana + Ethereum, BNB Chain, Base, Arbitrum.</p>
+<section class="card" id="pricing"><h2 data-s="hPrice">Plans</h2>
+<div class="mc-tier">
+<div class="card"><h3>Free</h3><div class="p">0</div><p class="muted" data-s="fr">300 calls/day · 20/min · 5 live checks/min<br>Pro members: 2,000 calls/day</p></div>
+<div class="card"><h3>Starter</h3><div class="p">29 USDC <small class="muted">/ 30 d</small></div><p class="muted" data-s="st">10,000 calls/day · 60/min · 30 live checks/min</p></div>
+<div class="card"><h3>Business</h3><div class="p">99 USDC <small class="muted">/ 30 d</small></div><p class="muted" data-s="bz">100,000 calls/day · 300/min · 120 live checks/min</p></div>
+</div>
+<p data-s="get"><a class="act mc-main" href="/account#keys">Get a free API key</a> <span class="muted">Sign in with a Solana wallet → Create key. Upgrade any key with a USDC payment (each payment = 30 days, no auto-renew).</span></p></section>
+<section class="card"><h2 data-s="hReq">Request</h2>
+<pre class="mc-code">GET https://memecheck.pages.dev/api/v1/token?ca=&lt;token address&gt;&amp;chain=solana
+x-api-key: mck_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</pre>
+<p class="muted" data-s="params"><b>ca</b> — token mint / contract address. <b>chain</b> — solana | ethereum | bsc | base | arbitrum (default: solana for base58 addresses, ethereum for 0x). The key may also be sent as <code>Authorization: Bearer mck_…</code>. CORS is open, but keep keys server-side.</p>
+<pre class="mc-code">curl -s "https://memecheck.pages.dev/api/v1/token?ca=DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263&amp;chain=solana" \
+  -H "x-api-key: $MEMECHECK_KEY"</pre></section>
+<section class="card"><h2 data-s="hRes">Response</h2>
+<pre class="mc-code">{
+  "ok": true, "ca": "DezX…B263", "chain": "solana", "name": "Bonk", "symbol": "Bonk",
+  "risk": { "level": "low", "points": 12, "critical": [] },   // level: low | medium | high | extreme | unknown
+  "flags": [{ "name": "…", "level": "…" }],
+  "findings": [{ "id": "mintAuthority", "status": "pass", "critical": false }],
+  "market": { "priceUsd": 0.00002, "liquidityUsd": 1234567, "mcapUsd": 1.5e9, "fdvUsd": 1.6e9, "vol24Usd": 2.1e7, "pairCreatedAt": 1671234567000, "dex": "raydium" },
+  "sources": { "DexScreener": "ok", "RugCheck": "ok" },
+  "checkedAt": 1793300000000, "source": "cache",          // cache = shared result (≤15 min), live = computed now
+  "scanUrl": "https://memecheck.pages.dev/?ca=…&amp;chain=solana",
+  "disclaimer": "Automated on-chain heuristics, not financial advice. Paid placements never change risk scores."
+}</pre></section>
+<section class="card"><h2 data-s="hLim">Limits &amp; errors</h2>
+<table class="mc-tbl"><tbody>
+<tr><td><code>401</code></td><td data-s="e401">missing / invalid / revoked key</td></tr>
+<tr><td><code>400</code></td><td data-s="e400">bad address or chain</td></tr>
+<tr><td><code>429</code></td><td data-s="e429">rate limited (per minute, per UTC day, or live-check limit for tokens not cached yet) — see <code>retry-after</code></td></tr>
+<tr><td><code>503</code></td><td data-s="e502">not cached yet and live data sources are busy — retry after the Retry-After header (~60 s)</td></tr>
+</tbody></table>
+<p class="muted" data-s="hdr">Every response carries <code>x-ratelimit-tier</code>, <code>x-ratelimit-remaining-day</code>, <code>x-ratelimit-remaining-minute</code>. Counters are enforced per Cloudflare location (best-effort). Results are automated heuristics, not financial advice. Paid plans buy quota only — they never change any score.</p></section>
+</main>
+<footer><span data-s="foot">Not financial advice. Paid features never change any risk score.</span></footer>
+<script src="nav.js?v=1793300000" defer></script>
+<script type="module">
+import * as A from '/acct-ui.js?v=1793300000';
+const AR = {"home": "الرئيسية", "h1": "واجهة MemeCheckShield البرمجية (API)", "sub": "نفس درجة المخاطر التي يعرضها الموقع، بصيغة JSON — للبوتات والمحافظ ولوحات التحكم وأدوات التداول. سولانا + إيثيريوم وBNB وBase وArbitrum.", "hPrice": "الخطط", "fr": "٣٠٠ طلب/يوم · ٢٠/دقيقة · ٥ فحوصات حيّة/دقيقة<br>أعضاء Pro: ٢٠٠٠ طلب/يوم", "st": "١٠٬٠٠٠ طلب/يوم · ٦٠/دقيقة · ٣٠ فحصًا حيًا/دقيقة", "bz": "١٠٠٬٠٠٠ طلب/يوم · ٣٠٠/دقيقة · ١٢٠ فحصًا حيًا/دقيقة", "get": "<a class=\"act mc-main\" href=\"/account#keys\">احصل على مفتاح API مجاني</a> <span class=\"muted\">سجّل الدخول بمحفظة سولانا ← أنشئ مفتاحًا. رقِّ أي مفتاح بدفعة USDC (كل دفعة = ٣٠ يومًا، بدون تجديد تلقائي).</span>", "hReq": "الطلب", "hRes": "الاستجابة", "hLim": "الحدود والأخطاء", "e401": "مفتاح مفقود / غير صالح / ملغى", "e400": "عنوان أو شبكة غير صحيحة", "e429": "تجاوز الحد (بالدقيقة أو باليوم أو حد الفحص الحي) — راجع <code>retry-after</code>", "e502": "مصادر البيانات غير متاحة — أعد المحاولة لاحقًا", "foot": "ليست نصيحة مالية. الخطط المدفوعة تشتري حصة طلبات فقط ولا تغيّر أي درجة."};
+A.applyAR(AR);
+const ar = A.lang() === 'ar';
+
+</script>
+</body></html>
