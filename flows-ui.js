@@ -6,7 +6,7 @@ const short = (a) => a && a.length > 12 ? a.slice(0, 4) + '…' + a.slice(-4) : 
 const CHN = { en: { bsc: 'BNB Chain', ethereum: 'Ethereum', base: 'Base', arbitrum: 'Arbitrum' }, ar: { bsc: 'سلسلة BNB', ethereum: 'إيثريوم', base: 'Base', arbitrum: 'أربيتروم' } }; // EVM chain names for the 'not available yet' line
 const L = {
   en: {
-    title: 'Liquidity flows', arTitle: 'خريطة السيولة المتحركة',
+    title: 'Liquidity flows', arTitle: '', // Arabic subtitle only in AR mode
     loading: 'Tracing money into the pool…',
     err: 'Liquidity flow data unavailable right now.',
     empty: 'Not enough recent pool trades to draw flows yet.',
@@ -376,7 +376,7 @@ function draw(box, data) {
   const sum = data.summary || {};
   try { const o = data.organic; if (cur?.addr && cur.chain === 'solana' && o && ORG_CLS[o.level] && o.trades > 0) (window.__mcSig||(window.__mcSig={set(a,k,v){const m=(this.m||(this.m=new Map()));const o=m.get(a)||{};if(JSON.stringify(o[k])===JSON.stringify(v))return;o[k]=v;m.set(a,o);document.dispatchEvent(new CustomEvent('mc:signal',{detail:{addr:a,key:k}}))},get(a){return this.m&&this.m.get(a)}})).set(cur.addr, 'flows', { level: o.level, trades: o.trades }); } catch {}
   box.innerHTML = `
-    <div class="lf-head"><h3>${t.title} <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">· ${t.arTitle}</span></h3></div>
+    <div class="lf-head"><h3>${t.title} ${t.arTitle ? `<span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">· ${t.arTitle}</span>` : ''}</h3></div>
     ${orgBadge(data.organic, t)}<p class="lf-sum">${esc(t.summary(sum))}</p>
     <div class="lflg"><span><i style="background:${GREEN}"></i>${t.organic}</span><span><i style="background:${RED}"></i>${t.sus}</span><span><i style="background:${LP_COL}"></i>${t.lp}</span></div>
     <div class="lf-stage"><canvas id="lf-cv" width="600" height="360" aria-label="${esc(t.title)}"></canvas></div>

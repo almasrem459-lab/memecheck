@@ -156,3 +156,6 @@ document.addEventListener('mc:render', (e) => {
   cur = { addr: r.addr, lang, level: r.verdict?.level };
   const c = cache.get(r.addr); if (!c || c.error || c.bundle?.error || c.exit?.error) run(r.addr); else paint(r.addr, lang);
 });
+// final verdict after late signals: the exit-trace wording depends on it, so repaint when it changes
+document.addEventListener('mc:panels', (e) => { const r = e.detail?.r; if (!cur || !r || r.addr !== cur.addr || r.verdict?.level === cur.level) return;
+  cur = { ...cur, level: r.verdict?.level }; const c = cache.get(r.addr); if (c && !c.error) paint(r.addr, cur.lang); });

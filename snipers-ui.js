@@ -5,7 +5,7 @@ const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<':
 const CHN = { en: { bsc: 'BNB Chain', ethereum: 'Ethereum', base: 'Base', arbitrum: 'Arbitrum' }, ar: { bsc: 'سلسلة BNB', ethereum: 'إيثريوم', base: 'Base', arbitrum: 'أربيتروم' } }; // EVM chain names for the 'not available yet' line
 const L = {
   en: {
-    title: 'Live sniper detection', arTitle: 'كاشف القناصة اللحظي',
+    title: 'Live sniper detection', arTitle: '', // Arabic subtitle only in AR mode
     loading: 'Scanning first buyers after launch…',
     err: 'Sniper scan unavailable right now.',
     empty: 'Not enough launch data to detect snipers yet.',
@@ -27,6 +27,9 @@ const L = {
     rateLimited: 'RPC is busy right now — try again in a minute.',
     noSigs: 'Could not load launch signatures right now.',
     noBuyers: 'Launch txs found, but no clear early buyers could be parsed.',
+    deep: 'Too much trading history to reach the launch right now. Try again in a minute.',
+    devOnly: (p) => `No outside early buyers: only the creator bought at launch${p != null ? `, ~${p}% of supply in the create transaction` : ''}`,
+    devChip: 'Creator bought the launch', devHeld: 'Creator launch buy',
   },
   ar: {
     title: 'كشف القناصة اللحظي', arTitle: 'كاشف القناصة اللحظي',
@@ -51,6 +54,9 @@ const L = {
     rateLimited: 'الشبكة مشغولة الآن — حاول بعد دقيقة.',
     noSigs: 'تعذر تحميل توقيعات الإطلاق الآن.',
     noBuyers: 'وُجدت معاملات إطلاق لكن لم يُستخرج مشتركون أوائل.',
+    deep: 'سجل التداول طويل جدًا للوصول إلى الإطلاق الآن. حاول بعد دقيقة.',
+    devOnly: (p) => `لا يوجد مشترون أوائل من الخارج: فقط المطوّر اشترى عند الإطلاق${p != null ? `، نحو ${p}% من المعروض في معاملة الإنشاء` : ''}`,
+    devChip: 'المطوّر اشترى الإطلاق', devHeld: 'شراء المطوّر عند الإطلاق',
   },
 };
 const lang = () => document.documentElement.lang === 'ar' ? 'ar' : 'en';
@@ -71,7 +77,8 @@ function draw(box, d) {
   const pct = d.sniperPct;
   try { if (cur?.addr && cur.chain === 'solana' && pct != null) (window.__mcSig||(window.__mcSig={set(a,k,v){const m=(this.m||(this.m=new Map()));const o=m.get(a)||{};if(JSON.stringify(o[k])===JSON.stringify(v))return;o[k]=v;m.set(a,o);document.dispatchEvent(new CustomEvent('mc:signal',{detail:{addr:a,key:k}}))},get(a){return this.m&&this.m.get(a)}})).set(cur.addr, 'snipers', { pct: Math.min(100, +pct), pro: d.proSnipers || 0 }); } catch {}
   const showPct = (pct != null && pct > 0) ? pct : d.sniperBoughtPct;
-  const headline = t.headline(d.proSnipers || d.snipers || 0, showPct) + t.pro(d.proSnipers || 0);
+  const dev = !!d.devOnly, devBig = dev && (d.devLaunchPct || 0) >= 25;
+  const headline = dev ? t.devOnly(d.devLaunchPct) : t.headline(d.proSnipers || d.snipers || 0, showPct) + t.pro(d.proSnipers || 0);
   const rows = (d.top || []).map((s, i) => {
     const badge = s.pro ? 'fail' : 'warn';
     return `<button type="button" class="snrow" data-o="${esc(s.owner)}">
@@ -83,14 +90,14 @@ function draw(box, d) {
   }).join('');
 
   box.innerHTML = `
-    <div class="sn-head"><h3>${t.title} <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">· ${t.arTitle}</span></h3></div>
-    <div class="sn-verdict"><span class="st ${st}">${esc(t[lvl] || risk.label)}</span>
+    <div class="sn-head"><h3>${t.title} ${t.arTitle ? `<span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">· ${t.arTitle}</span>` : ''}</h3></div>
+    <div class="sn-verdict"><span class="st ${dev ? (devBig ? 'warn' : 'na') : st}">${esc(dev ? t.devChip : (t[lvl] || risk.label))}</span>
       <b>${esc(headline)}</b></div>
-    ${(d.warning || (lvl === 'high' || lvl === 'medium')) ? `<p class="sn-warn">${esc(d.warning || t.warn)}</p>` : ''}
+    ${!dev && (d.warning || (lvl === 'high' || lvl === 'medium')) ? `<p class="sn-warn">${esc(d.warning || t.warn)}</p>` : ''}
     <div class="grid sn-grid">
       <div class="kv"><span>${t.buyers}</span><b dir="ltr">${d.earlyBuyers ?? '—'}</b></div>
       <div class="kv"><span>${t.snipers}</span><b class="${(d.snipers || 0) >= 6 ? 'dn' : ''}" dir="ltr">${d.snipers ?? '—'} <small class="muted">(${d.proSnipers || 0} pro)</small></b></div>
-      <div class="kv"><span>${t.held}</span><b class="${(pct || 0) >= 12 ? 'dn' : (pct || 0) >= 5 ? '' : 'up'}" dir="ltr">${pct != null ? pct.toFixed(1) + '%' : '—'}</b></div>
+      ${dev ? `<div class="kv"><span>${t.devHeld}</span><b class="${devBig ? 'dn' : ''}" dir="ltr">${d.devLaunchPct != null ? d.devLaunchPct.toFixed(1) + '%' : '—'}</b></div>` : `<div class="kv"><span>${t.held}</span><b class="${(pct || 0) >= 12 ? 'dn' : (pct || 0) >= 5 ? '' : 'up'}" dir="ltr">${pct != null ? pct.toFixed(1) + '%' : '—'}</b></div>`}
       <div class="kv"><span>${t.window}</span><b dir="ltr">${d.windowSec != null ? d.windowSec + 's' : '—'}</b></div>
     </div>
     ${rows ? `<h4 class="sn-sub">${t.top}</h4><div class="sn-list" id="sn-list">${rows}</div><p class="muted" style="margin:6px 0 0;font-size:12px">${t.tap}</p>` : ''}
@@ -103,11 +110,11 @@ function draw(box, d) {
 }
 
 function isBusy(j) {
-  return !!(j && (j.soft || j.reason === 'rate_limited' || j.reason === 'timeout'));
+  return !!(j && j.reason !== 'deep_history' && (j.soft || j.reason === 'rate_limited' || j.reason === 'timeout'));
 }
 async function fetchSnipers(mint, retry = false) {
   const ctl = new AbortController();
-  const tm = setTimeout(() => ctl.abort(), 15000);
+  const tm = setTimeout(() => ctl.abort(), 20000); // server budget is ~11-12 s
   try {
     const r = await fetch('/api/snipers?mint=' + encodeURIComponent(mint) + (retry ? '&retry=1' : ''), { signal: ctl.signal });
     if (r.status === 429 || r.status === 503) {
@@ -156,7 +163,7 @@ function paint() {
     return;
   }
   if (d.empty) {
-    const byReason = { rate_limited: t.rateLimited, sigs: t.noSigs, no_buyers: t.noBuyers, timeout: t.timeout, none: t.empty, no_key: t.noKey };
+    const byReason = { rate_limited: t.rateLimited, sigs: t.noSigs, no_buyers: t.noBuyers, timeout: t.timeout, none: t.empty, no_key: t.noKey, deep_history: t.deep };
     let msg = d.configured === false ? t.noKey : (byReason[d.reason] || (d.soft ? t.rateLimited : t.empty));
     if (/\b429\b|HTTP\s*\d+/i.test(String(msg))) msg = t.rateLimited;
     box.innerHTML = `<h3>${t.title}</h3><span class="muted">${esc(msg)}</span>

@@ -1,9 +1,9 @@
-import { T, usd } from './i18n.js?v=1793402701';
+import { T, usd } from './i18n.js?v=1793440000';
 // Homepage speed: only app.js + i18n.js + nav.js load up front. core.js (the scanner), the result-section modules and the
 // new-tokens list are imported on demand: the scanner + result modules when a scan starts (or a valid CA is pasted),
 // the new-tokens list when it scrolls near the viewport. Result modules only listen for mc:render / mc:final events, so
 // render() waits for them to finish importing before it dispatches (see fireRender).
-const V = '1793402701';
+const V = '1793440000';
 // same rules as core.js detectChain (kept inline so the homepage does not need core.js before a scan)
 function detectChain(addr) { addr = (addr || '').trim(); if (/^0x[0-9a-fA-F]{40}$/.test(addr)) return 'evm'; if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr)) return 'solana'; return null; }
 let core = null, coreP = null, modsP = null, proof = null; // proof: 'Rugs we caught' card data (see loadProof)
@@ -92,6 +92,15 @@ function sigFindings(r) {
   if (S.snipers) { const { pct, pro } = S.snipers; out.push(pct >= 25 || pro >= 12 ? F('sniperSig', 'fail', 12, S.snipers) : pct >= 12 || pro >= 6 ? F('sniperSig', 'warn', 12, S.snipers) : F('sniperSig', 'pass', 12, S.snipers)); }
   if (S.bubble) { const { pct, n } = S.bubble; out.push(n >= 2 && pct >= 15 ? F('bubbleSig', 'fail', 10, S.bubble) : n >= 2 && pct >= 5 ? F('bubbleSig', 'warn', 10, S.bubble) : F('bubbleSig', 'pass', 10, S.bubble)); }
   if (S.flows) out.push(F('flowSig', S.flows.level === 'wash' ? 'fail' : S.flows.level === 'suspicious' ? 'warn' : 'pass', 8, S.flows));
+  // Linked-insider supply still held, from every linker we have (RugCheck networks, bubble-map cluster, same-slot bundle,
+  // funding-linked early buyers): the largest share counts. >= 50% => FAIL + floor High, >= 25% => WARN + floor Medium.
+  const insF = r.findings.find(f => f.id === 'insiders'), cand = [];
+  if (insF?.params?.pct != null) cand.push(+insF.params.pct);
+  if (S.bubble && (S.bubble.n || 0) >= 2 && S.bubble.pct != null) cand.push(+S.bubble.pct);
+  if (S.bundle?.heldPct != null) cand.push(+S.bundle.heldPct);
+  if (S.bundle?.linkedHeldPct != null) cand.push(+S.bundle.linkedHeldPct);
+  const held = cand.filter(Number.isFinite).length ? Math.min(100, Math.max(...cand.filter(Number.isFinite))) : null;
+  if (held != null && held >= 25) out.push({ ...F('insiderHeld', held >= 50 ? 'fail' : 'warn', 20, { pct: held }), floor: held >= 50 ? 'high' : 'medium' });
   if (S.devSell) { const { sold, ageH } = S.devSell; out.push(sold >= 50 && ageH != null && ageH < 6 ? F('devSellSig', 'fail', 10, S.devSell) : sold >= 50 ? F('devSellSig', 'warn', 10, S.devSell) : F('devSellSig', 'pass', 10, S.devSell)); }
   return out;
 }
@@ -101,7 +110,7 @@ function withDev(r) {
   if (d?.ok && DEVW[d.flag] && !r.findings.some(f => f.id === 'devHistory')) add.push({ id: 'devHistory', status: d.flag, weight: DEVW[d.flag], params: { total: d.total, bad: d.bad, checked: d.checked, live: d.live, old: d.checked - (d.new || 0) }, critical: false });
   add.push(...sigFindings(r).filter(f => !r.findings.some(x => x.id === f.id)));
   if (!add.length) return r;
-  const findings = [...r.findings, ...add], v = core.score(findings);
+  const findings = [...r.findings, ...add], v = core.score(findings); // single source of truth: every verdict display reads this
   if (r.verdict.level === 'unknown' && v.level === 'low') v.level = 'unknown';
   return { ...r, findings, verdict: v };
 }

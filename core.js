@@ -173,7 +173,10 @@ function solanaFindings(r) {
   extra.insiderPct = netPct;
   if (r.graphInsidersDetected === undefined && !r.insiderNetworks) out.push(F('insiders', 'na', 0));
   else if (ins === 0 && !nets.length) out.push(F('insiders', 'pass', W.insiders, { n: 0 }));
-  else { const p = { n: ins, nets: nets.length, pct: netPct, ...(netCapped ? { cap: 1 } : {}) }; out.push((netPct !== null && netPct > 10) || ins >= 10 ? F('insiders', 'fail', W.insiders, p) : F('insiders', 'warn', W.insiders, p)); }
+  else { const p = { n: ins, nets: nets.length, pct: netPct, ...(netCapped ? { cap: 1 } : {}) }; const f = (netPct !== null && netPct > 10) || ins >= 10 ? F('insiders', 'fail', W.insiders, p) : F('insiders', 'warn', W.insiders, p);
+    // linked-insider supply still held: >= 50% => at least High, >= 25% => at least Medium (elevated), same rule for every coin
+    if (netPct !== null && netPct >= 50) f.floor = 'high'; else if (netPct !== null && netPct >= 25) f.floor = 'medium';
+    out.push(f); }
   const cpct = supply && r.creatorBalance ? Math.min(100, r.creatorBalance / supply * 100) : 0;
   out.push(cpct > 5 ? F('creator', 'warn', W.creator, { v: cpct }) : F('creator', 'pass', W.creator, { v: cpct }));
   if (r.tokenMeta) out.push(r.tokenMeta.mutable ? F('mutable', 'warn', 4) : F('mutable', 'pass', 4));
@@ -321,6 +324,10 @@ export function score(findings) {
   // Additive risk points: fail = full weight, warn = half weight. Any critical fail => Extreme.
   const pct = pts;
   let level = critical ? 'extreme' : pts >= 40 ? 'high' : pts >= 15 ? 'medium' : 'low';
+  // Hard floors: a WARN/FAIL finding may carry floor ('medium' | 'high') so one decisive signal (e.g. linked insiders still
+  // holding most of the supply) can never be averaged away into a milder headline. Floors only raise, never lower.
+  const RANK = { low: 0, medium: 1, high: 2, extreme: 3 };
+  considered.forEach(f => { if ((f.status === 'fail' || f.status === 'warn') && RANK[f.floor] > RANK[level]) level = f.floor; });
   if (!considered.length) level = 'unknown';
   return { level, points: Math.round(pct), critical };
 }

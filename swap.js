@@ -43,6 +43,14 @@ function warn(r, t, lang, go) {
   d.addEventListener('click', (e) => { if (e.target === d || e.target.closest('[data-x]')) close(); else if (e.target.closest('[data-c]')) { close(); go(); } });
   document.body.appendChild(d); d.querySelector('[data-x]').focus();
 }
+// "Check then Swap": the scan's risk level sits right next to the trade buttons (HIGH/EXTREME still need the extra confirmation).
+const RK = { en: { h: 'Checked ✓ → Swap', low: 'Low risk', medium: 'Medium risk', high: 'HIGH risk', extreme: 'EXTREME risk', unknown: 'Risk unknown', nofee: 'No platform fee' },
+  ar: { h: 'تم الفحص ✓ ← تبادل', low: 'خطر منخفض', medium: 'خطر متوسط', high: 'خطر مرتفع', extreme: 'خطر شديد', unknown: 'خطر غير معروف', nofee: 'بدون رسوم منصة' } };
+function riskHead(r, lang) {
+  if (!document.getElementById('swr-css')) { const st = document.createElement('style'); st.id = 'swr-css'; st.textContent = '.swh{font-size:13px;color:#9aa4b8;flex-basis:100%;margin:0}.swr{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid #273046}.swr.l-low{color:#3ee08f;border-color:#3ee08f55}.swr.l-medium{color:#ffd447;border-color:#ffd44755}.swr.l-high{color:#ff9f43;border-color:#ff9f43}.swr.l-extreme{color:#ff4d6a;border-color:#ff4d6a}'; document.head.appendChild(st); }
+  const k = RK[lang] || RK.en, l = r.verdict?.level || 'unknown';
+  return `<p class="swh">${k.h}</p><span class="swr l-${l}" title="MemeCheckShield">${k[l] || k.unknown}</span>`;
+}
 let cur = null;
 function mount() {
   if (!cur) return; const { r, lang } = cur; document.getElementById('swapbar')?.remove();
@@ -52,7 +60,7 @@ function mount() {
   if (r.chain !== 'solana') return;
   const t = L[lang] || L.en, acts = document.querySelector('#vcard .acts'); if (!acts) return;
   const bar = document.createElement('div'); bar.id = 'swapbar'; bar.className = 'swapbar';
-  bar.innerHTML = `<button type="button" class="act buy" data-s="buy">${t.buy}</button><button type="button" class="act sell" data-s="sell">${t.sell}</button><span class="muted swn"><span class="swfee"></span>${t.via}</span>`;
+  bar.innerHTML = riskHead(r, lang) + `<button type="button" class="act buy" data-s="buy">${t.buy}</button><button type="button" class="act sell" data-s="sell">${t.sell}</button><span class="muted swn"><span class="swfee"></span>${t.via}</span>`;
   bar.addEventListener('click', (ev) => { const b = ev.target.closest('[data-s]'); if (!b) return;
     try { if (typeof gtag === 'function') gtag('event', 'trade_click', { action: b.dataset.s, provider: 'jupiter', risk_level: r.verdict?.level, chain: r.chain, ca: r.addr }); } catch {}
     const go = () => open(r, b.dataset.s, t); risky(r) ? warn(r, t, lang, go) : go(); });
@@ -72,10 +80,13 @@ function mountEvm(r, lang) {
   const a = r.addr.toLowerCase(), curve = r.chain === 'bsc' && r.meta?.launch?.curve, d = EVM_DEX[r.chain];
   const name = curve ? 'four.meme' : d.name, buy = curve ? `https://four.meme/token/${a}` : d.buy(a), sell = curve ? buy : d.sell(a);
   const bar = document.createElement('div'); bar.id = 'swapbar'; bar.className = 'swapbar';
-  bar.innerHTML = `<a class="act buy" data-s="buy" data-action="buy" data-provider="${curve ? 'fourmeme' : d.name.toLowerCase()}" href="${buy}" target="_blank" rel="noopener">${t.buy}</a><a class="act sell" data-s="sell" data-action="sell" data-provider="${curve ? 'fourmeme' : d.name.toLowerCase()}" href="${sell}" target="_blank" rel="noopener">${t.sell}</a><span class="muted swn">${t.evia(name)}</span>`;
+  bar.innerHTML = riskHead(r, lang) + `<a class="act buy" data-s="buy" data-action="buy" data-provider="${curve ? 'fourmeme' : d.name.toLowerCase()}" href="${buy}" target="_blank" rel="noopener">${t.buy}</a><a class="act sell" data-s="sell" data-action="sell" data-provider="${curve ? 'fourmeme' : d.name.toLowerCase()}" href="${sell}" target="_blank" rel="noopener">${t.sell}</a><span class="muted swn">${t.evia(name)}</span>`;
   bar.addEventListener('click', (ev) => { const b = ev.target.closest('a[data-s]'); if (!b || !risky(r)) return; ev.preventDefault(); warn(r, t, lang, () => window.open(b.href, '_blank', 'noopener')); });
   acts.before(bar);
 }
 document.addEventListener('mc:render', (e) => { cur = e.detail; mount(); });
+// app.js re-renders with the final score whenever a late signal (insiders, bubble map, snipers…) lands and dispatches mc:panels
+// with that result: keep the pill next to Buy/Sell on the same verdict as the headline badge.
+document.addEventListener('mc:panels', (e) => { const r = e.detail?.r; if (cur && r && r.addr === cur.r?.addr) { cur = { ...cur, r }; mount(); } });
 const outEl = document.getElementById('out');
 if (outEl) new MutationObserver(() => { if (cur && document.getElementById('vcard') && !document.getElementById('swapbar')) mount(); }).observe(outEl, { childList: true });

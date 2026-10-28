@@ -4,8 +4,11 @@
 // Heuristics (demo v1, not proof): same-slot as create, multi-buy in first seconds, tip/priority patterns,
 // still holding a large early bag. Read-only; Cache API 10–15 min on success. Soft-degrade (never raw 429).
 // Staggers with /api/liquidity-flows via shared Cache API helius-recent mark.
+import { findPda, b58dec } from '../_lib/pda.js';
+import { pumpGet } from '../_lib/pump.js';
 const MINT_RE = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
-const TTL = 900, TTL_SOFT = 20, EARLY_TX = 28, EARLY_SLOTS = 3, SIG_PAGE = 50, SIG_PAGES_MAX = 3;
+const TTL = 900, TTL_SOFT = 20, EARLY_TX = 28, EARLY_SLOTS = 3, SIG_PAGE = 1000, SIG_PAGES_MAX = 14;
+const PUMP_PROGRAM = '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P';
 const BATCH = 4, UA = 'Mozilla/5.0 (MemeCheck/1.0)';
 const HELIUS_MARK = 'https://memecheck-cache.internal/helius-recent/v1';
 const HELIUS_COOLDOWN_S = 25;
@@ -18,7 +21,7 @@ const json = (status, body, extra = {}) => new Response(typeof body === 'string'
 });
 
 // Per-request time budget: every upstream call is clamped to it so the endpoint answers within ~8-9 s (partial sample if needed).
-let DL = 0; const BUDGET_MS = 8000, PACE_MS = 450;
+let DL = 0; const BUDGET_MS = 11000, PACE_MS = 450, SIG_RESERVE_MS = 4500; // keep ~4.5 s for the tx sample
 const left = (ms) => DL ? Math.max(400, Math.min(ms, DL - Date.now())) : ms;
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 const isRate = (e) => /429|403|402|rate|limit|too many|busy|-32429|-32005/i.test(String(e?.message || e || ''));
@@ -28,6 +31,7 @@ const softMsg = (reason) => ({
   none: 'No transactions found for this mint/curve yet. / لا توجد معاملات بعد.',
   no_buyers: 'Launch txs found, but no clear early buyers could be parsed. / وُجدت معاملات إطلاق لكن لم يُستخرج مشتركون أوائل.',
   timeout: 'Sniper scan timed out. Try again. / انتهت مهلة الفحص.',
+  deep_history: 'Too much trading history to reach the launch right now. / سجل التداول طويل جدًا للوصول إلى الإطلاق الآن.',
 }[reason] || 'Sniper scan unavailable right now. / فحص القناصة غير متاح حاليًا.');
 const isHelius = (hostOrUrl) => /helius/i.test(String(hostOrUrl || ''));
 function rpcOrder(key, preferPublic) {
@@ -117,16 +121,20 @@ async function rpcBatch(url, calls, ms = 22000, retries = 1) {
 
 function short(a) { return a && a.length > 10 ? a.slice(0, 4) + '…' + a.slice(-4) : a; }
 
-async function loadCoin(mint) {
+async function loadCoin(mint, waitUntil) {
   if (!/pump$/i.test(mint)) return null;
-  try {
-    return await getJson('https://frontend-api-v3.pump.fun/coins-v2/' + mint, 8000);
-  } catch { return null; }
+  try { const { json } = await pumpGet('/coins-v2/' + mint, { ms: 5000, waitUntil }); if (json && json.mint) return json; } catch {}
+  return null;
+}
+// pump.fun often 403s Cloudflare edges: derive the bonding-curve PDA ourselves so we never fall back to walking the mint's
+// (much longer, post-migration) history, which never reaches the launch for an active coin.
+async function pumpCurve(mint) {
+  try { return await findPda([new TextEncoder().encode('bonding-curve'), b58dec(mint)], PUMP_PROGRAM); } catch { return null; }
 }
 
 function parseEarlyBuyers(txs, mint, creator, curve, launchSlot) {
   const buyers = new Map();
-  let createSlot = launchSlot;
+  let createSlot = launchSlot, devLaunch = 0n;
   for (const wrap of txs) {
     const t = wrap?.tx; if (!t || t.meta?.err) continue;
     const slot = wrap.slot;
@@ -135,8 +143,11 @@ function parseEarlyBuyers(txs, mint, creator, curve, launchSlot) {
     const keys = [...(msg.accountKeys || []).map(k => typeof k === 'string' ? k : k.pubkey),
       ...(t.meta.loadedAddresses?.writable || []), ...(t.meta.loadedAddresses?.readonly || [])];
     const nSig = msg.header?.numRequiredSignatures || 1;
-    const signers = new Set(keys.slice(0, nSig));
+    const flagged = (msg.accountKeys || []).filter(k => k && typeof k === 'object' && k.signer).map(k => k.pubkey);
+    const signers = new Set(flagged.length ? flagged : keys.slice(0, nSig));
     const feePayer = keys[0];
+    const isCreate = (t.meta?.logMessages || []).some(l => /Instruction: Create(V2)?$/.test(l));
+    if (isCreate && !creator) creator = feePayer; // pump.fun API unavailable: the create tx's fee payer is the creator
     const tip = (t.meta?.fee || 0);
     const pre = new Map(), post = new Map();
     for (const b of t.meta.preTokenBalances || []) if (b.mint === mint) pre.set(b.accountIndex, b);
@@ -146,7 +157,7 @@ function parseEarlyBuyers(txs, mint, creator, curve, launchSlot) {
       const after = BigInt(b.uiTokenAmount?.amount || '0');
       const d = after - before;
       if (d <= 0n || !b.owner) continue;
-      if (creator && b.owner === creator) continue;
+      if (creator && b.owner === creator) { if (slot === createSlot) devLaunch += d; continue; }
       if (curve && b.owner === curve) continue;
       if (!signers.has(b.owner) && b.owner !== feePayer) continue;
       const o = buyers.get(b.owner) || { owner: b.owner, amt: 0n, slots: new Set(), n: 0, tipLamports: 0, accts: new Set(), firstSlot: slot };
@@ -159,7 +170,7 @@ function parseEarlyBuyers(txs, mint, creator, curve, launchSlot) {
       buyers.set(b.owner, o);
     }
   }
-  return { buyers, createSlot };
+  return { buyers, createSlot, creator, devLaunch };
 }
 
 function labelSniper(o, createSlot) {
@@ -199,16 +210,19 @@ async function loadLaunchSigs(ups, target) {
       } else {
         collected = [...page0];
         let before = page0[page0.length - 1].signature;
+        let reached = false;
         for (let p = 0; p < SIG_PAGES_MAX - 1; p++) {
+          if (DL && Date.now() > DL - SIG_RESERVE_MS) break; // out of walking time: stop, report launch not reached
           await sleep(80);
           const page = await rpc(up, 'getSignaturesForAddress', [target, { limit: SIG_PAGE, before }], 12000);
-          if (!Array.isArray(page) || !page.length) break;
+          if (!Array.isArray(page) || !page.length) { reached = true; break; }
           collected.push(...page);
-          if (page.length < SIG_PAGE) break;
+          if (page.length < SIG_PAGE) { reached = true; break; }
           before = page[page.length - 1].signature;
         }
         // End of collected is oldest when paging with `before`
         collected = collected.reverse();
+        if (!reached) return { sigs: [], reason: 'deep_history', walked: collected.length, rpcUsed: new URL(up).host };
       }
       const sigs = collected.filter(s => s && !s.err);
       if (sigs.length) return { sigs, rpcUsed: new URL(up).host };
@@ -246,21 +260,21 @@ async function fetchTxs(ups, use) {
   return { wraps: [], err: lastErr };
 }
 
-async function build(env, mint, preferPublic = false) {
+async function build(env, mint, preferPublic = false, waitUntil) {
   const key = env && env.HELIUS_KEY;
   const ups = rpcOrder(key, preferPublic);
   const helius = key ? `https://mainnet.helius-rpc.com/?api-key=${key}` : null;
-  const coin = await loadCoin(mint);
-  const creator = coin?.creator || null;
-  const curve = coin?.bonding_curve || null;
+  const coin = await loadCoin(mint, waitUntil);
+  let creator = coin?.creator || null;
+  const curve = coin?.bonding_curve || (/pump$/i.test(mint) ? await pumpCurve(mint) : null);
   const createdMs = coin?.created_timestamp ? +coin.created_timestamp : null;
   const target = curve || mint;
 
-  const { sigs, reason: sigReason, err: sigErr, rpcUsed: sigRpc } = await loadLaunchSigs(ups, target);
+  const { sigs, reason: sigReason, err: sigErr, rpcUsed: sigRpc, walked } = await loadLaunchSigs(ups, target);
   if (!sigs.length) {
     const reason = sigReason || (isRate(sigErr) ? 'rate_limited' : 'sigs');
     return {
-      ok: true, configured: !!key, mint, empty: true, reason, soft: reason === 'rate_limited',
+      ok: true, configured: !!key, mint, empty: true, reason, soft: reason === 'rate_limited' || reason === 'deep_history', ...(walked ? { walked } : {}),
       message: softMsg(reason), src: sigRpc || null, at: Date.now(),
     };
   }
@@ -278,7 +292,23 @@ async function build(env, mint, preferPublic = false) {
     };
   }
 
-  const { buyers, createSlot } = parseEarlyBuyers(wraps, mint, creator, curve, launchSlot);
+  const parsed = parseEarlyBuyers(wraps, mint, creator, curve, launchSlot);
+  const { buyers, createSlot, devLaunch } = parsed; creator = parsed.creator;
+  if (!buyers.size && devLaunch > 0n) {
+    // Graceful partial: no outside buyers in the launch sample because the creator bought the curve in the create tx.
+    // That IS the launch picture (dev self-snipe), so report it instead of an error. Not counted as sniper supply.
+    let devLaunchPct = null;
+    try { const sup = await rpc(preferPublic ? ups[0] : (helius || ups[0]), 'getTokenSupply', [mint], 6000, 0); const S = BigInt(sup.value.amount); if (S > 0n) devLaunchPct = Math.min(100, Number(devLaunch * 1000000n / S) / 1e4); } catch {}
+    return {
+      ok: true, configured: !!key, mint, empty: false, devOnly: true, pump: !!coin || /pump$/i.test(mint),
+      creator, curve, launchSlot: createSlot, sampledTx: use.length, earlyBuyers: 0, snipers: 0, proSnipers: 0,
+      sniperPct: null, sniperHeldPct: null, sniperBoughtPct: null,
+      devLaunchPct: devLaunchPct != null ? +devLaunchPct.toFixed(2) : null,
+      risk: { level: 'unknown', label: 'No outside early buyers' }, windowSec: null, src: rpcUsed || sigRpc || null,
+      warning: devLaunchPct != null && devLaunchPct >= 25 ? 'The creator bought a large share of supply in the launch transaction itself.' : null,
+      top: [], buyers: [], note: 'Launch sample had no outside buyers: only the creator bought in the create transaction.', at: Date.now(),
+    };
+  }
   if (!buyers.size) {
     return {
       ok: true, configured: !!key, mint, empty: true, reason: 'no_buyers',
@@ -383,7 +413,7 @@ export const onRequest = async ({ request: req, env, waitUntil }) => {
   const mint = u.searchParams.get('mint') || u.searchParams.get('ca') || '';
   if (!MINT_RE.test(mint)) return json(400, { error: 'bad mint' });
   const bust = u.searchParams.get('fresh') === '1';
-  const cacheKey = new Request('https://memecheck-cache.internal/snipers/v4/' + mint);
+  const cacheKey = new Request('https://memecheck-cache.internal/snipers/v6/' + (env && env.HELIUS_KEY ? 'k/' : 'p/') + mint);
   const cache = typeof caches !== 'undefined' ? caches.default : null;
   if (!bust) try {
     const hit = cache && await cache.match(cacheKey);
@@ -397,7 +427,7 @@ export const onRequest = async ({ request: req, env, waitUntil }) => {
   let res, tm; DL = Date.now() + BUDGET_MS;
   try {
     res = await Promise.race([
-      build(env, mint, preferPublic),
+      build(env, mint, preferPublic, waitUntil),
       new Promise((_, rej) => { tm = setTimeout(() => rej(new Error('timeout')), BUDGET_MS + 1000); }),
     ]);
   } catch (e) {
@@ -413,7 +443,7 @@ export const onRequest = async ({ request: req, env, waitUntil }) => {
   const body = JSON.stringify(res);
   const ttl = (res.soft || res.reason === 'rate_limited') ? TTL_SOFT : TTL;
   // Cache successes (10–15m) and brief soft/rate-limit to stop stampedes; never cache timeouts.
-  const cacheable = res.ok && res.reason !== 'timeout' && ( !res.soft || res.reason === 'rate_limited' || res.reason === 'no_buyers' || res.reason === 'none' || !res.empty );
+  const cacheable = res.ok && res.reason !== 'timeout' && res.reason !== 'sigs' && ( !res.soft || res.reason === 'rate_limited' || res.reason === 'no_buyers' || res.reason === 'none' || !res.empty );
   if (cache && cacheable) {
     const p = cache.put(cacheKey, new Response(body, { headers: { 'content-type': 'application/json', 'cache-control': `public, max-age=${ttl}` } })).catch(() => {});
     waitUntil ? waitUntil(p) : await p;

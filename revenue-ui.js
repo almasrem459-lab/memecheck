@@ -345,6 +345,11 @@ document.addEventListener('mc:render', (e) => {
   mountGetVerifiedBtn(r, lang);
   mountTerminalRefs(lang);
 });
+// keep the "Get verified" (low-risk only) gate on the final, late-signal-adjusted verdict; display only, never changes scores
+document.addEventListener('mc:panels', (e) => {
+  const r = e.detail?.r; if (!cur || !r || r.addr !== cur.r?.addr) return;
+  cur = { ...cur, r }; mountGetVerifiedBtn(r, cur.lang);
+});
 
 // Homepage: hero banner + strip (no scan yet)
 const bootLang = () => (document.documentElement.lang === 'ar' ? 'ar' : 'en');
