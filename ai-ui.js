@@ -1,7 +1,7 @@
 // AI summary + "Ask AI" card (POST /api/ai, Cloudflare Workers AI). Loads only after the main scan has finished
 // (app.js exposes the final, dev-history-adjusted result via window.__mcLast) and never blocks or breaks the scan:
 // any error shows a calm "unavailable" line. Answers are grounded in the compact scan below; nothing else is sent.
-import { T, usd } from './i18n.js?v=1793201025';
+import { T, usd } from './i18n.js?v=1793300000';
 const L = {
   en: { title: 'AI summary', beta: 'beta', reading: 'Reading the scan…', na: 'AI summary unavailable right now.', busy: 'AI is busy right now. Try again in a few minutes.', retry: 'Retry',
     bl: 'Bottom line', nfa: 'Not financial advice. AI can make mistakes; check the findings below.', ask: 'Ask AI about this token', ph: 'Ask about this token…', send: 'Ask',
@@ -188,3 +188,6 @@ async function load(key) {
 }
 const later = () => setTimeout(() => { try { sync(); } catch {} }, 0);
 document.addEventListener('mc:final', later); document.addEventListener('mc:render', later); document.addEventListener('mc:devhist', later);
+// Late panels (snipers, insiders, flows…) can move the final verdict after mc:final. Re-sync once it settles so the
+// summary always describes the same level/points as the headline, pill and share card (sync() skips unchanged keys).
+let pt = 0; document.addEventListener('mc:panels', () => { clearTimeout(pt); pt = setTimeout(() => { try { sync(); } catch {} }, 2500); });
