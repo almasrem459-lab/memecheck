@@ -9,9 +9,23 @@ const LV = { low: 'No major red flags', medium: 'Medium risk', high: 'High risk'
 export const onRequest = async (ctx) => {
   const { request: req, next, env } = ctx; const url = new URL(req.url);
   useCounter(env.REV); // exact KV write counter (D1) for guardedPut in every Function
-  // /bots used to 404 — paper bots live on /smart#bots. Keep a stable bookmark.
+  // /bots (old paper-bots bookmark) → /smart. Paper bots are off the public site.
   if (req.method === 'GET' && (url.pathname === '/bots' || url.pathname === '/bots/')) {
-    return Response.redirect(new URL('/smart#bots', url.origin).toString(), 302);
+    return Response.redirect(new URL('/smart', url.origin).toString(), 302);
+  }
+  // Monetization / docs bookmarks that used to 404.
+  if (req.method === 'GET') {
+    const raw = url.pathname;
+    const p = raw.length > 1 && raw.endsWith('/') ? raw.slice(0, -1) : raw;
+    if (p === '/verify' || p === '/get-verified') {
+      return Response.redirect(new URL('/verified', url.origin).toString(), 302);
+    }
+    if (p === '/boost' || p === '/projects/boost') {
+      return Response.redirect(new URL('/projects#boost', url.origin).toString(), 302);
+    }
+    if (p === '/api') {
+      return Response.redirect(new URL('/api-docs', url.origin).toString(), 302);
+    }
   }
   // never serve deploy config / server sources as static files
   if (/^\/(wrangler\.toml|\.wrangler|functions|package(-lock)?\.json|node_modules|\.git|\.dev\.vars)(\/|$)/i.test(url.pathname)) return new Response('Not found', { status: 404, headers: { 'cache-control': 'no-store' } });

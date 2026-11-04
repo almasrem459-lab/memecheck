@@ -1,0 +1,7 @@
+/bots /smart 302
+/bots/ /smart 302
+/verify /verified 302
+/get-verified /verified 302
+/boost /projects#boost 302
+/projects/boost /projects#boost 302
+/api /api-docs 302
