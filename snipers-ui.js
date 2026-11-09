@@ -12,10 +12,10 @@ const L = {
     retry: 'Retry',
     notSol: 'Sniper detection is available for Solana tokens only.', notEvm: (c) => `Not available on ${c} yet. Sniper detection currently works for Solana launches only.`,
     high: 'High sniper risk', medium: 'Elevated sniper activity', low: 'Some early snipers', clear: 'Low sniper footprint', unknown: 'Unknown',
-    headline: (n, pct) => n ? `${n} likely sniper bot${n === 1 ? '' : 's'} detected${pct != null ? ` holding ~${pct}% of supply` : ''}` : 'No clear sniper cluster in the launch sample',
+    headline: (n, bought, held) => n ? `${n} likely sniper bot${n === 1 ? '' : 's'}: bought ~${bought ?? '—'}% at launch, now hold ~${held ?? '—'}%` : 'No clear sniper cluster in the launch sample',
     pro: (n) => n ? ` · ${n} pro (same/next slot)` : '',
     warn: 'Even if the contract looks clean, this coin can be “dead by programming” — early bots may dump into retail.',
-    buyers: 'Early buyers sampled', snipers: 'Flagged snipers', held: 'Sniper-held supply', window: 'Launch window',
+    buyers: 'Early buyers sampled', snipers: 'Flagged snipers', held: 'Sniper-held now', bought: 'Bought at launch', window: 'Launch window',
     top: 'Top sniper wallets', tap: 'Tap a row for Solscan',
     reasons: {
       same_slot: 'Bought in create slot', next_slot: 'Bought next slot', early_slot: 'Bought in first slots',
@@ -25,7 +25,7 @@ const L = {
     timeout: 'Sniper scan timed out. Try again.',
     noKey: 'Sniper scan needs server RPC (not configured).',
     rateLimited: 'RPC is busy right now — try again in a minute.',
-    noSigs: 'Could not load launch signatures right now.',
+    noSigs: 'Could not load launch signatures right now — the RPC may be busy. Tap Retry in a moment.',
     noBuyers: 'Launch txs found, but no clear early buyers could be parsed.',
     deep: 'Too much trading history to reach the launch right now. Try again in a minute.',
     devOnly: (p) => `No outside early buyers: only the creator bought at launch${p != null ? `, ~${p}% of supply in the create transaction` : ''}`,
@@ -39,10 +39,10 @@ const L = {
     retry: 'إعادة المحاولة',
     notSol: 'كشف القناصة متاح لعملات سولانا فقط.', notEvm: (c) => `غير متاح على ${c} بعد. كشف القناصة يعمل حاليًا لإطلاقات سولانا فقط.`,
     high: 'خطر قناصة مرتفع', medium: 'نشاط قناصة مرتفع', low: 'بعض القناصة الأوائل', clear: 'بصمة قناصة منخفضة', unknown: 'غير معروف',
-    headline: (n, pct) => n ? `تم رصد ${n} بوت قنص محتمل${pct != null ? ` يملكون ~${pct}% من المعروض` : ''}` : 'لا توجد مجموعة قناصة واضحة في عيّنة الإطلاق',
+    headline: (n, bought, held) => n ? `${n} بوت قنص محتمل: اشتروا ~${bought ?? '—'}% عند الإطلاق، يملكون الآن ~${held ?? '—'}%` : 'لا توجد مجموعة قناصة واضحة في عيّنة الإطلاق',
     pro: (n) => n ? ` · ${n} محترف (نفس/التالي سلوط)` : '',
     warn: 'حتى لو العقد يبدو نظيفًا، العملة قد تكون «ميتة برمجيًا» — البوتات الأوائل قد تبيع على التجزئة.',
-    buyers: 'أوائل المشترين (عيّنة)', snipers: 'قناصة مُعلَّمون', held: 'معروض بحوزة القناصة', window: 'نافذة الإطلاق',
+    buyers: 'أوائل المشترين (عيّنة)', snipers: 'قناصة مُعلَّمون', held: 'بحوزتهم الآن', bought: 'اشتروا عند الإطلاق', window: 'نافذة الإطلاق',
     top: 'أكبر محافظ القناصة', tap: 'اضغط صفًا لفتح Solscan',
     reasons: {
       same_slot: 'شراء في سلوط الإنشاء', next_slot: 'شراء في السلوط التالي', early_slot: 'شراء في أوائل السلوطات',
@@ -52,7 +52,7 @@ const L = {
     timeout: 'انتهت مهلة فحص القناصة. حاول مجددًا.',
     noKey: 'فحص القناصة يحتاج RPC على الخادم (غير مُعد).',
     rateLimited: 'الشبكة مشغولة الآن — حاول بعد دقيقة.',
-    noSigs: 'تعذر تحميل توقيعات الإطلاق الآن.',
+    noSigs: 'تعذر تحميل توقيعات الإطلاق الآن — قد يكون الـ RPC مشغولاً. اضغط إعادة المحاولة بعد لحظة.',
     noBuyers: 'وُجدت معاملات إطلاق لكن لم يُستخرج مشتركون أوائل.',
     deep: 'سجل التداول طويل جدًا للوصول إلى الإطلاق الآن. حاول بعد دقيقة.',
     devOnly: (p) => `لا يوجد مشترون أوائل من الخارج: فقط المطوّر اشترى عند الإطلاق${p != null ? `، نحو ${p}% من المعروض في معاملة الإنشاء` : ''}`,
@@ -62,6 +62,14 @@ const L = {
 const lang = () => document.documentElement.lang === 'ar' ? 'ar' : 'en';
 const cache = new Map(), DELAY = 2000;
 let cur = null;
+function markSnipersDone(payload) {
+  try {
+    if (!cur?.addr || cur.chain !== 'solana') return;
+    const sig = window.__mcSig || (window.__mcSig = { set(a,k,v){const m=(this.m||(this.m=new Map()));const o=m.get(a)||{};if(JSON.stringify(o[k])===JSON.stringify(v))return;o[k]=v;m.set(a,o);document.dispatchEvent(new CustomEvent('mc:signal',{detail:{addr:a,key:k}}))}, get(a){return this.m&&this.m.get(a)} });
+    const prev = sig.get(cur.addr)?.snipers || {};
+    sig.set(cur.addr, 'snipers', { heldPct: 0, boughtPct: 0, pct: 0, pro: 0, done: true, unavailable: true, ...prev, ...payload });
+  } catch {}
+}
 
 const levelClass = { high: 'fail', medium: 'warn', low: 'warn', clear: 'pass', unknown: 'na' };
 
@@ -74,18 +82,33 @@ function draw(box, d) {
   const risk = d.risk || { level: 'unknown', label: t.unknown };
   const lvl = risk.level || 'unknown';
   const st = levelClass[lvl] || 'na';
-  const pct = d.sniperPct;
-  try { if (cur?.addr && cur.chain === 'solana' && pct != null) (window.__mcSig||(window.__mcSig={set(a,k,v){const m=(this.m||(this.m=new Map()));const o=m.get(a)||{};if(JSON.stringify(o[k])===JSON.stringify(v))return;o[k]=v;m.set(a,o);document.dispatchEvent(new CustomEvent('mc:signal',{detail:{addr:a,key:k}}))},get(a){return this.m&&this.m.get(a)}})).set(cur.addr, 'snipers', { pct: Math.min(100, +pct), pro: d.proSnipers || 0 }); } catch {}
-  const showPct = (pct != null && pct > 0) ? pct : d.sniperBoughtPct;
+  const held = d.sniperHeldPct != null ? +d.sniperHeldPct : (d.sniperPct != null ? +d.sniperPct : null);
+  const bought = d.sniperBoughtPct != null ? +d.sniperBoughtPct : null;
+  // Score signal: CURRENT held %. boughtPct is context only (sold-out early sniping → mild).
+  try {
+    if (cur?.addr && cur.chain === 'solana') {
+      const sig = window.__mcSig || (window.__mcSig = { set(a,k,v){const m=(this.m||(this.m=new Map()));const o=m.get(a)||{};if(JSON.stringify(o[k])===JSON.stringify(v))return;o[k]=v;m.set(a,o);document.dispatchEvent(new CustomEvent('mc:signal',{detail:{addr:a,key:k}}))}, get(a){return this.m&&this.m.get(a)} });
+      sig.set(cur.addr, 'snipers', {
+        heldPct: held != null ? Math.min(100, held) : 0,
+        boughtPct: bought != null ? Math.min(100, bought) : 0,
+        pct: held != null ? Math.min(100, held) : 0, // compat
+        pro: d.proSnipers || 0,
+        soldOut: !!(risk.soldOut || ((bought || 0) >= 12 && (held || 0) < 5)),
+        done: true,
+      });
+    }
+  } catch {}
   const dev = !!d.devOnly, devBig = dev && (d.devLaunchPct || 0) >= 25;
-  const headline = dev ? t.devOnly(d.devLaunchPct) : t.headline(d.proSnipers || d.snipers || 0, showPct) + t.pro(d.proSnipers || 0);
+  const headline = dev ? t.devOnly(d.devLaunchPct) : t.headline(d.proSnipers || d.snipers || 0, bought != null ? +bought.toFixed(1) : null, held != null ? +held.toFixed(1) : null) + t.pro(d.proSnipers || 0);
   const rows = (d.top || []).map((s, i) => {
     const badge = s.pro ? 'fail' : 'warn';
-    return `<button type="button" class="snrow" data-o="${esc(s.owner)}">
+    const show = s.heldPct != null ? s.heldPct : s.boughtPct;
+    const tip = (s.boughtPct != null && s.heldPct != null) ? `bought ${s.boughtPct.toFixed(2)}% → hold ${s.heldPct.toFixed(2)}%` : '';
+    return `<button type="button" class="snrow" data-o="${esc(s.owner)}" title="${esc(tip)}">
       <span class="st ${badge}">#${i + 1}</span>
       <span class="snmain"><span class="mono" dir="ltr">${esc(s.short)}</span>
         <span class="muted snwhy">${esc(reasonTxt(s.reasons, t))}</span></span>
-      <span class="snpct" dir="ltr">${s.heldPct != null ? s.heldPct.toFixed(2) : (s.boughtPct != null ? s.boughtPct.toFixed(2) : '—')}%</span>
+      <span class="snpct" dir="ltr">${show != null ? (+show).toFixed(2) : '—'}%</span>
     </button>`;
   }).join('');
 
@@ -93,11 +116,12 @@ function draw(box, d) {
     <div class="sn-head"><h3>${t.title} ${t.arTitle ? `<span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">· ${t.arTitle}</span>` : ''}</h3></div>
     <div class="sn-verdict"><span class="st ${dev ? (devBig ? 'warn' : 'na') : st}">${esc(dev ? t.devChip : (t[lvl] || risk.label))}</span>
       <b>${esc(headline)}</b></div>
-    ${!dev && (d.warning || (lvl === 'high' || lvl === 'medium')) ? `<p class="sn-warn">${esc(d.warning || t.warn)}</p>` : ''}
+    ${!dev && (d.warning || (lvl === 'high' || lvl === 'medium')) ? `<p class="sn-warn">${esc(d.warning || t.warn)}</p>` : (!dev && risk.soldOut && d.warning ? `<p class="sn-warn">${esc(d.warning)}</p>` : '')}
     <div class="grid sn-grid">
       <div class="kv"><span>${t.buyers}</span><b dir="ltr">${d.earlyBuyers ?? '—'}</b></div>
       <div class="kv"><span>${t.snipers}</span><b class="${(d.snipers || 0) >= 6 ? 'dn' : ''}" dir="ltr">${d.snipers ?? '—'} <small class="muted">(${d.proSnipers || 0} pro)</small></b></div>
-      ${dev ? `<div class="kv"><span>${t.devHeld}</span><b class="${devBig ? 'dn' : ''}" dir="ltr">${d.devLaunchPct != null ? d.devLaunchPct.toFixed(1) + '%' : '—'}</b></div>` : `<div class="kv"><span>${t.held}</span><b class="${(pct || 0) >= 12 ? 'dn' : (pct || 0) >= 5 ? '' : 'up'}" dir="ltr">${pct != null ? pct.toFixed(1) + '%' : '—'}</b></div>`}
+      ${dev ? `<div class="kv"><span>${t.devHeld}</span><b class="${devBig ? 'dn' : ''}" dir="ltr">${d.devLaunchPct != null ? d.devLaunchPct.toFixed(1) + '%' : '—'}</b></div>` : `<div class="kv"><span>${t.bought}</span><b dir="ltr">${bought != null ? bought.toFixed(1) + '%' : '—'}</b></div>
+      <div class="kv"><span>${t.held}</span><b class="${(held || 0) >= 12 ? 'dn' : (held || 0) >= 5 ? '' : 'up'}" dir="ltr">${held != null ? held.toFixed(1) + '%' : '—'}</b></div>`}
       <div class="kv"><span>${t.window}</span><b dir="ltr">${d.windowSec != null ? d.windowSec + 's' : '—'}</b></div>
     </div>
     ${rows ? `<h4 class="sn-sub">${t.top}</h4><div class="sn-list" id="sn-list">${rows}</div><p class="muted" style="margin:6px 0 0;font-size:12px">${t.tap}</p>` : ''}
@@ -157,15 +181,18 @@ function paint() {
     return;
   }
   if (d.error) {
+    markSnipersDone({ unavailable: true });
     box.innerHTML = `<h3>${t.title}</h3><span class="muted">${d.timeout ? t.timeout : t.err}</span>
       <button type="button" class="ghost act" id="sn-retry">${t.retry}</button>`;
     $('#sn-retry')?.addEventListener('click', () => { cache.delete(cur.addr); start(cur.addr, true); });
     return;
   }
   if (d.empty) {
+    markSnipersDone({ empty: true });
     const byReason = { rate_limited: t.rateLimited, sigs: t.noSigs, no_buyers: t.noBuyers, timeout: t.timeout, none: t.empty, no_key: t.noKey, deep_history: t.deep };
     let msg = d.configured === false ? t.noKey : (byReason[d.reason] || (d.soft ? t.rateLimited : t.empty));
-    if (/\b429\b|HTTP\s*\d+/i.test(String(msg))) msg = t.rateLimited;
+    if (d.soft && d.reason === 'sigs') msg = t.rateLimited;
+    if (/\b429\b|HTTP\s*\d+|rate.?limit/i.test(String(d.message || d.error || msg))) msg = t.rateLimited;
     box.innerHTML = `<h3>${t.title}</h3><span class="muted">${esc(msg)}</span>
       <button type="button" class="ghost act" id="sn-retry">${t.retry}</button>
       <details class="fn"><summary title="info">ⓘ</summary><div>${t.note}</div></details>`;

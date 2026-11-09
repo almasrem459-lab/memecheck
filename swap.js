@@ -3,7 +3,7 @@
 // FEE: set REFERRAL_ACCOUNT to the owner's Jupiter Ultra referral account (created at https://referral.jup.ag).
 // While empty, swaps work normally WITHOUT any fee and the fee note is hidden. If the referral token account for the
 // order's fee mint is missing, Jupiter still executes the swap, just without the fee (never fails the swap).
-export const REFERRAL_ACCOUNT = ''; // paste Jupiter referral pubkey from https://referral.jup.ag (NOT Phantom pay wallet)
+export const REFERRAL_ACCOUNT = ''; // TODO(Jojo): paste Jupiter Ultra referral pubkey from https://referral.jup.ag (NOT Phantom pay wallet). Leave empty until Jojo supplies it — do not invent a wallet.
 export const REFERRAL_FEE_BPS = 50; // 0.5% — fee activates when referral account is set
 const SOL = 'So11111111111111111111111111111111111111112';
 const FEE_ON = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(REFERRAL_ACCOUNT);
@@ -44,11 +44,12 @@ function warn(r, t, lang, go) {
   document.body.appendChild(d); d.querySelector('[data-x]').focus();
 }
 // "Check then Swap": the scan's risk level sits right next to the trade buttons (HIGH/EXTREME still need the extra confirmation).
-const RK = { en: { h: 'Checked ✓ → Swap', low: 'Low risk', medium: 'Medium risk', high: 'HIGH risk', extreme: 'EXTREME risk', unknown: 'Risk unknown', nofee: 'No platform fee' },
-  ar: { h: 'تم الفحص ✓ ← تبادل', low: 'خطر منخفض', medium: 'خطر متوسط', high: 'خطر مرتفع', extreme: 'خطر شديد', unknown: 'خطر غير معروف', nofee: 'بدون رسوم منصة' } };
+const RK = { en: { h: 'Checked ✓ → Swap', low: 'Low risk', medium: 'Medium risk', high: 'HIGH risk', extreme: 'EXTREME risk', unknown: 'Risk unknown', checking: 'Still checking…', nofee: 'No platform fee' },
+  ar: { h: 'تم الفحص ✓ ← تبادل', low: 'خطر منخفض', medium: 'خطر متوسط', high: 'خطر مرتفع', extreme: 'خطر شديد', unknown: 'خطر غير معروف', checking: 'جارٍ إكمال الفحص…', nofee: 'بدون رسوم منصة' } };
 function riskHead(r, lang) {
-  if (!document.getElementById('swr-css')) { const st = document.createElement('style'); st.id = 'swr-css'; st.textContent = '.swh{font-size:13px;color:#9aa4b8;flex-basis:100%;margin:0}.swr{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid #273046}.swr.l-low{color:#3ee08f;border-color:#3ee08f55}.swr.l-medium{color:#ffd447;border-color:#ffd44755}.swr.l-high{color:#ff9f43;border-color:#ff9f43}.swr.l-extreme{color:#ff4d6a;border-color:#ff4d6a}'; document.head.appendChild(st); }
-  const k = RK[lang] || RK.en, l = r.verdict?.level || 'unknown';
+  if (!document.getElementById('swr-css')) { const st = document.createElement('style'); st.id = 'swr-css'; st.textContent = '.swh{font-size:13px;color:#9aa4b8;flex-basis:100%;margin:0}.swr{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid #273046}.swr.l-low{color:#3ee08f;border-color:#3ee08f55}.swr.l-medium{color:#ffd447;border-color:#ffd44755}.swr.l-high{color:#ff9f43;border-color:#ff9f43}.swr.l-extreme{color:#ff4d6a;border-color:#ff4d6a}.swr.l-checking{color:#c9d4e8;border-color:#3a465c}'; document.head.appendChild(st); }
+  const k = RK[lang] || RK.en;
+  const l = r._sigPending ? 'checking' : (r.verdict?.level || 'unknown');
   return `<p class="swh">${k.h}</p><span class="swr l-${l}" title="MemeCheckShield">${k[l] || k.unknown}</span>`;
 }
 let cur = null;

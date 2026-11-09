@@ -74,15 +74,18 @@ const cache = new Map(), DELAY = 0;
 let cur = null, anim = null, inst = null;
 
 function layout(nodes, w, h) {
-  const cx = w / 2, cy = h / 2;
+  // Inset so top wallet + label stay inside the clipped stage (was clipping the north node).
+  const padT = 28, padB = 22, padX = 18;
+  const cx = w / 2, cy = padT + (h - padT - padB) / 2;
   const lp = nodes.find(n => n.kind === 'lp');
   const wallets = nodes.filter(n => n.kind === 'wallet');
   const pos = new Map();
-  if (lp) pos.set(lp.id, { x: cx, y: cy, r: 28, n: lp });
-  const R = Math.min(w, h) * 0.36;
+  if (lp) pos.set(lp.id, { x: cx, y: cy, r: 26, n: lp });
+  const usable = Math.min(w - padX * 2, h - padT - padB);
+  const R = Math.max(40, usable * 0.32);
   wallets.forEach((n, i) => {
     const a = -Math.PI / 2 + (i / Math.max(wallets.length, 1)) * Math.PI * 2;
-    const rr = n.sus ? 16 : 13;
+    const rr = n.sus ? 15 : 12;
     pos.set(n.id, { x: cx + Math.cos(a) * R, y: cy + Math.sin(a) * R, r: rr, n });
   });
   return pos;
@@ -374,7 +377,14 @@ function draw(box, data) {
   const t = L[lang()];
   if (inst) { inst.destroy(); inst = null; }
   const sum = data.summary || {};
-  try { const o = data.organic; if (cur?.addr && cur.chain === 'solana' && o && ORG_CLS[o.level] && o.trades > 0) (window.__mcSig||(window.__mcSig={set(a,k,v){const m=(this.m||(this.m=new Map()));const o=m.get(a)||{};if(JSON.stringify(o[k])===JSON.stringify(v))return;o[k]=v;m.set(a,o);document.dispatchEvent(new CustomEvent('mc:signal',{detail:{addr:a,key:k}}))},get(a){return this.m&&this.m.get(a)}})).set(cur.addr, 'flows', { level: o.level, trades: o.trades }); } catch {}
+  try {
+    if (cur?.addr && cur.chain === 'solana') {
+      const sig = window.__mcSig || (window.__mcSig = { set(a,k,v){const m=(this.m||(this.m=new Map()));const o=m.get(a)||{};if(JSON.stringify(o[k])===JSON.stringify(v))return;o[k]=v;m.set(a,o);document.dispatchEvent(new CustomEvent('mc:signal',{detail:{addr:a,key:k}}))}, get(a){return this.m&&this.m.get(a)} });
+      const o = data.organic;
+      if (o && ORG_CLS[o.level] && o.trades > 0) sig.set(cur.addr, 'flows', { level: o.level, trades: o.trades, done: true });
+      else sig.set(cur.addr, 'flows', { level: 'organic', trades: 0, done: true, empty: true });
+    }
+  } catch {}
   box.innerHTML = `
     <div class="lf-head"><h3>${t.title} ${t.arTitle ? `<span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">· ${t.arTitle}</span>` : ''}</h3></div>
     ${orgBadge(data.organic, t)}<p class="lf-sum">${esc(t.summary(sum))}</p>
@@ -446,6 +456,7 @@ function paint() {
   }
   if (d.error) {
     if (inst) { inst.destroy(); inst = null; }
+    markFlowsDone({ error: true });
     box.innerHTML = `<h3>${t.title}</h3><span class="muted">${d.timeout ? t.timeout : t.err}</span>
       <button type="button" class="ghost act" id="lf-retry">${t.retry}</button>`;
     $('#lf-retry')?.addEventListener('click', () => { cache.delete(cur.addr); start(cur.addr, true); });
@@ -453,6 +464,7 @@ function paint() {
   }
   if (d.empty) {
     if (inst) { inst.destroy(); inst = null; }
+    markFlowsDone({ empty: true });
     const byReason = { no_pool: t.noPool, rate_limited: t.rateLimited, no_sigs: t.noSigs, no_flows: t.noFlows, timeout: t.timeout };
     // Prefer localized soft copy; never render raw "429" / HTTP status strings
     let msg = byReason[d.reason] || (d.soft ? t.rateLimited : t.empty);

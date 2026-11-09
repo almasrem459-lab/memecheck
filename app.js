@@ -1,9 +1,9 @@
-import { T, usd } from './i18n.js?v=1793441000';
+import { T, usd } from './i18n.js?v=1793667000';
 // Homepage speed: only app.js + i18n.js + nav.js load up front. core.js (the scanner), the result-section modules and the
 // new-tokens list are imported on demand: the scanner + result modules when a scan starts (or a valid CA is pasted),
 // the new-tokens list when it scrolls near the viewport. Result modules only listen for mc:render / mc:final events, so
 // render() waits for them to finish importing before it dispatches (see fireRender).
-const V = '1793441000';
+const V = '1794220800';
 // same rules as core.js detectChain (kept inline so the homepage does not need core.js before a scan)
 function detectChain(addr) { addr = (addr || '').trim(); if (/^0x[0-9a-fA-F]{40}$/.test(addr)) return 'evm'; if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr)) return 'solana'; return null; }
 let core = null, coreP = null, modsP = null, proof = null; // proof: 'Rugs we caught' card data (see loadProof)
@@ -12,7 +12,7 @@ const loadCore = () => coreP ||= Promise.all([
   import(`./core.js?v=${V}`),
   import(`./risk-insight.js?v=${V}`),
 ]).then(([m, ri]) => { core = m; riskInsight = ri; return m; });
-const RESULT_MODS = ['devbundle-ui', 'devhist-ui', 'ai-ui', 'extras', 'bubble-ui', 'flows-ui', 'snipers-ui', 'bp-ui', 'swap', 'revenue-ui', 'social-ui', 'feat-panels']; // same order as the old <script> tags
+const RESULT_MODS = ['devbundle-ui', 'devhist-ui', 'ai-ui', 'extras', 'bubble-ui', 'flows-ui', 'snipers-ui', 'bp-ui', 'swap', 'revenue-ui', 'social-ui', 'feat-panels', 'verdict-ui']; // same order as the old <script> tags
 const loadResultMods = () => modsP ||= Promise.allSettled(RESULT_MODS.map(n => import(`./${n}.js?v=${V}`))).then(() => {});
 const warmScan = () => { loadCore().catch(() => { coreP = null; }); loadResultMods(); };
 const $ = (s) => document.querySelector(s);
@@ -66,7 +66,7 @@ function onInput() {
   if (k) warmScan(); // a valid address is in the box: fetch the scanner + result modules now so Scan starts instantly
 }
 const pc = (v) => v === null || v === undefined ? '—' : `<span dir="ltr" class="${v >= 0 ? 'up' : 'dn'}">${v > 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
-const SLOTS = ['ai-box', 'dh-box', 'db-box', 'ex-box', 'bm-box', 'bp-box', 'lf-box', 'sn-box', 'so-box'];
+const SLOTS = ['av-box', 'ai-box', 'dh-box', 'db-box', 'ex-box', 'bm-box', 'bp-box', 'lf-box', 'sn-box', 'so-box'];
 // Developer history (devhist-ui.js -> window.__mcDevHist) becomes one finding. Conservative score nudge: FAIL (serial
 // launcher / >= 3 dead-or-rugged coins) = +10 risk points, WARN (2+ dead) = +3 (half of weight 6), PASS = +0. Never critical.
 // "Risk unknown" stays unknown (no market/security data). The shared server snapshot (/api/deep core, OG image) is not nudged.
@@ -84,14 +84,47 @@ function skelWatch() {
     b.querySelector('button').onclick = () => location.reload(); }), 20000);
 }
 const DEVW = { fail: 10, warn: 6, pass: 6 };
+const SIG_WAIT_MS = 10000;
+window.__mcSigStart = window.__mcSigStart || {};
+function solSignalsReady(addr) {
+  const S = window.__mcSig?.get?.(addr) || {};
+  const ready = !!(S.snipers?.done || S.snipers) && !!(S.flows?.done || S.flows);
+  // Prefer explicit done flags; fall back to key presence for older modules.
+  const snOk = !!(S.snipers && (S.snipers.done || S.snipers.heldPct != null || S.snipers.unavailable || S.snipers.empty));
+  const flOk = !!(S.flows && (S.flows.done || S.flows.level || S.flows.unavailable || S.flows.empty));
+  if (snOk && flOk) return true;
+  const t0 = window.__mcSigStart[addr];
+  return !!(t0 && (Date.now() - t0 > SIG_WAIT_MS));
+}
+function noteSigStart(addr) {
+  if (!window.__mcSigStart[addr]) window.__mcSigStart[addr] = Date.now();
+}
+
 // Signals that used to be display-only (sniper bots, bubble-map clusters, liquidity flows, dev sell speed) are folded into the
 // score once their module has data (window.__mcSig, event mc:signal). FAIL = full weight, WARN = half, like every other check.
 function sigFindings(r) {
   const S = r.chain === 'solana' && window.__mcSig?.get(r.addr); if (!S) return [];
   const out = [], F = (id, status, weight, params) => ({ id, status, weight, params, critical: false });
-  if (S.snipers) { const { pct, pro } = S.snipers; out.push(pct >= 25 || pro >= 12 ? F('sniperSig', 'fail', 12, S.snipers) : pct >= 12 || pro >= 6 ? F('sniperSig', 'warn', 12, S.snipers) : F('sniperSig', 'pass', 12, S.snipers)); }
+  // Snipers: score CURRENT held %. Sold-out early sniping (bought high, held low) = mild warn (≤2 pts), never FAIL.
+  if (S.snipers && !S.snipers.unavailable) {
+    const held = +(S.snipers.heldPct ?? S.snipers.pct ?? 0);
+    const bought = +(S.snipers.boughtPct ?? 0);
+    const pro = S.snipers.pro || 0;
+    const params = { ...S.snipers, heldPct: held, boughtPct: bought, pct: held };
+    if (held >= 25 || (held >= 12 && pro >= 12)) out.push(F('sniperSig', 'fail', 12, params));
+    else if (held >= 12 || (held >= 5 && pro >= 6)) out.push(F('sniperSig', 'warn', 12, params));
+    else if (held >= 5) out.push(F('sniperSig', 'warn', 6, params));
+    else if (bought >= 25 || (bought >= 12 && pro >= 12)) out.push(F('sniperSig', 'warn', 2, { ...params, soldOut: true })); // ~1 pt
+    else out.push(F('sniperSig', 'pass', 12, params));
+  }
   if (S.bubble) { const { pct, n } = S.bubble; out.push(n >= 2 && pct >= 15 ? F('bubbleSig', 'fail', 10, S.bubble) : n >= 2 && pct >= 5 ? F('bubbleSig', 'warn', 10, S.bubble) : F('bubbleSig', 'pass', 10, S.bubble)); }
-  if (S.flows) out.push(F('flowSig', S.flows.level === 'wash' ? 'fail' : S.flows.level === 'suspicious' ? 'warn' : 'pass', 8, S.flows));
+  // Flows: on tokens ≥48h old, "suspicious" alone is display-only (pump.fun-normal churn); only "wash" scores.
+  if (S.flows && !S.flows.unavailable) {
+    let level = S.flows.level;
+    const ageH = r.meta?.created ? (Date.now() - r.meta.created) / 3.6e6 : null;
+    if (ageH != null && ageH >= 48 && level === 'suspicious') level = 'pass';
+    out.push(F('flowSig', level === 'wash' ? 'fail' : level === 'suspicious' ? 'warn' : 'pass', 8, { ...S.flows, ageH }));
+  }
   // Linked-insider supply still held, from every linker we have (RugCheck networks, bubble-map cluster, same-slot bundle,
   // funding-linked early buyers): the largest share counts. >= 50% => FAIL + floor High, >= 25% => WARN + floor Medium.
   const insF = r.findings.find(f => f.id === 'insiders'), cand = [];
@@ -126,7 +159,7 @@ function probHtml(r, t) {
   return `<div class="prob${lv === 'low' ? ' caveat' : ''}">${esc(t.probLine(t[lv] || lv, x.bad_pct, x.rug_pct, x.n, base?.bad_pct, S.from, S.to))} <a href="/accuracy">${esc(t.probMore)}</a></div>`;
 }
 // AI summary (ai-ui.js): the finished, dev-history-adjusted result only; null while a scan is still streaming
-window.__mcLast = () => (window.__done && last && !last.partial ? withDev(last) : null);
+window.__mcLast = () => { if (!(window.__done && last && !last.partial)) return null; const x = withDev(last); if (x.chain === 'solana' && !solSignalsReady(x.addr)) return null; return x; };
 document.addEventListener('mc:devhist', (e) => { if (last && last.addr === e.detail.addr && $('#out').dataset.addr === last.addr) render(last); });
 // Result modules are imported lazily: wait for them (settled, so a failed module never blocks the others), then announce.
 // Promise callbacks run in order, so partial/final renders still reach the modules in the order they happened.
@@ -162,22 +195,37 @@ function render(r0, fire) {
   if (!window.__mcStudy) studyGet().then(j => { if (j && !window.__mcStudy) { window.__mcStudy = j; if (last && $('#out').dataset.addr === last.addr) render(last); } });
   const t = T[lang], m = r.meta, v = r.verdict; const st = { pass: t.pass, warn: t.warn, fail: t.failS, na: t.na };
   const order = { fail: 0, warn: 1, na: 2, pass: 3 };
-  const fs = [...r.findings].sort((a, b) => order[a.status] - order[b.status]);
+  // Drop implausible RugCheck insider figures from the findings list (same rule as AI verdict) so UI does not contradict itself.
+  const top10 = +r.extra?.top10 || 0;
+  const ins0 = (r.findings || []).find(f => f.id === 'insiders');
+  const ip = +ins0?.params?.pct || 0, inn = +ins0?.params?.n || 0;
+  const dropIns = !!(ins0 && (inn > 500 || (top10 > 0 && ip > top10 + 15) || ip > 95));
+  const findingsView = dropIns
+    ? r.findings.filter(f => f.id !== 'insiders' && f.id !== 'insiderHeld').concat([{ id: 'insiders', status: 'na', weight: 0, params: { n: inn, pct: ip, nets: ins0?.params?.nets }, _implausible: true }])
+    : r.findings;
+  const fs = [...findingsView].sort((a, b) => order[a.status] - order[b.status]);
   const ageH = m.created ? (Date.now() - m.created) / 3.6e6 : null;
   const out = $('#out'); const keep = out.dataset.addr === r.addr ? SLOTS.map(id => document.getElementById(id)) : [];
   const wl = isWatched(r.addr);
   out.dataset.addr = r.addr;
+  if (r.chain === 'solana') noteSigStart(r.addr);
+  const sigPending = r.chain === 'solana' && !solSignalsReady(r.addr);
+  const badgeLevel = sigPending ? 'checking' : v.level;
+  const badgeLabel = sigPending ? (t.stillChecking || 'Still checking…') : t[v.level];
+  const pointsLabel = sigPending ? (t.stillCheckingPts || 'Finishing sniper & flow checks…') : `${v.points} ${t.riskPts}`;
+  // Expose for swap/feat-panels so Buy chip + Before-you-sign match the badge.
+  r._sigPending = sigPending;
   out.innerHTML = `
   <div class="backrow"><button type="button" class="ghost act" id="a-new">${t.newCheck}</button></div>
-  <div class="card verdict" id="vcard"><div class="badge ${v.level}">${t[v.level]}${r.partial ? ' <span class="spin"></span>' : ''}</div>
+  <div class="card verdict" id="vcard"><div class="badge ${badgeLevel}">${badgeLabel}${(r.partial || sigPending) ? ' <span class="spin"></span>' : ''}</div>
    <div class="tok">${m.image ? `<img src="${esc(m.image)}" alt="">` : ''} <b>${esc(m.name || '?')}</b> <span class="muted">$${esc(m.symbol || '')} · ${esc(CH[r.chain] || r.chain)}</span>${r.kind === 'evm' ? ` <span class="chch on ${esc(r.chain)}" title="${esc(CH[r.chain] || r.chain)}">${CHIP[r.chain] || esc(r.chain)}</span>` : ''}
-   <div class="mono muted" dir="ltr">${esc(r.addr)}</div><div class="muted">${v.points} ${t.riskPts}${m.url ? ` · <a href="${esc(m.url)}" target="_blank" rel="noopener">${t.viewDex}</a>` : ''}</div>
+   <div class="mono muted" dir="ltr">${esc(r.addr)}</div><div class="muted">${pointsLabel}${(!sigPending && m.url) ? ` · <a href="${esc(m.url)}" target="_blank" rel="noopener">${t.viewDex}</a>` : ''}</div>
    ${m.dropFromHigh >= 90 ? `<div class="dn" style="margin-top:6px;font-weight:700">⚠️ ${esc(t.crashed(m.dropFromHigh))}</div>` : ''}
    ${(r.chains || []).length > 1 ? `<div class="chsw"><span class="muted">${t.chainSw}</span> ${r.chains.filter(c => c !== r.chain).map(c => `<button type="button" class="chch ${esc(c)}" data-ch="${esc(c)}" title="${esc(t.chainSwT(CH[c] || c))}">${CHIP[c] || esc(c)}</button>`).join(' ')}</div>` : ''}
    ${m.uni ? `<div class="unipool">${esc(t.uniPool(m.uni.v))} · <a href="${esc(m.uni.url)}" target="_blank" rel="noopener" data-provider="uniswap">${t.uniLink} ↗</a></div>` : ''}
    ${m.launch?.four ? `<div class="fourm ${m.launch.curve ? 'curve' : 'grad'}">${esc(m.launch.curve ? t.fourCurve(m.launch.progress) : t.fourGrad)} <span class="muted">${esc(t.fourSrc(m.launch.src))}</span>${m.launch.curve ? ` <a href="https://four.meme/token/${esc(r.addr.toLowerCase())}" target="_blank" rel="noopener">four.meme ↗</a>` : ''}</div>` : ''}
    ${probHtml(r, t)}
-   ${r.partial ? `<div class="muted">${t.partial}</div>` : ''}</div>
+   ${sigPending ? `<div class="muted">${t.stillCheckingHint || t.partial}</div>` : (r.partial ? `<div class="muted">${t.partial}</div>` : '')}</div>
    <div class="acts"><button type="button" class="ghost act" id="a-star" aria-pressed="${wl}" title="${wl ? t.unstar : t.star}">${wl ? '★' : '☆'}</button>
     <a class="ghost act" id="a-x" target="_blank" rel="noopener" href="${esc(xIntent(r))}"><b>𝕏</b> ${t.shareX}</a>
     <button type="button" class="ghost act" id="a-ca">${t.copyCA}</button><button type="button" class="ghost act" id="a-link">${t.copyLink}</button>
@@ -187,8 +235,8 @@ function render(r0, fire) {
    ${[[t.price, usd(m.priceUsd)], [t.mcap, usd(m.mcap)], [t.fdv, usd(m.fdv)], [t.liq, m.launch?.curve && !(m.liquidity > 0) ? t.curveLiq : usd(m.liquidity)], [t.vol, usd(m.vol24)], [t.txns, m.buys24 != null ? `<span dir="ltr">${m.buys24} / ${m.sells24}</span>` : '—'],
       [`${t.change} <span dir="ltr">${t.ch1h24}</span>`, `<span dir="ltr">${pc(m.ch?.h1)} / ${pc(m.ch?.h24)}</span>`], [t.pairAge, ageH == null ? '—' : ageH < 48 ? ageH.toFixed(1) + (lang === 'ar' ? ' ساعة' : ' h') : (ageH / 24).toFixed(0) + (lang === 'ar' ? ' يوم' : ' d')], [t.holders, m.totalHolders ?? '—']]
       .map(([k, val]) => `<div class="kv"><span>${k}</span><b>${val}</b></div>`).join('')}</div></div>
-  <div id="ai-box"></div>
-  <div class="card" id="fcard"><h3>${t.findings}</h3>${r.pending.filter(k => k !== 'DexScreener').map(k => `<div class="row"><span class="st na"><span class="spin sm"></span></span><span>${esc(t.waiting(k))}</span></div>`).join('')}${fs.map(f => `<div class="row"><span class="st ${f.status}">${st[f.status]}</span><span>${esc((t.r[f.id] || (() => f.id))(f.params, f.status))}</span></div>`).join('')}</div>
+  <div id="av-box"></div><div id="ai-box"></div>
+  <div class="card" id="fcard"><h3>${t.findings}</h3>${r.pending.filter(k => k !== 'DexScreener').map(k => `<div class="row"><span class="st na"><span class="spin sm"></span></span><span>${esc(t.waiting(k))}</span></div>`).join('')}${fs.map(f => `<div class="row"><span class="st ${f.status}">${st[f.status]}</span><span>${esc(f._implausible ? (lang === 'ar' ? ('رقم شبكة المطلعين من RugCheck (' + inn + ' محفظة، ' + ip + '٪) غير منطقي — مستبعد من الدرجة') : ('RugCheck insider figure (' + inn + ' wallets, ' + ip + '%) looks implausible — excluded from score')) : (t.r[f.id] || (() => f.id))(f.params, f.status))}</span></div>`).join('')}</div>
   <div id="dh-box"></div><div id="db-box"></div><div id="so-box"></div><div id="ex-box"></div><div id="bm-box" class="card"></div>${skel('bp')}${skel('lf')}${skel('sn')}
   ${r.extra.holders?.length ? `<div class="card"><h3>${t.topHolders}</h3>${r.extra.holders.map((h, i) => `<div class="row"><span class="st na">#${i + 1}</span><span class="mono">${esc(h.owner)}</span><b style="margin-inline-start:auto" dir="ltr">${(+h.pct).toFixed(2)}%</b></div>`).join('')}</div>` : ''}
   ${r.flags.length ? `<div class="card"><h3>${t.flags}</h3>${r.flags.map(x => `<div class="row"><span class="st ${x.level === 'danger' || x.level === 'high' ? 'fail' : 'warn'}">${esc(x.level)}</span><span dir="ltr">${esc(x.name)}${x.desc ? ' — ' + esc(x.desc) : ''}</span></div>`).join('')}</div>` : ''}
@@ -205,6 +253,13 @@ function render(r0, fire) {
   document.body.classList.add('has-result'); pfToggle(); syncBack();
   if (fire) fireRender(r); // extra analyses (devbundle-ui.js, extras.js, bubble-ui.js, flows-ui.js, snipers-ui.js)
   try { document.dispatchEvent(new CustomEvent('mc:panels', { detail: { r } })); } catch {}
+  // While sniper/flow signals are outstanding, re-check readiness so the badge settles after timeout even if a module hangs.
+  if (sigPending) {
+    clearTimeout(window.__mcSigPoll);
+    window.__mcSigPoll = setTimeout(() => {
+      if (last && last.addr === r.addr && $('#out')?.dataset.addr === last.addr) render(last);
+    }, 1200);
+  }
 }
 // ---- shareable result card: PNG drawn client-side (canvas 1200x675), in the current language (RTL aware) ----
 const LV = { low: ['#0f3d2a', '#3ee08f'], medium: ['#3d3510', '#ffd447'], high: ['#40220f', '#ff8f3e'], extreme: ['#4a0f17', '#ff4d6a'], unknown: ['#222833', '#aab2c0'] };

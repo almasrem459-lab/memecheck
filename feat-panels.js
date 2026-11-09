@@ -27,6 +27,7 @@ const L = {
       freezeCheck5: 'If frozen: leave the chat, document, report — do not pay',
       preTitle: 'Before you sign',
       preEmpty: 'No hard blockers flagged from this scan — still DYOR.',
+      preChecking: 'Still checking sniper & flow signals — hard-blocker list may update.',
       preMint: 'Mint authority still enabled — supply can be inflated',
       preFreeze: 'Freeze authority still enabled — transfers can be locked',
       preSell: 'Sell / transfer check failed — may be a honeypot',
@@ -63,6 +64,7 @@ const L = {
       freezeCheck5: 'إذا انتجمّد: اترك الشات، وثّق، بلّغ — لا تدفع',
       preTitle: 'قبل ما توقّع',
       preEmpty: 'ما في حواجز قوية بهالفحص — بس لازم تدقّق بنفسك.',
+      preChecking: 'لسا عم نفحص القناصة والتدفقات — قائمة الحواجز ممكن تتحدّث.',
       preMint: 'صلاحية السكّ لسا مفعّلة — العرض ممكن يزيد',
       preFreeze: 'صلاحية التجميد لسا مفعّلة — التحويل ممكن ينقفل',
       preSell: 'فحص البيع/التحويل فشل — ممكن يكون مصيدة',
@@ -170,13 +172,18 @@ const L = {
       source = 'rugcheck-flag'; conf = 'low';
     }
 
-    // Also fold wash from flows signal
+    // Wash chip = DexScreener washHint ONLY. Liquidity-flows already score via flowSig + own card (no double count).
     let washLevel = wash.level || 'none';
-    if (S.flows && (S.flows.level === 'wash' || S.flows.level === 'suspicious')) {
-      washLevel = S.flows.level === 'wash' ? 'fail' : (washLevel === 'fail' ? 'fail' : 'warn');
-    }
 
     const risks = [];
+    if (r._sigPending) {
+      // While sniper/flow modules are still loading, don't claim "no hard blockers".
+      return {
+        mint, freeze, sell, linkedPct, source, conf, sameSlot, clusterN,
+        wash: { level: washLevel, reasons: wash.reasons || [] },
+        boosts: m.boostsActive || 0, risks: [{ id: 'checking', text: t('preChecking'), level: 'info' }], r, checking: true,
+      };
+    }
     if (st(mint) === 'fail') risks.push({ id: 'mint', text: t('preMint'), level: 'fail' });
     if (st(freeze) === 'fail') risks.push({ id: 'freeze', text: t('preFreeze'), level: 'fail' });
     if (sell && sell.fail) risks.push({ id: 'sell', text: t('preSell'), level: 'fail' });
@@ -228,7 +235,7 @@ const L = {
   function renderPre(slots, d) {
     slots.pre.hidden = false;
     const items = d.risks.length
-      ? d.risks.map((x) => `<li class="${esc(x.level || 'warn')}">${esc(x.text)}</li>`).join('')
+      ? d.risks.map((x) => `<li class="${esc(x.level === 'info' ? 'ok' : (x.level || 'warn'))}">${esc(x.text)}</li>`).join('')
       : `<li class="ok">${esc(t('preEmpty'))}</li>`;
     slots.pre.innerHTML = `<div class="hd">${esc(t('preTitle'))}</div><ul class="presign-list">${items}</ul>
       <p class="muted" style="margin:.5rem 0 0"><a href="/calls">${esc(t('callsCta'))}</a></p>`;

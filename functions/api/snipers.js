@@ -185,11 +185,18 @@ function labelSniper(o, createSlot) {
   return { reasons, pro, slotDelta };
 }
 
-function riskLevel(sniperPct, proCount, buyerCount) {
-  if (sniperPct == null) return { level: 'unknown', label: 'Unknown' };
-  if (sniperPct >= 25 || proCount >= 12) return { level: 'high', label: 'High sniper risk' };
-  if (sniperPct >= 12 || proCount >= 6) return { level: 'medium', label: 'Elevated sniper activity' };
-  if (sniperPct >= 5 || proCount >= 3) return { level: 'low', label: 'Some early snipers' };
+// Risk is driven by CURRENT held % (sniperHeldPct). Bought % alone is historical context.
+// Heavy early buys that already sold out → clear / "sold out" (not High).
+function riskLevel(heldPct, boughtPct, proCount, buyerCount) {
+  if (heldPct == null && boughtPct == null) return { level: 'unknown', label: 'Unknown' };
+  const held = heldPct == null ? 0 : +heldPct;
+  const bought = boughtPct == null ? 0 : +boughtPct;
+  if (held >= 25 || (held >= 12 && proCount >= 12)) return { level: 'high', label: 'High sniper risk' };
+  if (held >= 12 || (held >= 5 && proCount >= 6)) return { level: 'medium', label: 'Elevated sniper activity' };
+  if (held >= 5 || (held >= 2 && proCount >= 3)) return { level: 'low', label: 'Some early snipers still holding' };
+  // Held ~0 but they bought big at launch — informational, not a current dump risk.
+  if (bought >= 25 || proCount >= 12) return { level: 'clear', label: 'Early snipers sold out', soldOut: true };
+  if (bought >= 5 || proCount >= 3) return { level: 'clear', label: 'Low sniper footprint (early buys sold)' };
   if (buyerCount < 5) return { level: 'unknown', label: 'Too few early buyers to judge' };
   return { level: 'clear', label: 'Low sniper footprint' };
 }
@@ -370,8 +377,9 @@ async function build(env, mint, preferPublic = false, waitUntil) {
   const sniperList = snipers.filter(s => s.sniper);
   const boughtPct = pct(sniperBought);
   const heldPct = pct(sniperHeld);
-  const sniperPct = (heldPct != null && heldPct > 0.05) ? heldPct : (boughtPct ?? heldPct);
-  const risk = riskLevel(sniperPct, proCount, list.length);
+  // sniperPct = CURRENT held share (compat field for older clients). Bought is separate.
+  const sniperPct = heldPct;
+  const risk = riskLevel(heldPct, boughtPct, proCount, list.length);
   const windowSec = (() => {
     const times = wraps.map(w => w.blockTime).filter(Boolean);
     if (times.length < 2) return null;
@@ -389,7 +397,9 @@ async function build(env, mint, preferPublic = false, waitUntil) {
     risk, windowSec, src: rpcUsed || sigRpc || null,
     warning: risk.level === 'high' || risk.level === 'medium'
       ? 'Even if the contract looks clean, heavy sniper holdings can leave the chart "dead by programming" — bots may dump into retail.'
-      : null,
+      : (risk.soldOut
+        ? 'Sniper bots bought a large share at launch but have already sold (held ~0% now). Historical note, not a current dump risk.'
+        : null),
     top: sniperList.slice(0, 15).map(s => ({
       owner: s.owner, short: s.short, boughtPct: s.boughtPct, heldPct: s.heldPct,
       buys: s.buys, slotDelta: s.slotDelta, pro: s.pro, reasons: s.reasons,
