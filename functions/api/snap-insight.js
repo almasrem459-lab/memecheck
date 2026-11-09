@@ -42,12 +42,27 @@ export const onRequest = async ({ request: req }) => {
   try {
     const result = await analyze(ca, chain === 'solana' ? 'auto' : chain);
     const insight = insightFromResult(result, { txNotes });
+    const src = result.sources || {};
+    const failed = Object.entries(src).filter(([, s]) => s === 'fail').map(([k]) => k);
+    const partial = !!(result.partial || failed.length || result.verdict?.level === 'unknown');
+    if (partial && insight) {
+      insight.partial = true;
+      insight.reasons = insight.reasons || [];
+      if (failed.length) {
+        insight.reasons.push({
+          id: 'srcPartial', status: 'warn', critical: false, weight: 0,
+          text: 'Partial data: ' + failed.join(', ') + ' failed — treat this as incomplete, not "safe".',
+        });
+      }
+    }
     return json(200, {
       ok: true,
       at: Date.now(),
       insight,
       verdict: result.verdict,
       sources: result.sources,
+      partial,
+      note: 'Server core scan only (RugCheck/Dex/…). Live site may add sniper/flow signals after modules load.',
       snap: {
         proposedName: 'MemeCheckShield',
         formStatus: 'closed',

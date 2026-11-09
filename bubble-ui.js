@@ -353,7 +353,7 @@ async function build(addr, chain) {
   if (!links) return { holders, src: base.src, total: base.total, groups: null, linkErr: true };
   if (!exitCache.has(addr) && /pump$/.test(addr)) {
     cache.set(addr, { ...mk(links), linking: true }); if (cur?.addr === addr) paint();
-    for (let i = 0; i < 60 && !exitCache.has(addr); i++) await new Promise(r => setTimeout(r, 1000));
+    for (let i = 0; i < 12 && !exitCache.has(addr); i++) await new Promise(r => setTimeout(r, 1000)); // was 60s; avoid stuck linking
     if (exitCache.has(addr)) try { links = await withTimeout(holderLinks(addr, owners), 20000, 'links'); } catch {}  // funders cached: cheap re-merge with exit-trace clusters
   }
   return mk(links);
