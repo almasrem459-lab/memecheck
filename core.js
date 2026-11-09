@@ -91,10 +91,13 @@ function marketFindings(ds, chainKey, addr) {
       const bal = Math.min(m.buys24, m.sells24) / Math.max(m.buys24, m.sells24);
       if (bal > 0.85 && avg != null && avg < 25) reasons.push('round_trip');
     }
+    // Deep-liquidity majors (e.g. BONK) often trip vol_liq/micro_tx heuristics — don't flag them as wash from those alone.
+    const deepLiq = (m.liquidity || 0) >= 500000;
+    const scoredReasons = deepLiq ? reasons.filter(x => x === 'boost_high' || x === 'boost') : reasons;
     m.washHint = {
-      level: reasons.includes('boost_high') || reasons.filter(x => x !== 'boost').length >= 2 ? 'fail'
-        : reasons.length ? 'warn' : 'none',
-      reasons, avgTrade: avg, volLiq, boosts: m.boostsActive,
+      level: scoredReasons.includes('boost_high') || scoredReasons.filter(x => x !== 'boost').length >= 2 ? 'fail'
+        : scoredReasons.length ? 'warn' : 'none',
+      reasons, avgTrade: avg, volLiq, boosts: m.boostsActive, deepLiq: deepLiq ? 1 : 0,
     };
   }
   // DexScreener socials/websites (for Ask AI + future UI); URLs only, capped
@@ -173,7 +176,15 @@ function solanaFindings(r) {
   extra.insiderPct = netPct;
   if (r.graphInsidersDetected === undefined && !r.insiderNetworks) out.push(F('insiders', 'na', 0));
   else if (ins === 0 && !nets.length) out.push(F('insiders', 'pass', W.insiders, { n: 0 }));
-  else { const p = { n: ins, nets: nets.length, pct: netPct, ...(netCapped ? { cap: 1 } : {}) }; const f = (netPct !== null && netPct > 10) || ins >= 10 ? F('insiders', 'fail', W.insiders, p) : F('insiders', 'warn', W.insiders, p);
+  else {
+    // Score by CURRENT linked supply held — wallet-count alone must not FAIL a 0.1% residual cluster (e.g. BONK).
+    const p = { n: ins, nets: nets.length, pct: netPct, ...(netCapped ? { cap: 1 } : {}) };
+    let status = 'warn';
+    if (netPct !== null && netPct > 10) status = 'fail';
+    else if (netPct !== null && netPct > 3) status = 'warn';
+    else if (netPct !== null && netPct <= 3) status = 'pass'; // tiny linked residual — info only
+    else if (ins >= 10) status = 'warn'; // many wallets flagged but % unknown
+    const f = F('insiders', status, W.insiders, p);
     // linked-insider supply still held: >= 50% => at least High, >= 25% => at least Medium (elevated), same rule for every coin
     if (netPct !== null && netPct >= 50) f.floor = 'high'; else if (netPct !== null && netPct >= 25) f.floor = 'medium';
     out.push(f); }
@@ -369,7 +380,7 @@ export async function evmSecurity(addr, chain) {
     const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 12000);
     try { const r = await fetch(`/api/evm-security?chain=${chain}&ca=${addr.toLowerCase()}`, { signal: ctl.signal }); if (r.ok) { const x = await r.json(); if (x?.goplus && x.honeypot) j = x; } } catch {} finally { clearTimeout(tm); }
   }
-  const { getEvmSecurity } = await import('./evmsec.js?v=1793300000');
+  const { getEvmSecurity } = await import('./evmsec.js?v=1793667000');
   if (!j) return getEvmSecurity(addr, chain);
   const only = ['goplus', ...(HP_OK.has(chain) ? ['honeypot'] : []), ...(chain === 'bsc' ? ['four'] : [])].filter(k => !j[k] || j[k].s === 'fail');
   if (only.length) { const d = await getEvmSecurity(addr, chain, { only }).catch(() => null); only.forEach(k => { if (d?.[k] && d[k].s !== 'fail') j[k] = { ...d[k], via: 'browser' }; }); }

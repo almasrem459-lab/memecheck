@@ -72,6 +72,14 @@ const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const cache = new Map(), DELAY = 0;
 let cur = null, anim = null, inst = null;
+function markFlowsDone(payload = {}) {
+  try {
+    if (!cur?.addr || cur.chain !== 'solana') return;
+    const sig = window.__mcSig || (window.__mcSig = { set(a,k,v){const m=(this.m||(this.m=new Map()));const o=m.get(a)||{};if(JSON.stringify(o[k])===JSON.stringify(v))return;o[k]=v;m.set(a,o);document.dispatchEvent(new CustomEvent('mc:signal',{detail:{addr:a,key:k}}))}, get(a){return this.m&&this.m.get(a)} });
+    sig.set(cur.addr, 'flows', { level: 'organic', trades: 0, done: true, unavailable: true, ...payload });
+  } catch {}
+}
+
 
 function layout(nodes, w, h) {
   // Inset so top wallet + label stay inside the clipped stage (was clipping the north node).
