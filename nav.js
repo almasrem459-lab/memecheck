@@ -74,6 +74,13 @@
     if (how) nav.insertBefore(a, how); else nav.appendChild(a);
   }
 
+  // RugDNA: open identity graph of serial rug launchers (/rugdna)
+  if (!nav.querySelector('a[href="/rugdna"]')) {
+    const a = document.createElement('a'); a.href = '/rugdna'; a.className = 'nav-rugdna'; a.textContent = 'RugDNA'; a.setAttribute('data-t', 'navRugdna');
+    const how = nav.querySelector('a[href="/how"]');
+    if (how) nav.insertBefore(a, how); else nav.appendChild(a);
+  }
+
   const setOpen = (open) => {
     nav.hidden = !open;
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');

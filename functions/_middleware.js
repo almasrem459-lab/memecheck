@@ -4,7 +4,7 @@
 import { ogInfo, CA_RE } from './_lib/oginfo.js';
 import { useCounter } from './_lib/shared.js';
 const BOT = /twitterbot|facebookexternalhit|facebot|discordbot|telegrambot|slackbot|whatsapp|linkedinbot|skypeuripreview|redditbot|embedly|pinterest|applebot|googlebot|bingbot|bot\b|crawler|spider|preview/i;
-const AR_PATHS = new Set(['/', '/how', '/smart', '/chat', '/dev']);
+const AR_PATHS = new Set(['/', '/how', '/smart', '/chat', '/dev', '/rugdna']);
 const LV = { low: 'No major red flags', medium: 'Medium risk', high: 'High risk', extreme: 'Extreme risk' };
 export const onRequest = async (ctx) => {
   const { request: req, next, env } = ctx; const url = new URL(req.url);

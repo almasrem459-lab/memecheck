@@ -22,3 +22,10 @@ binding = "REV"
 database_name = "memecheck-revenue"
 database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"  # wrangler d1 create memecheck-revenue
 
+
+# RugDNA: open launcher-wallet identity graph (clusters via shared funding wallet). /api/rugdna/*, /rugdna, scan card.
+# Create with: wrangler d1 create memecheck-rugdna && wrangler d1 execute memecheck-rugdna --remote --file rugdna/schema.sql
+[[d1_databases]]
+binding = "RUGDNA"
+database_name = "memecheck-rugdna"
+database_id = "REPLACE_WITH_YOUR_RUGDNA_D1_ID"

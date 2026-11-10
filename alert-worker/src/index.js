@@ -4,6 +4,7 @@
  * Optional: TELEGRAM_WEBHOOK_SECRET, MEMECHECK_ORIGIN, ALERT_CRON_SECRET, OWNER_CHAT_ID (skip /start registration).
  */
 import { DurableObject } from 'cloudflare:workers';
+import { publishRug, buildMessages } from './rug-publish.js';
 
 const J = (status, body) => new Response(JSON.stringify(body), {
   status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
@@ -145,6 +146,8 @@ export class WatchBook extends DurableObject {
       try { this.sql.exec(`ALTER TABLE watches ADD COLUMN last_mint INTEGER`); } catch {}
       try { this.sql.exec(`ALTER TABLE watches ADD COLUMN last_freeze INTEGER`); } catch {}
       this.sql.exec(`CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT NOT NULL)`);
+      this.sql.exec(`CREATE TABLE IF NOT EXISTS rugpub (
+        k TEXT PRIMARY KEY, level TEXT, ca TEXT, at INTEGER, dry INTEGER)`);
     });
   }
 
@@ -174,6 +177,32 @@ export class WatchBook extends DurableObject {
       return J(200, r);
     }
     if (u.pathname === '/poll') return J(200, { ok: true, ...(await this.poll(this.env)) });
+    if (u.pathname === '/rugpub-has') {
+      const k = String(body.key || '');
+      const row = k ? this.sql.exec(`SELECT k FROM rugpub WHERE k = ?`, k).toArray()[0] : null;
+      return J(200, { has: !!row });
+    }
+    if (u.pathname === '/rugpub-mark') {
+      const k = String(body.key || '');
+      if (!k) return J(400, { error: 'key' });
+      this.sql.exec(
+        `INSERT INTO rugpub (k, level, ca, at, dry) VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT(k) DO UPDATE SET at=excluded.at, dry=excluded.dry`,
+        k, body.level || null, body.ca || null, Number(body.at) || Date.now(), body.dry ? 1 : 0,
+      );
+      return J(200, { ok: true });
+    }
+    if (u.pathname === '/rugpub-stats') {
+      const n = this.sql.exec(`SELECT COUNT(*) AS n FROM rugpub`).toArray()[0];
+      const recent = this.sql.exec(`SELECT k, level, ca, at, dry FROM rugpub ORDER BY at DESC LIMIT 20`).toArray();
+      return J(200, { count: Number(n?.n || 0), recent });
+    }
+    if (u.pathname === '/rugpub-unmark') {
+      const k = String(body.key || '');
+      if (!k) return J(400, { error: 'key' });
+      this.sql.exec(`DELETE FROM rugpub WHERE k = ?`, k);
+      return J(200, { ok: true, deleted: k });
+    }
     return J(404, { error: 'do route' });
   }
 
@@ -367,6 +396,20 @@ async function handleUpdate(env, update) {
   return J(200, { ok: true });
 }
 
+
+async function rugDedupe(env) {
+  const stub = env.WATCH.get(env.WATCH.idFromName('global'));
+  return {
+    alreadyPublished: async (key) => {
+      const j = await (await stub.fetch('https://do/rugpub-has', { method: 'POST', body: JSON.stringify({ key }) })).json().catch(() => ({}));
+      return !!j.has;
+    },
+    markPublished: async (key, meta = {}) => {
+      await stub.fetch('https://do/rugpub-mark', { method: 'POST', body: JSON.stringify({ key, ...meta }) });
+    },
+  };
+}
+
 async function resolveOwnerChatId(env) {
   if (env.OWNER_CHAT_ID) return String(env.OWNER_CHAT_ID);
   const stub = env.WATCH.get(env.WATCH.idFromName('global'));
@@ -386,7 +429,15 @@ export default {
       if (!owner) {
         try { owner = !!(await resolveOwnerChatId(env)); } catch {}
       }
-      return J(200, { ok: true, service: 'memecheck-alert', telegram: !!env.TELEGRAM_BOT_TOKEN, origin: ORIGIN(env), ownerRegistered: owner, notifyAuth: !!env.PAYMENT_NOTIFY_SECRET });
+      return J(200, { ok: true, service: 'memecheck-alert', telegram: !!env.TELEGRAM_BOT_TOKEN, origin: ORIGIN(env), ownerRegistered: owner, notifyAuth: !!env.PAYMENT_NOTIFY_SECRET,
+        rugBroadcast: {
+          auth: !!(env.RUG_BROADCAST_SECRET || env.PAYMENT_NOTIFY_SECRET),
+          channelEn: !!env.TELEGRAM_CHANNEL_EN,
+          channelAr: !!env.TELEGRAM_CHANNEL_AR,
+          xEn: !!(env.X_EN_API_KEY && env.X_EN_ACCESS_TOKEN),
+          xAr: !!(env.X_AR_API_KEY && env.X_AR_ACCESS_TOKEN),
+          dryRun: env.RUG_DRY_RUN === '1' || env.RUG_DRY_RUN === 'true',
+        } });
     }
     if (u.pathname === '/telegram' && req.method === 'POST') {
       if (env.TELEGRAM_WEBHOOK_SECRET && req.headers.get('x-telegram-bot-api-secret-token') !== env.TELEGRAM_WEBHOOK_SECRET) return J(401, { error: 'unauthorized' }); // setWebhook(secret_token=...)
@@ -413,7 +464,49 @@ export default {
       const stub = env.WATCH.get(env.WATCH.idFromName('global'));
       return stub.fetch('https://do/poll', { method: 'POST' });
     }
-    return J(404, { error: 'not found', hint: 'POST /telegram | POST /notify-payment | POST /cron | GET /health' });
+    if (u.pathname === '/broadcast-rug' && req.method === 'POST') {
+      const secret = env.RUG_BROADCAST_SECRET || env.PAYMENT_NOTIFY_SECRET || '';
+      const got = req.headers.get('x-rug-broadcast') || '';
+      // Accept PAYMENT_NOTIFY_SECRET as fallback so warmer can reuse one shared secret if Jojo prefers.
+      if (!secret || got.length < 12 || got !== secret) return J(401, { error: 'unauthorized' });
+      const body = await req.json().catch(() => null);
+      if (!body || typeof body !== 'object') return J(400, { error: 'bad json' });
+      const dedupe = await rugDedupe(env);
+      const ownerChatId = await resolveOwnerChatId(env).catch(() => null);
+      const result = await publishRug(env, body, { ...dedupe, ownerChatId });
+      return J(result.ok ? 200 : 400, result);
+    }
+    if (u.pathname === '/rugpub-stats') {
+      const stub = env.WATCH.get(env.WATCH.idFromName('global'));
+      return stub.fetch('https://do/rugpub-stats', { method: 'POST', body: '{}' });
+    }
+    if (u.pathname === '/rugpub-unmark' && req.method === 'POST') {
+      const secret = env.RUG_BROADCAST_SECRET || env.PAYMENT_NOTIFY_SECRET || '';
+      const got = req.headers.get('x-rug-broadcast') || '';
+      if (!secret || got.length < 12 || got !== secret) return J(401, { error: 'unauthorized' });
+      const body = await req.json().catch(() => ({}));
+      const key = body.key || (body.ca || body.mint ? `${body.ca || body.mint}:${String(body.level || 'high').toLowerCase()}` : '');
+      if (!key) return J(400, { error: 'missing_key' });
+      const stub = env.WATCH.get(env.WATCH.idFromName('global'));
+      return stub.fetch('https://do/rugpub-unmark', { method: 'POST', body: JSON.stringify({ key }) });
+    }
+    if (u.pathname === '/broadcast-rug/preview' && req.method === 'POST') {
+      // Auth same as broadcast; builds messages without posting or deduping.
+      const secret = env.RUG_BROADCAST_SECRET || env.PAYMENT_NOTIFY_SECRET || '';
+      const got = req.headers.get('x-rug-broadcast') || '';
+      if (!secret || got.length < 12 || got !== secret) return J(401, { error: 'unauthorized' });
+      const body = await req.json().catch(() => null);
+      if (!body) return J(400, { error: 'bad json' });
+      return J(200, { ok: true, preview: buildMessages(body, env), configured: {
+        telegram: !!env.TELEGRAM_BOT_TOKEN,
+        channelEn: !!env.TELEGRAM_CHANNEL_EN,
+        channelAr: !!env.TELEGRAM_CHANNEL_AR,
+        xEn: !!(env.X_EN_API_KEY && env.X_EN_ACCESS_TOKEN),
+        xAr: !!(env.X_AR_API_KEY && env.X_AR_ACCESS_TOKEN),
+        dryRun: env.RUG_DRY_RUN === '1' || env.RUG_DRY_RUN === 'true',
+      }});
+    }
+    return J(404, { error: 'not found', hint: 'POST /telegram | POST /notify-payment | POST /cron | POST /broadcast-rug | GET /health | GET /rugpub-stats' });
   },
   async scheduled(event, env, ctx) {
     if (!env.TELEGRAM_BOT_TOKEN) { console.log('cron skip: TELEGRAM_BOT_TOKEN missing'); return; }

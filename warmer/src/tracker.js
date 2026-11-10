@@ -9,6 +9,7 @@
 import { analyze } from '../../cf-dist/core.js';
 import { outcome } from '../../cf-dist/study-outcome.js';
 import { guardedPut } from '../../cf-dist/functions/_lib/shared.js';
+import { notifyHighRug } from './rug-notify.js';
 const KEY = 'study:v2', MAX_RECORDS = 4000, SCAN_MAX = 6, RECHECK_MAX = 18;
 const GT = 'https://api.geckoterminal.com/api/v2/networks/solana';
 const H = { accept: 'application/json', 'user-agent': 'memecheck-tracker/1.0 (+https://memecheck.pages.dev)' };
@@ -73,10 +74,18 @@ export async function trackerScan(env, log) {
     try {
       const r = await analyze(p.baseToken.address, 'solana');
       if (!r?.verdict || r.verdict.level === 'unknown' || r.sources?.DexScreener !== 'ok') continue;
+      const reasons = (r.findings || []).filter(f => f.status === 'fail' || f.status === 'warn').map(f => f.status + ':' + f.id).slice(0, 8);
       db.records.push({ ca: r.addr, sym: '$' + String(r.meta?.symbol || p.baseToken.symbol || '?').slice(0, 24), scanned: new Date().toISOString(), level: r.verdict.level, pts: r.verdict.points,
         pump: !!r.meta?.pump, pool: p.pairAddress, mcap: Math.round(p.marketCap || p.fdv || 0), liq: Math.round(p.liquidity?.usd || 0), ageH: +((now - p.pairCreatedAt) / 36e5).toFixed(2),
-        reasons: (r.findings || []).filter(f => f.status === 'fail' || f.status === 'warn').map(f => f.status + ':' + f.id).slice(0, 8), o24: { st: 'pending' }, o48: { st: 'pending' } });
+        reasons, o24: { st: 'pending' }, o48: { st: 'pending' } });
       added++;
+      if (r.verdict.level === 'high' || r.verdict.level === 'extreme') {
+        await notifyHighRug(env, {
+          ca: r.addr, level: r.verdict.level, points: r.verdict.points,
+          symbol: r.meta?.symbol || p.baseToken.symbol, name: r.meta?.name,
+          findings: r.findings || [], reasons, source: 'tracker-scan',
+        }, log);
+      }
     } catch (e) { log.push('scan err ' + String(e?.message || e).slice(0, 40)); }
   }
   if (added || !db.updated) log.push(`tracker scan +${added} kv=${await save(KV, db)}`);

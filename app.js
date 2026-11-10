@@ -1,4 +1,6 @@
-import { T, usd } from './i18n.js?v=1793667000';
+  // RugDNA: OTHER wallets sharing this creator's funding wallet have >= 3 dead launches (>= 70% of judged). warn = +3 pts, fail = +8 pts.
+  // Unknown / solo / unresolved / exchange-or-service funder / info level = no finding (neutral). Own earlier coins stay with devHistory.
+  if (S.rugdna && S.rugdna.status === 'linked' && (S.rugdna.level === 'warn' || S.rugdna.level === 'fail')) out.push(F('rugdnaSig', S.rugdna.level, S.rugdna.level === 'fail' ? 8 : 6, { n: S.rugdna.n, dead: S.rugdna.dead, wallets: S.rugdna.wallets }));import { T, usd } from './i18n.js?v=1793667000';
 // Homepage speed: only app.js + i18n.js + nav.js load up front. core.js (the scanner), the result-section modules and the
 // new-tokens list are imported on demand: the scanner + result modules when a scan starts (or a valid CA is pasted),
 // the new-tokens list when it scrolls near the viewport. Result modules only listen for mc:render / mc:final events, so
@@ -12,7 +14,7 @@ const loadCore = () => coreP ||= Promise.all([
   import(`./core.js?v=${V}`),
   import(`./risk-insight.js?v=${V}`),
 ]).then(([m, ri]) => { core = m; riskInsight = ri; return m; });
-const RESULT_MODS = ['devbundle-ui', 'devhist-ui', 'ai-ui', 'extras', 'bubble-ui', 'flows-ui', 'snipers-ui', 'bp-ui', 'swap', 'revenue-ui', 'social-ui', 'feat-panels', 'verdict-ui']; // same order as the old <script> tags
+const RESULT_MODS = ['devbundle-ui', 'devhist-ui', 'rugdna-ui', 'ai-ui', 'extras', 'bubble-ui', 'flows-ui', 'snipers-ui', 'bp-ui', 'swap', 'revenue-ui', 'social-ui', 'feat-panels', 'verdict-ui']; // same order as the old <script> tags
 const loadResultMods = () => modsP ||= Promise.allSettled(RESULT_MODS.map(n => import(`./${n}.js?v=${V}`))).then(() => {});
 const warmScan = () => { loadCore().catch(() => { coreP = null; }); loadResultMods(); };
 const $ = (s) => document.querySelector(s);
@@ -66,7 +68,7 @@ function onInput() {
   if (k) warmScan(); // a valid address is in the box: fetch the scanner + result modules now so Scan starts instantly
 }
 const pc = (v) => v === null || v === undefined ? '—' : `<span dir="ltr" class="${v >= 0 ? 'up' : 'dn'}">${v > 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
-const SLOTS = ['av-box', 'ai-box', 'dh-box', 'db-box', 'ex-box', 'bm-box', 'bp-box', 'lf-box', 'sn-box', 'so-box'];
+const SLOTS = ['av-box', 'ai-box', 'dh-box', 'rg-box', 'db-box', 'ex-box', 'bm-box', 'bp-box', 'lf-box', 'sn-box', 'so-box'];
 // Developer history (devhist-ui.js -> window.__mcDevHist) becomes one finding. Conservative score nudge: FAIL (serial
 // launcher / >= 3 dead-or-rugged coins) = +10 risk points, WARN (2+ dead) = +3 (half of weight 6), PASS = +0. Never critical.
 // "Risk unknown" stays unknown (no market/security data). The shared server snapshot (/api/deep core, OG image) is not nudged.
@@ -92,9 +94,11 @@ function solSignalsReady(addr) {
   // Prefer explicit done flags; fall back to key presence for older modules.
   const snOk = !!(S.snipers && (S.snipers.done || S.snipers.heldPct != null || S.snipers.unavailable || S.snipers.empty));
   const flOk = !!(S.flows && (S.flows.done || S.flows.level || S.flows.unavailable || S.flows.empty));
-  if (snOk && flOk) return true;
-  const t0 = window.__mcSigStart[addr];
-  return !!(t0 && (Date.now() - t0 > SIG_WAIT_MS));
+  // RugDNA (shared-funder cluster lookup) joins the same "still checking" window: it can only add a few points, but a late
+  // bump after a green badge would flicker, so the badge waits for it (max 16 s; unknown / failed / solo = neutral, no points).
+  const t0 = window.__mcSigStart[addr], el = t0 ? Date.now() - t0 : 0, rgOk = !!S.rugdna?.done || el > 16000;
+  if (snOk && flOk && rgOk) return true;
+  return !!(t0 && el > SIG_WAIT_MS && rgOk);
 }
 function noteSigStart(addr) {
   if (!window.__mcSigStart[addr]) window.__mcSigStart[addr] = Date.now();
@@ -237,7 +241,7 @@ function render(r0, fire) {
       .map(([k, val]) => `<div class="kv"><span>${k}</span><b>${val}</b></div>`).join('')}</div></div>
   <div id="av-box"></div><div id="ai-box"></div>
   <div class="card" id="fcard"><h3>${t.findings}</h3>${r.pending.filter(k => k !== 'DexScreener').map(k => `<div class="row"><span class="st na"><span class="spin sm"></span></span><span>${esc(t.waiting(k))}</span></div>`).join('')}${fs.map(f => `<div class="row"><span class="st ${f.status}">${st[f.status]}</span><span>${esc(f._implausible ? (lang === 'ar' ? ('رقم شبكة المطلعين من RugCheck (' + inn + ' محفظة، ' + ip + '٪) غير منطقي — مستبعد من الدرجة') : ('RugCheck insider figure (' + inn + ' wallets, ' + ip + '%) looks implausible — excluded from score')) : (t.r[f.id] || (() => f.id))(f.params, f.status))}</span></div>`).join('')}</div>
-  <div id="dh-box"></div><div id="db-box"></div><div id="so-box"></div><div id="ex-box"></div><div id="bm-box" class="card"></div>${skel('bp')}${skel('lf')}${skel('sn')}
+  <div id="dh-box"></div><div id="rg-box"></div><div id="db-box"></div><div id="so-box"></div><div id="ex-box"></div><div id="bm-box" class="card"></div>${skel('bp')}${skel('lf')}${skel('sn')}
   ${r.extra.holders?.length ? `<div class="card"><h3>${t.topHolders}</h3>${r.extra.holders.map((h, i) => `<div class="row"><span class="st na">#${i + 1}</span><span class="mono">${esc(h.owner)}</span><b style="margin-inline-start:auto" dir="ltr">${(+h.pct).toFixed(2)}%</b></div>`).join('')}</div>` : ''}
   ${r.flags.length ? `<div class="card"><h3>${t.flags}</h3>${r.flags.map(x => `<div class="row"><span class="st ${x.level === 'danger' || x.level === 'high' ? 'fail' : 'warn'}">${esc(x.level)}</span><span dir="ltr">${esc(x.name)}${x.desc ? ' — ' + esc(x.desc) : ''}</span></div>`).join('')}</div>` : ''}
   <div class="card"><h3>${t.sources}</h3>${Object.entries(r.sources).map(([k, s]) => `<div class="row"><span class="st ${s === 'ok' ? 'pass' : 'na'}">${s === 'ok' ? t.ok : s === 'empty' ? t.empty : s === 'unsupported' ? t.unsup : t.fail}</span><span>${k}</span></div>`).join('')}</div>`;

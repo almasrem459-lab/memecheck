@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8"><meta name="msvalidate.01" content="206036046CDC2AD01A8AEF6D88EF56F0" />
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RugDNA: open identity graph of serial Solana rug launchers – MemeCheckShield</title>
+<meta name="description" content="RugDNA links Solana meme-coin launcher wallets that share a funding wallet, so a serial rugger can't hide behind a fresh address. Free open API and open data (CC-BY). English &amp; Arabic.">
+<link rel="canonical" href="https://memecheck.pages.dev/rugdna">
+<link rel="alternate" hreflang="en" href="https://memecheck.pages.dev/rugdna">
+<link rel="alternate" hreflang="ar" href="https://memecheck.pages.dev/rugdna?lang=ar">
+<link rel="alternate" hreflang="x-default" href="https://memecheck.pages.dev/rugdna">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MemeCheckShield">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="ar_AR">
+<meta property="og:url" content="https://memecheck.pages.dev/rugdna">
+<meta property="og:title" content="RugDNA: open identity graph of serial Solana rug launchers">
+<meta property="og:description" content="Wallet-hopping rugs, linked by their shared funding wallet. Live stats, free API, open data (CC-BY). English &amp; Arabic.">
+<meta property="og:image" content="https://memecheck.pages.dev/og-image.png?v=1793667000">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="RugDNA: open identity graph of serial Solana rug launchers">
+<meta name="twitter:description" content="Wallet-hopping rugs, linked by their shared funding wallet. Free API, open data.">
+<meta name="twitter:image" content="https://memecheck.pages.dev/og-image.png?v=1793667000">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Dataset","name":"RugDNA: Solana launcher-wallet clusters","description":"Open dataset linking Solana meme-coin launcher wallets through shared first funding wallets, with dead/rugged launch counts and a flagged-before-rug ledger.","url":"https://memecheck.pages.dev/rugdna","license":"https://creativecommons.org/licenses/by/4.0/","creator":{"@type":"Organization","name":"MemeCheckShield","url":"https://memecheck.pages.dev/"},"isAccessibleForFree":true,"distribution":{"@type":"DataDownload","encodingFormat":"application/json","contentUrl":"https://memecheck.pages.dev/api/rugdna/stats"}}</script>
+<meta name="theme-color" content="#07080a">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<script>(function(){try{if(localStorage.getItem('mc_lang')==='ar'||new URLSearchParams(location.search).get('lang')==='ar'){document.documentElement.lang='ar';document.documentElement.dir='rtl';}}catch(e){}})();</script>
+<link rel="stylesheet" href="style.css?v=1793201025">
+<style>
+:root{--gold:#d4af37;--gold2:#f3d27a;--line:#2b2514;--mut:#9a927c}
+body{background:radial-gradient(1200px 500px at 50% -120px,#1b1608 0,#07080a 60%) #07080a}
+header{background:#07080a;border-bottom:1px solid var(--line)}
+.hdr-end{margin-inline-start:auto}
+nav.crumbs{display:flex;gap:8px;align-items:center;padding:0;margin:0 0 8px;font-size:14px}
+nav.crumbs a{color:var(--mut);text-decoration:none}nav.crumbs a:hover{color:var(--gold2)}nav.crumbs span{color:#7d7560}
+main.rd{max-width:980px;margin:0 auto;padding:8px 20px 44px}
+.rd h1{font-size:30px;margin:6px 0 6px;letter-spacing:.2px;background:linear-gradient(90deg,var(--gold2),var(--gold) 60%,#a8841c);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rd h2{font-size:18px;margin:0 0 10px;color:var(--gold2)}
+.rd .tag{color:#c8c0a8;font-size:15px;line-height:1.55;max-width:780px}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
+.badges a,.badges span{font-size:12px;border:1px solid #4a3d16;color:var(--gold2);background:#14110a;border-radius:999px;padding:4px 10px;text-decoration:none}
+.card.g{background:linear-gradient(180deg,#101216,#0b0c0f);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:16px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:18px}
+.stat{background:linear-gradient(180deg,#14120b,#0c0b08);border:1px solid #3a3115;border-radius:14px;padding:14px 14px 12px}
+.stat .n{font-size:30px;font-weight:800;color:var(--gold2);line-height:1.1;font-variant-numeric:tabular-nums}
+.stat .n.dd{color:#ff7a8e}
+.stat .l{font-size:12.5px;color:#cfc7ae;margin-top:4px}.stat .s{font-size:11.5px;color:var(--mut);margin-top:2px}
+.stat.est .n::after{content:" est.";font-size:13px;color:var(--mut);font-weight:600}
+.mini{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;font-size:12.5px;color:var(--mut)}.mini b{color:#e5dcc0}
+.sform{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+.sform input{flex:1 1 280px;min-width:0;background:#0a0b0d;color:#f1ead4;border:1px solid #3a3115;border-radius:10px;padding:12px;font:inherit;font-size:14px}
+.sform button{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#1a1402;border:0;border-radius:10px;padding:12px 20px;font:inherit;font-weight:700;cursor:pointer}
+.sform button:disabled{opacity:.6}
+.res{margin-top:12px}.res .k{color:var(--mut);font-size:12.5px}
+.pill{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;margin-inline-end:6px}
+.pill.fail{background:#4a0f17;color:#ff4d6a}.pill.warn{background:#3d3510;color:#ffd447}.pill.na{background:#222833;color:#aab2c0}.pill.pass{background:#0f3d2a;color:#3ee08f}
+table.t{width:100%;border-collapse:collapse;font-size:13px}.t th{color:var(--mut);font-weight:600;text-align:start;padding:8px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+.t td{padding:9px 6px;border-bottom:1px solid #1a1810;vertical-align:middle}.t tr.cl{cursor:pointer}.t tr.cl:hover td{background:#14110a}
+.t .num{font-variant-numeric:tabular-nums;text-align:end}.t .dd{color:#ff7a8e;font-weight:700}
+.tw{overflow-x:auto}
+.mono{font-family:ui-monospace,monospace}
+.lr{display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid #1a1810;font-size:13px;flex-wrap:wrap}
+code.b{display:block;background:#0a0b0d;border:1px solid #2b2514;border-radius:8px;padding:8px 10px;color:#f3d27a;font-size:12.5px;overflow-x:auto;margin:6px 0;white-space:pre}
+.how li{margin:6px 0;color:#d6cfba;line-height:1.5}.how p{color:#d6cfba;line-height:1.55}
+.note{font-size:12.5px;color:var(--mut);line-height:1.5}.warnbox{background:#14110a;border:1px solid #4a3d16;border-radius:10px;padding:10px 12px;color:#e8d9a6;font-size:13px;margin-top:10px;line-height:1.5}
+svg.ch{width:100%;height:150px;display:block}svg.ch text{fill:#9a927c;font-size:10px}
+[data-l]{display:none}html[lang=en] [data-l=en],html[lang=ar] [data-l=ar]{display:block}html[lang=en] span[data-l=en],html[lang=ar] span[data-l=ar]{display:inline}
+html[lang=en] a[data-l=en],html[lang=ar] a[data-l=ar]{display:inline}
+.rd a{color:var(--gold2)}.rd .pill a,.rd .badges a{text-decoration:none}
+</style>
+</head>
+<body>
+<header>
+  <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span><span></span><span></span></button>
+  <div class="brand"><img src="/icon-64.png" width="26" height="26" alt="MemeCheckShield"> <b>MemeCheckShield</b></div>
+  <div class="hdr-end"><button id="rd-lang" class="ghost" type="button">العربية</button></div>
+</header>
+<nav class="site-nav" id="site-nav" hidden>
+  <a href="/" data-t="navChecker">Checker</a>
+  <a href="/dev" data-t="navDev">Dev score</a>
+  <a href="/rugdna" aria-current="page" class="nav-rugdna" data-t="navRugdna">RugDNA</a>
+  <a href="/smart" data-t="navSmart">Smart money</a>
+  <a href="/whales" data-t="navWhales">Whale buys</a>
+  <a href="/rugs" data-t="navRugs">Rugs we caught</a>
+  <a href="/how" data-t="navHow">How the score works</a>
+  <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a>
+</nav>
+<main class="rd">
+<nav class="crumbs"><a href="/">Home</a><span>/</span><span>RugDNA</span></nav>
+<h1>🧬 RugDNA</h1>
+<p class="tag"><span data-l="en">An <b>open identity graph of serial rug launchers on Solana</b>. A rugger can use a fresh wallet for every coin, but the wallet that <i>funded</i> them is often the same. RugDNA links launcher wallets through that shared funding wallet, tracks how many of their launches died, and warns you on every scan. Free API, open data.</span><span data-l="ar">رسم هوية <b>مفتوح للمُطلقين المتسلسلين للعملات الاحتيالية على سولانا</b>. المحتال قد يستخدم محفظة جديدة لكل عملة، لكن المحفظة التي <i>موّلته</i> غالبًا هي نفسها. يربط RugDNA محافظ الإطلاق عبر محفظة التمويل المشتركة، ويتتبع كم من إطلاقاتهم مات، ويحذّرك في كل فحص. واجهة مجانية وبيانات مفتوحة.</span></p>
+<div class="badges"><span>CC-BY 4.0 data</span><span>MIT code</span><span data-l="en">Free API · CORS open</span><span data-l="ar">API مجاني · CORS مفتوح</span><a href="#api">API</a><a href="#method" data-l="en">Method</a><a href="#method" data-l="ar">المنهجية</a></div>
+
+<div class="stats" id="stats" aria-live="polite"></div>
+<div class="mini" id="mini"></div>
+<div class="warnbox"><span data-l="en"><b>Honest numbers.</b> RugDNA is a young, forward-looking index (it started recording on 10 Nov 2026) and covers a <i>sample</i> of new launches, not every pump.fun coin. "Flagged before rug" counts only launches flagged <i>before</i> they were judged dead; capital exposed is an <b>estimate</b> (see Method). A shared funder is evidence of linkage, not proof of identity.</span><span data-l="ar"><b>أرقام صادقة.</b> RugDNA فهرس جديد يتجه للأمام (بدأ التسجيل في 10 نوفمبر 2026) ويغطي <i>عيّنة</i> من الإطلاقات الجديدة، وليس كل عملات pump.fun. "تحذير قبل السحب" يحسب فقط ما تم التحذير منه <i>قبل</i> الحكم عليه بأنه ميت؛ ورأس المال المعرَّض <b>تقدير</b> (انظر المنهجية). التمويل المشترك دليل على الارتباط وليس إثباتًا للهوية.</span></div>
+
+<div class="card g">
+  <h2><span data-l="en">Search a wallet or token</span><span data-l="ar">ابحث عن محفظة أو عملة</span></h2>
+  <form class="sform" id="f"><input id="q" autocomplete="off" spellcheck="false" dir="ltr" placeholder="Creator wallet or token mint…" aria-label="Wallet or mint"><button type="submit" id="go"><span data-l="en">Trace</span><span data-l="ar">تتبّع</span></button></form>
+  <p class="note" id="hint"></p><div class="res" id="res"></div>
+</div>
+
+<div class="card g">
+  <h2><span data-l="en">Top serial clusters</span><span data-l="ar">أبرز مجموعات المُطلقين المتسلسلين</span></h2>
+  <p class="note"><span data-l="en">Funding wallets that fed ≥ 2 launcher wallets, ranked by dead launches. Click a row for its wallets and launches.</span><span data-l="ar">محافظ تمويل غذّت محفظتي إطلاق أو أكثر، مرتبة حسب الإطلاقات الميتة. اضغط على صف لعرض محافظه وإطلاقاته.</span></p>
+  <div class="tw" id="top"></div><div id="cdet"></div>
+</div>
+
+<div class="card g">
+  <h2><span data-l="en">Growth</span><span data-l="ar">النمو</span></h2>
+  <div id="chart"></div>
+</div>
+
+<div class="card g how" id="method">
+  <h2><span data-l="en">Method, definitions and limits</span><span data-l="ar">المنهجية والتعريفات والحدود</span></h2>
+  <div data-l="en"><ol>
+    <li><b>Launch ingestion.</b> Every 5 minutes a cron records up to 25 of the newest launches (Jupiter token index + GeckoTerminal new pools: mint, creator wallet, time). Launches seen in scans and in <a href="/dev">Developer history</a> and the coins of our <a href="/rugs">/rugs tracker</a> are added too. This is a <i>sample</i>, not every launch.</li>
+    <li><b>Funder.</b> For each creator wallet we read its oldest transactions and take the source of the first incoming SOL transfer of at least 0.005 SOL (Helius / public Solana RPC).</li>
+    <li><b>Cluster.</b> Two or more creator wallets with the same funder. Exchange hot wallets (Binance, Coinbase, OKX, Bybit, KuCoin, Kraken, Gate, MEXC, Bitget, HTX, Crypto.com), high-velocity wallets (≥ 100 transactions inside 6 hours) and funders that feed ≥ 100 wallets are <b>never clustered</b>, so one exchange can't merge everyone.</li>
+    <li><b>Dead / rugged.</b> Same rule as <a href="/how">Developer history</a>: a launch ≥ 6 h old with no DexScreener market or a market cap under $10K is <i>dead</i>; <i>rugged</i> = dead after reaching ≥ $50K and falling below 10% of that peak. Younger launches are not judged. Dead is final; live launches are re-checked every 24 h for two weeks.</li>
+    <li><b>Warning on scans.</b> Shown when <i>other</i> wallets in the creator's cluster have ≥ 3 dead launches and ≥ 70% of their judged launches dead (level "serial": ≥ 5 and ≥ 80%). The creator's own earlier coins are left to Developer history, so nothing is counted twice. Unknown, unresolved, single-wallet and exchange-funded creators are <b>neutral</b>. Score impact: +3 risk points (warning) or +8 (serial), never critical.</li>
+    <li><b>Flagged before rug.</b> When a new launch from a qualifying cluster is first seen (cron) or scanned, we write a ledger row (time, token age, cluster size). Later re-checks record the outcome: <i>died</i>, <i>survived</i> (still alive after ≥ 24 h, i.e. a false alarm) or <i>pending</i>. Both outcomes are published, so you can compute the precision yourself.</li>
+    <li><b>Capital exposed (estimate).</b> Sum of the highest observed liquidity (USD) of flagged launches that later died. It measures money that sat in those tokens, <b>not</b> verified prevented losses: we cannot know how many people acted on a warning. "Warnings served" counts how often the scan API served a warning.</li>
+    <li><b>Limits.</b> Only one hop (shared first funder). Funders that route through an intermediate wallet, wallets funded by exchanges and wallets with &gt; 2,000 transactions can't be linked cheaply. Free RPC rate limits mean some wallets take several tries. No personal identities are inferred, only on-chain wallet relationships.</li>
+  </ol><p class="note">Think a link is wrong? Open the wallet result and use "Report a wrong link". We review every report.</p></div>
+  <div data-l="ar"><ol>
+    <li><b>تسجيل الإطلاقات.</b> كل 5 دقائق يسجّل مجدول ما يصل إلى 25 من أحدث الإطلاقات (فهرس رموز Jupiter + أحدث مجمّعات GeckoTerminal: العقد ومحفظة المنشئ والوقت). وتُضاف أيضًا الإطلاقات التي ظهرت في الفحوص وفي <a href="/dev">سجل المطوّر</a> وعملات <a href="/rugs">متتبّع /rugs</a>. هذه <i>عيّنة</i> وليست كل الإطلاقات.</li>
+    <li><b>المموِّل.</b> لكل محفظة منشئ نقرأ أقدم معاملاتها ونأخذ مصدر أول تحويل SOL وارد لا يقل عن 0.005 SOL (Helius / RPC سولانا العام).</li>
+    <li><b>المجموعة.</b> محفظتا منشئ أو أكثر لهما المموِّل نفسه. محافظ المنصات (Binance وCoinbase وOKX وBybit وKuCoin وKraken وGate وMEXC وBitget وHTX وCrypto.com) والمحافظ عالية السرعة (100 معاملة أو أكثر خلال 6 ساعات) والممولون الذين يغذّون 100 محفظة أو أكثر <b>لا تُجمَّع أبدًا</b>، فلا تدمج منصة واحدة الجميع.</li>
+    <li><b>ميتة / مسحوبة.</b> نفس قاعدة <a href="/how">سجل المطوّر</a>: إطلاق عمره 6 ساعات أو أكثر بلا سوق على DexScreener أو بقيمة سوقية أقل من 10 آلاف دولار = <i>ميت</i>؛ <i>مسحوب</i> = ميت بعد أن وصل إلى 50 ألف دولار أو أكثر وهبط تحت 10% من قمته. الإطلاقات الأحدث لا يُحكم عليها. الحكم "ميت" نهائي؛ ويُعاد فحص الحي كل 24 ساعة لمدة أسبوعين.</li>
+    <li><b>التحذير في الفحص.</b> يظهر عندما تكون لدى <i>محافظ أخرى</i> في مجموعة المنشئ 3 إطلاقات ميتة أو أكثر و70% أو أكثر من إطلاقاتها المحكومة ميتة (مستوى "متسلسل": 5 أو أكثر و80%). عملات المنشئ السابقة تُترك لسجل المطوّر فلا يُحسب شيء مرتين. المنشئ المجهول أو غير المتتبَّع أو بمحفظة واحدة أو الممول من منصة <b>محايد</b>. أثره على الدرجة: +3 نقاط (تحذير) أو +8 (متسلسل)، ولا يكون حرجًا أبدًا.</li>
+    <li><b>التحذير قبل السحب.</b> عندما يُرى إطلاق جديد من مجموعة مؤهَّلة لأول مرة (المجدول) أو يُفحص، نكتب سطرًا في السجل (الوقت وعمر العملة وحجم المجموعة). ثم تسجّل إعادة الفحص النتيجة: <i>ماتت</i> أو <i>نجت</i> (حيّة بعد 24 ساعة أو أكثر أي إنذار كاذب) أو <i>معلّقة</i>. تُنشر النتيجتان لتحسب الدقة بنفسك.</li>
+    <li><b>رأس المال المعرَّض (تقدير).</b> مجموع أعلى سيولة ملحوظة (بالدولار) في الإطلاقات المحذَّر منها التي ماتت لاحقًا. يقيس المال الذي كان في تلك العملات، <b>وليس</b> خسائر مُنعت فعلًا: لا نعرف كم شخصًا تصرّف بناءً على التحذير. "تحذيرات مقدَّمة" تعدّ كم مرة قدّمت واجهة الفحص تحذيرًا.</li>
+    <li><b>الحدود.</b> قفزة واحدة فقط (أول ممول مشترك). الممولون عبر محفظة وسيطة والمحافظ الممولة من المنصات والمحافظ التي تفوق 2000 معاملة لا يمكن ربطها بتكلفة قليلة. حدود RPC المجانية تعني أن بعض المحافظ تحتاج عدة محاولات. لا نستنتج هويات شخصية، فقط علاقات المحافظ على السلسلة.</li>
+  </ol><p class="note">ترى أن ربطًا ما خاطئ؟ افتح نتيجة المحفظة واستخدم "الإبلاغ عن ربط خاطئ". نراجع كل بلاغ.</p></div>
+</div>
+
+<div class="card g" id="api">
+  <h2><span data-l="en">Free open API</span><span data-l="ar">واجهة برمجة مفتوحة ومجانية</span></h2>
+  <p class="note"><span data-l="en">No key. CORS open (<code>access-control-allow-origin: *</code>). Rate limit: 60 requests / minute / IP (HTTP 429 + <code>retry-after</code>). Responses are cached for 1–5 minutes. JSON includes a <code>license</code> block.</span><span data-l="ar">بلا مفتاح. CORS مفتوح. الحد: 60 طلبًا / دقيقة / IP (رمز 429 مع <code>retry-after</code>). الاستجابات مخزَّنة مؤقتًا من دقيقة إلى 5 دقائق. يتضمن JSON كتلة <code>license</code>.</span></p>
+  <code class="b" dir="ltr">GET /api/rugdna/stats?history=1             # headline numbers + daily snapshots
+GET /api/rugdna/wallet/&lt;creator-wallet&gt;      # funder, cluster, linked launches
+GET /api/rugdna/mint/&lt;token-mint&gt;            # creator + verdict (used by the scan card)
+GET /api/rugdna/clusters?order=dead&amp;limit=25  # top clusters (dead | launches | wallets | recent)
+GET /api/rugdna/cluster/&lt;funder&gt;             # one cluster: wallets + launches</code>
+  <code class="b" dir="ltr">curl https://memecheck.pages.dev/api/rugdna/stats
+curl https://memecheck.pages.dev/api/rugdna/mint/&lt;MINT&gt;</code>
+  <p class="note" dir="ltr">mint → { ok, mint, creator, status: "linked" | "solo" | "service" | "unresolved" | "unknown" | "no_creator", level: "info" | "warn" | "fail", funder, wallets, linkedLaunches, linkedDead, linkedRugged, sample[], message: { en, ar } }</p>
+  <h2 style="margin-top:14px"><span data-l="en">License</span><span data-l="ar">الترخيص</span></h2>
+  <p class="note"><span data-l="en"><b>Data: CC-BY 4.0</b> – use it freely (commercially too), just credit "MemeCheckShield RugDNA, memecheck.pages.dev/rugdna". <b>Code: MIT</b>, in the <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener">open-source repo</a> (<code>functions/_lib/rugdna.js</code>). Provided as-is: heuristic, estimate-grade, not financial advice and not an accusation against any person.</span><span data-l="ar"><b>البيانات: CC-BY 4.0</b> – استخدمها بحرية (تجاريًا أيضًا) مع نسبتها: "MemeCheckShield RugDNA, memecheck.pages.dev/rugdna". <b>الكود: MIT</b> في <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener">المستودع المفتوح</a> (<code>functions/_lib/rugdna.js</code>). يُقدَّم كما هو: تقديري، وليس نصيحة مالية ولا اتهامًا لأي شخص.</span></p>
+</div>
+</main>
+<footer><span data-l="en">Not financial advice. Always DYOR.</span><span data-l="ar">ليست نصيحة مالية. ابحث بنفسك دائمًا.</span> · <a href="/" data-t="navChecker">Checker</a> · <a href="/how" data-t="navHow">How the score works</a> · <a href="https://github.com/almasrem459-lab/memecheck" target="_blank" rel="noopener" data-t="navOpenSrc">Open source</a></footer>
+<script src="nav.js?v=1793201025" defer></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const lang = () => document.documentElement.lang === 'ar' ? 'ar' : 'en';
+const ADDR = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const T = {
+  en: { clusters: 'Clusters', clustersS: 'funders with ≥ 2 launcher wallets', linkedW: 'Linked wallets', linkedS: 'in those clusters', idx: 'Launches indexed', idxS: 'sampled, forward-looking', flagged: 'Flagged before rug', flaggedS: (s) => `${s.flagged} flagged · ${s.flagged_survived} survived · ${s.flagged_pending} pending`, cap: 'Capital exposed', capS: 'flagged launches that died (observed liquidity)',
+    mWallets: 'wallets traced', mDead: 'dead launches in clusters', mServed: 'warnings served', mSerial: 'clusters with ≥ 3 dead', mUpd: 'updated',
+    bad: 'Enter a valid Solana wallet or token mint.', trace: 'Tracing the funding source…', err: 'Lookup failed. Try again in a moment.', none: 'No cluster', empty: 'No clusters yet: the index is still filling. Check back soon.',
+    wallet: 'Creator wallet', funder: 'Funding wallet', cl: 'Open cluster', lw: 'Linked wallets', ll: 'Other launches', ld: 'Dead', lr: 'Rugged',
+    linked: (n, m) => `This developer is linked (shared funding wallet) to ${n} other launch${n === 1 ? '' : 'es'}, ${m} dead.`,
+    solo: 'No other wallet shares this creator\'s funding wallet (yet). Neutral.', service: (k) => `Funded by ${k || 'a high-volume service wallet'}: exchanges and services are never clustered. Neutral.`, unresolved: 'Funding source could not be traced yet (busy wallet, RPC limits or no incoming SOL found). Neutral.', unknown: 'Not in the index yet. Try again in a few minutes.', nocreator: 'Creator of this token could not be found.', notwallet: 'That address is not a plain wallet. Paste the token mint instead.',
+    level: { fail: 'SERIAL CLUSTER', warn: 'WARNING', info: 'LINKED (below threshold)', none: 'NO LINK' },
+    th: ['Funding wallet', 'Wallets', 'Launches', 'Dead', 'Rugged', 'Last launch'], scan: 'Scan', own: 'Launches by this wallet', linkedL: 'Linked launches',
+    dispT: 'Report a wrong link', dispPh: 'Why is this link wrong? (e.g. the funder is an exchange / my own wallet)', dispC: 'Contact (optional)', dispSend: 'Send', dispOk: 'Thanks, we will review it.', dispErr: 'Could not send. Try again.',
+    chartEmpty: 'Daily snapshots are being collected: the growth chart appears after two days of data.', chartL: 'Launches indexed', chartC: 'Clusters', st: { dead: 'DEAD', live: 'LIVE', new: 'NEW' }, ago: (d) => d < 1 ? 'today' : d < 2 ? 'yesterday' : Math.round(d) + ' d ago' },
+  ar: { clusters: 'المجموعات', clustersS: 'ممولون لمحفظتي إطلاق أو أكثر', linkedW: 'محافظ مرتبطة', linkedS: 'داخل هذه المجموعات', idx: 'إطلاقات مفهرسة', idxS: 'عيّنة، تتجه للأمام', flagged: 'تحذير قبل السحب', flaggedS: (s) => `${s.flagged} محذَّر · ${s.flagged_survived} نجت · ${s.flagged_pending} معلّقة`, cap: 'رأس المال المعرَّض', capS: 'إطلاقات محذَّر منها وماتت (سيولة ملحوظة)',
+    mWallets: 'محفظة تم تتبعها', mDead: 'إطلاق ميت داخل المجموعات', mServed: 'تحذير مقدَّم', mSerial: 'مجموعات بها 3 ميتة أو أكثر', mUpd: 'آخر تحديث',
+    bad: 'أدخل عنوان محفظة أو عقد عملة سولانا صالحًا.', trace: 'جارٍ تتبّع مصدر التمويل…', err: 'فشل البحث. حاول بعد قليل.', none: 'لا مجموعة', empty: 'لا توجد مجموعات بعد: الفهرس ما زال يمتلئ. عُد قريبًا.',
+    wallet: 'محفظة المنشئ', funder: 'محفظة التمويل', cl: 'افتح المجموعة', lw: 'محافظ مرتبطة', ll: 'إطلاقات أخرى', ld: 'ميتة', lr: 'مسحوبة',
+    linked: (n, m) => `هذا المطوّر مرتبط (بمحفظة تمويل مشتركة) بـ ${n} إطلاقًا آخر، ${m} منها ميت.`,
+    solo: 'لا توجد محفظة أخرى تشارك محفظة تمويل هذا المنشئ (حتى الآن). محايد.', service: (k) => `مموَّل من ${k || 'محفظة خدمة عالية النشاط'}: المنصات والخدمات لا تُجمَّع أبدًا. محايد.`, unresolved: 'تعذّر تتبّع مصدر التمويل حتى الآن (محفظة مزدحمة أو حدود RPC أو لا SOL وارد). محايد.', unknown: 'غير موجود في الفهرس بعد. حاول بعد دقائق.', nocreator: 'تعذّر العثور على منشئ هذه العملة.', notwallet: 'هذا العنوان ليس محفظة عادية. الصق عقد العملة بدلًا من ذلك.',
+    level: { fail: 'مجموعة متسلسلة', warn: 'تحذير', info: 'مرتبط (دون الحدّ)', none: 'لا ارتباط' },
+    th: ['محفظة التمويل', 'المحافظ', 'الإطلاقات', 'ميتة', 'مسحوبة', 'آخر إطلاق'], scan: 'افحص', own: 'إطلاقات هذه المحفظة', linkedL: 'الإطلاقات المرتبطة',
+    dispT: 'الإبلاغ عن ربط خاطئ', dispPh: 'لماذا هذا الربط خاطئ؟ (مثلًا: المموِّل منصة / محفظتي الخاصة)', dispC: 'للتواصل (اختياري)', dispSend: 'إرسال', dispOk: 'شكرًا، سنراجعه.', dispErr: 'تعذّر الإرسال. حاول مرة أخرى.',
+    chartEmpty: 'تُجمع لقطات يومية: يظهر مخطط النمو بعد يومين من البيانات.', chartL: 'إطلاقات مفهرسة', chartC: 'مجموعات', st: { dead: 'ميتة', live: 'نشطة', new: 'جديدة' }, ago: (d) => d < 1 ? 'اليوم' : d < 2 ? 'أمس' : 'قبل ' + Math.round(d) + ' يوم' },
+};
+const fmt = (n) => n == null ? '—' : Number(n).toLocaleString('en-US');
+const usd = (n) => n == null ? '—' : '$' + (n >= 1e6 ? (n / 1e6).toFixed(2) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'K' : Math.round(n));
+const short = (a) => a ? a.slice(0, 4) + '…' + a.slice(-4) : '';
+const sol = (a) => `<a class="mono" dir="ltr" href="https://solscan.io/account/${esc(a)}" target="_blank" rel="noopener" title="${esc(a)}" onclick="event.stopPropagation()">${esc(short(a))}</a>`;
+(function langBtn() { const b = $('rd-lang'), ar = lang() === 'ar'; b.textContent = ar ? 'English' : 'العربية'; b.onclick = () => { localStorage.setItem('mc_lang', ar ? 'en' : 'ar'); const u = new URL(location.href); u.searchParams.delete('lang'); history.replaceState(null, '', u.pathname + u.search + u.hash); location.reload(); }; })();
+let S = null;
+function paintStats() {
+  const t = T[lang()], s = S; if (!s) return;
+  const card = (n, l, sub, cls = '') => `<div class="stat ${cls}"><div class="n" dir="ltr">${n}</div><div class="l">${l}</div><div class="s">${sub}</div></div>`;
+  $('stats').innerHTML = card(fmt(s.clusters), t.clusters, t.clustersS) + card(fmt(s.linked_wallets), t.linkedW, t.linkedS) + card(fmt(s.launches_indexed), t.idx, t.idxS) + card(`${fmt(s.flagged_dead)}<span style="font-size:15px;color:var(--mut)"> / ${fmt(s.flagged)}</span>`, t.flagged, t.flaggedS(s)) + card(usd(s.capital_exposed_usd_est), t.cap, t.capS, 'est');
+  $('mini').innerHTML = `<span><b dir="ltr">${fmt(s.wallets_resolved)}</b> ${t.mWallets}</span><span><b dir="ltr">${fmt(s.dead_in_clusters)}</b> ${t.mDead}</span><span><b dir="ltr">${fmt(s.warnings_served)}</b> ${t.mServed}</span><span><b dir="ltr">${fmt(s.serial_clusters)}</b> ${t.mSerial}</span><span>${t.mUpd}: <b dir="ltr">${esc((s.generated || '').replace('T', ' ').slice(0, 16))} UTC</b></span>`;
+}
+function paintChart(h) {
+  const t = T[lang()], el = $('chart');
+  if (!h || h.length < 2) { el.innerHTML = `<p class="note">${t.chartEmpty}</p>`; return; }
+  const W = 900, H = 150, P = 28, xs = h.map((_, i) => P + (W - 2 * P) * i / (h.length - 1));
+  const line = (key, col, lab, row) => { const v = h.map(x => +x[key] || 0), mx = Math.max(1, ...v); return `<polyline fill="none" stroke="${col}" stroke-width="2" points="${v.map((y, i) => `${xs[i].toFixed(1)},${(H - P - (H - 2 * P) * y / mx).toFixed(1)}`).join(' ')}"/><text x="${W - P}" y="${12 + row * 12}" text-anchor="end" style="fill:${col}">${lab} (max ${fmt(mx)})</text>`; };
+  el.innerHTML = `<svg class="ch" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" dir="ltr">${line('launches_indexed', '#d4af37', t.chartL, 0)}${line('clusters', '#ff7a8e', t.chartC, 1)}<text x="${P}" y="${H - 6}">${esc(h[0].day)}</text><text x="${W - P}" y="${H - 6}" text-anchor="end">${esc(h[h.length - 1].day)}</text></svg>`;
+}
+async function loadStats() { try { const r = await fetch('/api/rugdna/stats?history=1'); S = await r.json(); if (!S.ok) throw 0; paintStats(); paintChart(S.history); } catch { $('stats').innerHTML = `<p class="note">${T[lang()].err}</p>`; } }
+let TOP = null;
+function paintTop() {
+  const t = T[lang()], c = TOP || []; if (!c.length) { $('top').innerHTML = `<p class="note">${t.empty}</p>`; return; }
+  const now = Date.now();
+  $('top').innerHTML = `<table class="t"><thead><tr>${t.th.map((x, i) => `<th class="${i ? 'num' : ''}">${x}</th>`).join('')}</tr></thead><tbody>${c.map(x => `<tr class="cl" data-f="${esc(x.funder)}"><td>${sol(x.funder)}</td><td class="num" dir="ltr">${x.wallets}</td><td class="num" dir="ltr">${x.launches}</td><td class="num dd" dir="ltr">${x.dead}</td><td class="num" dir="ltr">${x.rugged}</td><td class="num">${x.last_seen ? t.ago((now - x.last_seen) / 864e5) : '—'}</td></tr>`).join('')}</tbody></table>`;
+  document.querySelectorAll('tr.cl').forEach(r => r.onclick = () => openCluster(r.dataset.f));
+}
+async function loadTop() { try { const r = await fetch('/api/rugdna/clusters?order=dead&limit=25'); const j = await r.json(); TOP = j.clusters || []; } catch { TOP = []; } paintTop(); }
+const sym = (x) => esc(String(x.symbol || '').replace(/^\$/, '') || short(x.mint));
+async function openCluster(f) {
+  const t = T[lang()], el = $('cdet'); el.innerHTML = `<p class="note">…</p>`;
+  try { const d = await (await fetch('/api/rugdna/cluster/' + encodeURIComponent(f))).json();
+    const rows = (d.launches || []).slice(0, 25).map(x => `<div class="lr"><span class="pill ${x.status === 'dead' ? 'fail' : x.status === 'live' ? 'pass' : 'na'}">${t.st[x.status] || '?'}${x.rugged ? ' ⚠' : ''}</span><a href="/?ca=${encodeURIComponent(x.mint)}" dir="ltr">$${sym(x)}</a><span class="note mono" dir="ltr">${esc(short(x.creator))}</span></div>`).join('');
+    el.innerHTML = `<div class="card g" style="margin-top:12px"><div class="k">${t.funder}: ${sol(f)}</div><div class="note">${t.lw}: <b dir="ltr">${(d.wallets || []).length}</b> · ${(d.wallets || []).slice(0, 12).map(sol).join(' ')}</div><div style="margin-top:8px">${rows || ''}</div></div>`;
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch { el.innerHTML = `<p class="note">${t.err}</p>`; }
+}
+function paintResult(d, q) {
+  const t = T[lang()], el = $('res'); let h = '';
+  if (!d || d.ok === false) { el.innerHTML = `<p class="note">${t.err}</p>`; return; }
+  if (d.status === 'no_creator') { el.innerHTML = `<p class="note">${t.nocreator}</p>`; return; }
+  if (d.status === 'not_wallet') { el.innerHTML = `<p class="note">${t.notwallet}</p>`; return; }
+  const w = d.creator || d.wallet || q;
+  const head = `<div class="k">${t.wallet}: ${sol(w)}${d.mint ? ` · <a href="/?ca=${encodeURIComponent(d.mint)}">${t.scan} ↗</a>` : ''}${d.funder ? ` · ${t.funder}: ${sol(d.funder)}` : ''}</div>`;
+  if (d.status === 'linked') {
+    const lv = d.level || 'info', cls = lv === 'fail' ? 'fail' : lv === 'warn' ? 'warn' : 'na', big = (n, l, c = '') => `<div class="stat" style="padding:10px"><div class="n ${c}" style="font-size:22px" dir="ltr">${n}</div><div class="l">${l}</div></div>`;
+    const rows = (d.sample || []).map(x => `<div class="lr"><span class="pill ${x.status === 'dead' ? 'fail' : x.status === 'live' ? 'pass' : 'na'}">${t.st[x.status] || '?'}${x.rugged ? ' ⚠' : ''}</span><a href="/?ca=${encodeURIComponent(x.mint)}" dir="ltr">$${sym(x)}</a><span class="note mono" dir="ltr">${esc(short(x.wallet))}</span></div>`).join('');
+    h = `${head}<p style="margin:8px 0"><span class="pill ${cls}">${t.level[lv]}</span> ${esc(t.linked(d.linkedLaunches, d.linkedDead))}</p><div class="stats" style="margin-top:6px">${big(d.wallets, t.lw)}${big(d.linkedLaunches, t.ll)}${big(d.linkedDead, t.ld, 'dd')}${big(d.linkedRugged || 0, t.lr)}</div>${rows ? `<div class="note" style="margin-top:8px">${t.linkedL}</div>${rows}` : ''}<p class="note"><a href="#" id="seeC">${t.cl} ↗</a></p>`;
+  } else h = `${head}<p style="margin:8px 0"><span class="pill na">${t.none}</span> ${esc(d.status === 'service' ? t.service(d.funderLabel) : d.status === 'solo' ? t.solo : d.status === 'unknown' ? t.unknown : t.unresolved)}</p>`;
+  const own = (d.ownLaunchList || []).slice(0, 8).map(x => `<div class="lr"><span class="pill ${x.status === 'dead' ? 'fail' : x.status === 'live' ? 'pass' : 'na'}">${t.st[x.status] || '?'}</span><a href="/?ca=${encodeURIComponent(x.mint)}" dir="ltr">$${sym(x)}</a></div>`).join('');
+  if (own) h += `<div class="note" style="margin-top:8px">${t.own}</div>${own}`;
+  h += `<details style="margin-top:12px"><summary class="note" style="cursor:pointer">${t.dispT}</summary><form id="dform"><textarea name="why" maxlength="700" required placeholder="${esc(t.dispPh)}" style="width:100%;min-height:64px;box-sizing:border-box;background:#0a0b0d;color:#f1ead4;border:1px solid #3a3115;border-radius:8px;margin-top:6px"></textarea><input name="contact" maxlength="80" placeholder="${esc(t.dispC)}" style="width:100%;box-sizing:border-box;margin-top:6px"><button type="submit" style="margin-top:6px">${t.dispSend}</button> <span id="dst" class="note" role="status"></span></form></details>`;
+  el.innerHTML = h;
+  const sc = $('seeC'); if (sc) sc.onclick = (e) => { e.preventDefault(); openCluster(d.funder); };
+  const fm = $('dform'); if (fm) fm.onsubmit = async (e) => { e.preventDefault(); const st = $('dst'), why = fm.why.value.trim(); if (!why) return; st.textContent = '…';
+    try { const r = await fetch('/api/feedback', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ msg: `[RugDNA wrong link] wallet=${w} funder=${d.funder || ''} mint=${d.mint || ''}\n${why}`.slice(0, 1000), contact: fm.contact.value.trim().slice(0, 80), cat: 'other', lang: lang(), path: '/rugdna#report' }) });
+      const j = await r.json().catch(() => ({})); st.textContent = r.ok && j.ok ? t.dispOk : t.dispErr; if (r.ok && j.ok) fm.reset(); } catch { st.textContent = t.dispErr; } };
+}
+async function run(q) {
+  const t = T[lang()]; q = (q || '').trim();
+  if (!ADDR.test(q)) { $('hint').textContent = t.bad; return; }
+  $('hint').textContent = ''; $('go').disabled = true; $('res').innerHTML = `<p class="note"><span class="spin"></span> ${t.trace}</p>`;
+  try {
+    let d = await (await fetch('/api/rugdna/mint/' + encodeURIComponent(q))).json().catch(() => null);
+    if (!d || d.status === 'no_creator') { const w = await (await fetch('/api/rugdna/wallet/' + encodeURIComponent(q))).json().catch(() => null); if (w) d = w; }
+    paintResult(d, q);
+    history.replaceState(null, '', `/rugdna?q=${encodeURIComponent(q)}${lang() === 'ar' ? '&lang=ar' : ''}`);
+  } catch { $('res').innerHTML = `<p class="note">${t.err}</p>`; } finally { $('go').disabled = false; }
+}
+$('f').addEventListener('submit', (e) => { e.preventDefault(); run($('q').value); });
+const sp = new URLSearchParams(location.search), init = sp.get('q') || sp.get('wallet') || sp.get('ca') || '';
+$('q').placeholder = lang() === 'ar' ? 'محفظة المنشئ أو عقد العملة…' : 'Creator wallet or token mint…';
+loadStats(); loadTop(); if (init) { $('q').value = init; run(init); }
+</script>
+</body>
+</html>

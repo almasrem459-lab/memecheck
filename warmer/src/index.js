@@ -8,6 +8,8 @@
 // KV writes go through guardedPut (exact D1 counter kv_writes; warmer paced to total <=450/day, cache writers stop at 700).
 // The dev:solana: KV.list for EXIT runs is reused in-isolate for up to 6 min (~halves KV lists when the isolate stays warm).
 import { trackerScan, trackerRecheck } from './tracker.js';
+import { notifyHighRug } from './rug-notify.js';
+import { rugdnaIngest, rugdnaResolve, rugdnaRecheck } from '../../cf-dist/functions/_lib/rugdna-cron.js';
 import { compute, store, keyOf, useHelius, useCounter, budgetOk, writesToday } from '../../cf-dist/functions/_lib/shared.js';
 const BUDGET = 48, UA = { 'user-agent': 'memecheck-warmer/2.0 (+https://memecheck.pages.dev)' };
 const EVM = { eth: 'ethereum', bsc: 'bsc', base: 'base', ethereum: 'ethereum' };
@@ -68,8 +70,21 @@ async function fresh(env, minute, log) {
   const coreTodo = [...evm, ...sol].filter((c, k) => !coreHave[k]).slice(0, 2);
   for (const c of coreTodo) {
     if (!(await budgetOk(KV, 'warmer'))) break;
-    try { const r = await compute('core', c.chain, c.ca); if (r) { const s = await store(KV, 'core', c.chain, c.ca, r.data, r.created, 'warmer', 'warmer'); log.push(`core ${c.chain}:${c.ca.slice(0, 8)} lvl=${r.data.verdict?.level} kv=${s.kv}`); } }
-    catch (e) { log.push('core err ' + (e?.message || e)); break; }
+    try {
+      const r = await compute('core', c.chain, c.ca);
+      if (r) {
+        const s = await store(KV, 'core', c.chain, c.ca, r.data, r.created, 'warmer', 'warmer');
+        const lvl = r.data.verdict?.level;
+        log.push(`core ${c.chain}:${c.ca.slice(0, 8)} lvl=${lvl} kv=${s.kv}`);
+        if (c.chain === 'solana' && (lvl === 'high' || lvl === 'extreme')) {
+          await notifyHighRug(env, {
+            ca: c.ca, level: lvl, points: r.data.verdict?.points,
+            symbol: r.data.meta?.symbol, name: r.data.meta?.name,
+            findings: r.data.findings || [], source: 'warmer-core',
+          }, log);
+        }
+      }
+    } catch (e) { log.push('core err ' + (e?.message || e)); break; }
   }
 }
 const LIST = { at: 0, l: null }, LIST_MS = 6 * 60e3;
@@ -102,8 +117,17 @@ async function runMinute(env, minute) {
   const line = `warmer m${minute}: ${log.join(' | ')} | subreq=${n} kvWritesToday=${await writesToday(env.MEMECHECK_CACHE)} ms=${Date.now() - t}`;
   console.log(line); return { log, line, minute, subreq: n };
 }
+const RUGDNA_JOBS = { '1-59/5 * * * *': rugdnaIngest, '3-59/5 * * * *': rugdnaResolve, '4-59/10 * * * *': rugdnaRecheck };
 export default {
   async scheduled(ev, env, ctx) {
+    // RugDNA jobs have their own cron triggers (separate invocation = separate CPU + subrequest budget; see wrangler.toml)
+    const job = RUGDNA_JOBS[ev.cron];
+    if (job) {
+      const log = [], of = globalThis.fetch; let n = 0; const t = Date.now();
+      globalThis.fetch = (...a) => { if (++n > BUDGET) return Promise.reject(new Error('subrequest budget')); return of(...a); };
+      try { await job(env, log); } catch (e) { log.push('err ' + String(e?.message || e).slice(0, 80)); } finally { globalThis.fetch = of; }
+      console.log(`rugdna ${ev.cron}: ${log.join(' | ')} | subreq=${n} ms=${Date.now() - t}`); return;
+    }
     await runMinute(env, new Date(ev.scheduledTime || Date.now()).getUTCMinutes());
   },
   async fetch() { return new Response('memecheck-warmer (cron only)', { status: 200 }); },

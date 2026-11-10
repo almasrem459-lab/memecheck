@@ -7,6 +7,7 @@
 import { summarize, dexMarkets, MAX_DS } from '../../devhist-core.js';
 import { repFromHist, launchCadenceHours } from '../../devrep-core.js';
 import { pumpGet, heliusCreatedCoins } from '../_lib/pump.js';
+import { ingestDevHistory } from '../_lib/rugdna.js';
 const MINT_RE = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 const TTL = 900, TTL_ERR = 120, MAX_COINS = 200;
 const UA = 'Mozilla/5.0 (MemeCheck/1.0)';
@@ -69,6 +70,10 @@ async function build(mint, waitUntil, env) {
   let map = await dexMarkets(judged.map(c => c.mint), (u) => get(u, 7000));
   src.dexscreener = !judged.length ? 'skip' : !map ? 'fail' : map.partial ? 'partial' : 'ok';
   const cur = who.coin || coins.find(c => c.mint === mint);
+  // RugDNA seed (best effort, never blocks or breaks the response): the creator's coins + their statuses go into the open index.
+  if (env?.RUGDNA && (judged.length || cur)) {
+    try { const all = [...(cur ? [{ mint, symbol: cur.symbol, name: cur.name, created: +cur.created_timestamp || null, ath: Math.round(+cur.ath_market_cap || 0), grad: !!cur.complete }] : []), ...judged]; await ingestDevHistory(env.RUGDNA, who.creator, all, map, now); } catch {}
+  }
   const sum = summarize(judged, total, map, now);
   const out = { ok: true, mint, creator: who.creator, creatorSource: who.via, current: cur ? { created: +cur.created_timestamp || null, grad: !!cur.complete } : null,
     total, listed: prev.length, graduated: prev.filter(c => c.grad).length, ...sum, sources: src, at: now };

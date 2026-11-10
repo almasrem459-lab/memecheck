@@ -21,6 +21,7 @@ Docs: [`docs/SNAP.md`](docs/SNAP.md)
 
 ## What makes it different
 
+- **RugDNA** ([/rugdna](https://memecheck.pages.dev/rugdna), [docs](docs/RUGDNA.md)): open identity graph that links serial launchers through shared funding wallets. Scan warning, free CORS-open API (`/api/rugdna/*`), data CC-BY-4.0, code MIT.
 - **Dev history**: the creator wallet's earlier pump.fun launches and how they ended (dead / rugged, checked on DexScreener). Serial launchers add risk points (up to +10).
 - **Bubble map**: interactive graph of top holders linked by shared funding wallets (bundles / clusters).
 - **Sniper detection**: first buyers in the opening slots after launch, how much supply they bought and still hold.
